@@ -21,6 +21,11 @@ public class ThemeController {
         return themeService.getAllTheme();
     }
 
+    @GetMapping("/theme/id")
+    ThemeResponse getByHeaderId(@RequestParam("headerId")String headerId) {
+        return themeService.getByHeaderId(headerId);
+    }
+
     @PostMapping("/theme/one")
     ThemeResponse findTheme(@RequestBody ThemeHeaderTO headerTO) {
         return themeService.findTheme(headerTO);

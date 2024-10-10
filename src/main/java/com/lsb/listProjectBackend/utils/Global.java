@@ -5,6 +5,7 @@ public class Global {
 
     public enum ThemeImageType {key, url}
 
-    public enum ThemeLabelType {string, stringSplit, seq}
+    public enum ThemeLabelType {string, stringSplit, seq, fileSize, dateFormat}
+
     public enum ThemeDBType {json, group}
 }

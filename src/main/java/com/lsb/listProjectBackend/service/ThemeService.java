@@ -32,7 +32,22 @@ public class ThemeService {
     public List<ThemeHeaderTO> getAllTheme() {
         return ThemeMapper.INSTANCE.headerToDomainList(themeHeaderRepository.findAll());
     }
-
+    public ThemeResponse getByHeaderId(String headerId) {
+        ThemeResponse res = new ThemeResponse();
+        Optional<ThemeHeader> themeHeader = themeHeaderRepository.findById(headerId);
+        themeHeader.ifPresent(value -> {
+            res.setThemeHeader(ThemeMapper.INSTANCE.headerToDomain(value));
+            // 為圖片模式時找圖片設定
+            if (Global.ThemeHeaderType.imageList.equals(value.getType())) {
+                res.setThemeImage(ThemeMapper.INSTANCE.imageToDomain(value.getThemeImage()));
+            }
+            //設定標籤清單
+            res.setThemeLabelList(ThemeMapper.INSTANCE.labelListToDomain(value.getThemeLabelList()));
+            // 設定DB清單
+            res.setThemeDBList(ThemeMapper.INSTANCE.dbListToDomain(value.getThemeDBList()));
+        });
+        return res;
+    }
     public ThemeResponse findTheme(ThemeHeaderTO headerTO) {
         ThemeResponse res = new ThemeResponse();
 

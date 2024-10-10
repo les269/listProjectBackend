@@ -24,6 +24,7 @@ CREATE TABLE IF NOT EXISTS theme_db (
     label TEXT NOT NULL,
     source TEXT,
     groups TEXT,
+    seq	TEXT,
     PRIMARY KEY (id, header_id),
     FOREIGN KEY (header_id) REFERENCES theme_header(header_id) ON DELETE CASCADE
 );
@@ -37,10 +38,12 @@ CREATE TABLE IF NOT EXISTS theme_label (
     label TEXT,
     split_by TEXT,
     use_space TEXT,
-    is_search NUMERIC,
+    is_search_button NUMERIC,
+    is_search_value	NUMERIC,
     is_copy NUMERIC,
     is_visible NUMERIC,
     is_sort NUMERIC,
+    is_default_key NUMERIC,
     PRIMARY KEY (id, header_id),
     FOREIGN KEY (header_id) REFERENCES theme_header(header_id) ON DELETE CASCADE
 );

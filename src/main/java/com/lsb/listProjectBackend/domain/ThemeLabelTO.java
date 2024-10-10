@@ -13,14 +13,17 @@ public class ThemeLabelTO {
     private ThemeLabelType type;
     private String splitBy;
     private String useSpace;
-    @JsonProperty("isSearch")
-    private boolean isSearch;
+    @JsonProperty("isSearchButton")
+    private boolean isSearchButton;
+    @JsonProperty("isSearchValue")
+    private boolean isSearchValue;
     @JsonProperty("isCopy")
     private boolean isCopy;
     @JsonProperty("isVisible")
     private boolean isVisible;
     @JsonProperty("isSort")
     private boolean isSort;
-
+    @JsonProperty("isDefaultKey")
+    private boolean isDefaultKey;
 
 }

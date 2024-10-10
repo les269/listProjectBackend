@@ -26,6 +26,8 @@ public class ThemeDB implements Serializable {
     private String source;
     private String label;
     private String groups;
+    private String seq;
+    private boolean isDefault;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "header_id")

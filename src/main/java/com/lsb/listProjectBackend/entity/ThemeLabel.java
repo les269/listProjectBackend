@@ -25,10 +25,12 @@ public class ThemeLabel implements Serializable {
     private String label;
     private String splitBy;
     private String useSpace;
-    private boolean isSearch;
+    private boolean isSearchValue;
+    private boolean isSearchButton;
     private boolean isCopy;
     private boolean isVisible;
     private boolean isSort;
+    private boolean isDefaultKey;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "header_id")
