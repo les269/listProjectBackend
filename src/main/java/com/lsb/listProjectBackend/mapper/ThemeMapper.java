@@ -1,10 +1,7 @@
 package com.lsb.listProjectBackend.mapper;
 
 
-import com.lsb.listProjectBackend.domain.ThemeDBTO;
-import com.lsb.listProjectBackend.domain.ThemeHeaderTO;
-import com.lsb.listProjectBackend.domain.ThemeImageTO;
-import com.lsb.listProjectBackend.domain.ThemeLabelTO;
+import com.lsb.listProjectBackend.domain.*;
 import com.lsb.listProjectBackend.entity.*;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -55,4 +52,19 @@ public interface ThemeMapper {
     List<ThemeLabel> labelListToEntity(List<ThemeLabelTO> to);
     ThemeLabelTO labelToDomain(ThemeLabel entity);
     List<ThemeLabelTO> labelListToDomain(List<ThemeLabel> entity);
+
+    @Mappings({
+            @Mapping(target = "themeHeader", ignore = true),
+    })
+    ThemeCustom customToEntity(ThemeCustom entity);
+    List<ThemeCustom> customToEntity(List<ThemeCustom> entity);
+    ThemeCustom customToEntity(ThemeCustomTO to);
+    List<ThemeCustom> customListToEntity(List<ThemeCustomTO> to);
+    ThemeCustomTO customToDomain(ThemeCustom entity);
+    List<ThemeCustomTO> customListToDomain(List<ThemeCustom> entity);
+
+    ThemeCustomValue customValueToEntity(ThemeCustomValueTO to);
+    List<ThemeCustomValue> customValueListToEntity(List<ThemeCustomValueTO> to);
+    ThemeCustomValueTO customValueToDomain(ThemeCustomValue entity);
+    List<ThemeCustomValueTO> customValueListToDomain(List<ThemeCustomValue> entity);
 }

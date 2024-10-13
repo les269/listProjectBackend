@@ -14,14 +14,12 @@ import java.io.Serializable;
 @Table(name = "theme_db")
 @IdClass(ThemeDBPK.class)
 public class ThemeDB implements Serializable {
-
-
     @Id
     private Integer id;
     @Id
     @Column(name = "header_id")
     private String headerId;
-    @Enumerated(EnumType.ORDINAL)
+    @Enumerated(EnumType.STRING)
     private Global.ThemeDBType type;
     private String source;
     private String label;

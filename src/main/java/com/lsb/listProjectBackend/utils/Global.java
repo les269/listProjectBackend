@@ -8,4 +8,6 @@ public class Global {
     public enum ThemeLabelType {string, stringSplit, seq, fileSize, dateFormat}
 
     public enum ThemeDBType {json, group}
+
+    public enum ThemeCustomType {openUrl, openUrlByKey, writeNote, copyValue, copyValueByKey, buttonIconBoolean, buttonIconFill, buttonInputUrl}
 }

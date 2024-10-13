@@ -1,14 +1,12 @@
 package com.lsb.listProjectBackend.controller;
 
-import com.lsb.listProjectBackend.domain.CopyThemeRequest;
-import com.lsb.listProjectBackend.domain.ThemeHeaderTO;
-import com.lsb.listProjectBackend.domain.ThemeRequest;
-import com.lsb.listProjectBackend.domain.ThemeResponse;
+import com.lsb.listProjectBackend.domain.*;
 import com.lsb.listProjectBackend.service.ThemeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @CrossOrigin("*")
 @RestController
@@ -22,7 +20,7 @@ public class ThemeController {
     }
 
     @GetMapping("/theme/id")
-    ThemeResponse getByHeaderId(@RequestParam("headerId")String headerId) {
+    ThemeResponse getByHeaderId(@RequestParam("headerId") String headerId) {
         return themeService.getByHeaderId(headerId);
     }
 
@@ -45,8 +43,19 @@ public class ThemeController {
     void deleteTheme(@RequestBody ThemeHeaderTO headerTO) throws Exception {
         themeService.deleteTheme(headerTO);
     }
+
     @PostMapping("/theme/copy")
     void copyTheme(@RequestBody CopyThemeRequest copyThemeRequest) throws Exception {
         themeService.copyTheme(copyThemeRequest);
+    }
+
+    @PostMapping("/theme/custom/value")
+    Map<String, Map<String, String>> findCustomValue(@RequestBody ThemeCustomValueRequest request) throws Exception {
+        return themeService.findCustomValue(request);
+    }
+
+    @PostMapping("/theme/custom/update")
+    void updateCustomValue(@RequestBody ThemeCustomValueTO customValueTO){
+        themeService.updateCustomValue(customValueTO);
     }
 }

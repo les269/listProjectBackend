@@ -47,3 +47,30 @@ CREATE TABLE IF NOT EXISTS theme_label (
     PRIMARY KEY (id, header_id),
     FOREIGN KEY (header_id) REFERENCES theme_header(header_id) ON DELETE CASCADE
 );
+
+CREATE TABLE IF NOT EXISTS theme_custom (
+    id INTEGER NOT NULL,
+    header_id TEXT NOT NULL,
+    type TEXT NOT NULL,
+    by_key TEXT NOT NULL,
+    label TEXT,
+    seq TEXT,
+    open_url TEXT,
+    open_url_by_key TEXT,
+    copy_value TEXT,
+    copy_value_by_key TEXT,
+    button_icon_fill TEXT,
+    button_icon_fill_color TEXT,
+    button_icon_true TEXT,
+    button_icon_false TEXT,
+    PRIMARY KEY (id, header_id,type,by_key),
+    FOREIGN KEY (header_id) REFERENCES theme_header(header_id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS theme_custom_value (
+    header_id TEXT NOT NULL,
+    by_key TEXT NOT NULL,
+    correspond_data_value TEXT NOT NULL,
+    custom_value TEXT,
+    PRIMARY KEY ( header_id, by_key, correspond_data_value)
+);

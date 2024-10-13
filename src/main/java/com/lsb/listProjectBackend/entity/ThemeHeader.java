@@ -20,7 +20,7 @@ public class ThemeHeader implements Serializable {
     private String headerId;
     private String name;
     private String version;
-    @Enumerated(EnumType.ORDINAL)
+    @Enumerated(EnumType.STRING)
     private Global.ThemeHeaderType type;
     private String title;
     private Long updateTime;
@@ -30,6 +30,8 @@ public class ThemeHeader implements Serializable {
     private List<ThemeLabel> themeLabelList;
     @OneToMany(mappedBy = "themeHeader", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<ThemeDB> themeDBList;
+    @OneToMany(mappedBy = "themeHeader", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<ThemeCustom> themeCustomList;
 
     @Serial
     private static final long serialVersionUID = 1L;

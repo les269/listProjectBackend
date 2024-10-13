@@ -18,7 +18,7 @@ public class ThemeLabel implements Serializable {
     @Id
     @Column(name = "header_id")
     private String headerId;
-    @Enumerated(EnumType.ORDINAL)
+    @Enumerated(EnumType.STRING)
     private ThemeLabelType type;
     private String seq;
     private String byKey;

@@ -10,4 +10,5 @@ public class ThemeResponse {
     private ThemeImageTO themeImage;
     private List<ThemeLabelTO> themeLabelList;
     private List<ThemeDBTO> themeDBList;
+    private List<ThemeCustomTO> themeCustomList;
 }

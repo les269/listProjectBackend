@@ -15,7 +15,7 @@ import java.io.Serializable;
 public class ThemeImage implements Serializable {
     @Id
     private String headerId;
-    @Enumerated(EnumType.ORDINAL)
+    @Enumerated(EnumType.STRING)
     private Global.ThemeImageType type;
     private String imageKey;
     private String imageUrl;
