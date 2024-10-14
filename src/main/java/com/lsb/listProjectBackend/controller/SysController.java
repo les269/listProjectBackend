@@ -14,7 +14,7 @@ public class SysController {
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
-    @GetMapping("/is-alive")
+    @GetMapping("/sys/is-alive")
     public ResponseEntity<String> isAlive() {
         try {
             // 使用簡單查詢來檢查數據庫的狀態

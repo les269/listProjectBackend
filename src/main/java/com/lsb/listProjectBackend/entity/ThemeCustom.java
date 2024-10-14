@@ -44,6 +44,8 @@ public class ThemeCustom implements Serializable {
     private String buttonIconTrue;
     @Column(name = "button_icon_false")
     private String buttonIconFalse;
+    @Column(name = "api_array")
+    private String apiArray;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "header_id")

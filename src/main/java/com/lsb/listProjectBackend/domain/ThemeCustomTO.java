@@ -18,4 +18,5 @@ public class ThemeCustomTO {
     private String buttonIconFillColor;
     private String buttonIconTrue;
     private String buttonIconFalse;
+    private String apiArray;
 }

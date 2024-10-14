@@ -3,9 +3,7 @@ package com.lsb.listProjectBackend.mapper;
 
 import com.lsb.listProjectBackend.domain.*;
 import com.lsb.listProjectBackend.entity.*;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.Mappings;
+import org.mapstruct.*;
 import org.mapstruct.factory.Mappers;
 
 import java.util.List;
@@ -62,6 +60,12 @@ public interface ThemeMapper {
     List<ThemeCustom> customListToEntity(List<ThemeCustomTO> to);
     ThemeCustomTO customToDomain(ThemeCustom entity);
     List<ThemeCustomTO> customListToDomain(List<ThemeCustom> entity);
+    @BeforeMapping
+    default void handleNulls(@MappingTarget ThemeCustom target) {
+        if (target.getApiArray() == null) {
+            target.setApiArray("");
+        }
+    }
 
     ThemeCustomValue customValueToEntity(ThemeCustomValueTO to);
     List<ThemeCustomValue> customValueListToEntity(List<ThemeCustomValueTO> to);
