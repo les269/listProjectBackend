@@ -10,20 +10,9 @@ import java.io.Serializable;
 
 
 @Data
-@Entity
-@Table(name = "theme_image")
-public class ThemeImage implements Serializable {
-    @Id
-    private String headerId;
+public class ThemeImage  {
     @Enumerated(EnumType.STRING)
     private Global.ThemeImageType type;
     private String imageKey;
     private String imageUrl;
-
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "header_id")
-    private ThemeHeader themeHeader;
-
-    @Serial
-    private static final long serialVersionUID = 1L;
 }

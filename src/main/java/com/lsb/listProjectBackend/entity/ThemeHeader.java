@@ -1,7 +1,9 @@
 package com.lsb.listProjectBackend.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.lsb.listProjectBackend.converter.ThemeCustomListConverter;
+import com.lsb.listProjectBackend.converter.ThemeDBListConverter;
+import com.lsb.listProjectBackend.converter.ThemeImageConverter;
+import com.lsb.listProjectBackend.converter.ThemeLabelListConverter;
 import com.lsb.listProjectBackend.utils.Global;
 import jakarta.persistence.*;
 import lombok.Data;
@@ -24,13 +26,17 @@ public class ThemeHeader implements Serializable {
     private Global.ThemeHeaderType type;
     private String title;
     private Long updateTime;
-    @OneToOne(mappedBy = "themeHeader", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @Column(name = "theme_image")
+    @Convert(converter = ThemeImageConverter.class)
     private ThemeImage themeImage;
-    @OneToMany(mappedBy = "themeHeader", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @Column(name = "theme_label_list")
+    @Convert(converter = ThemeLabelListConverter.class)
     private List<ThemeLabel> themeLabelList;
-    @OneToMany(mappedBy = "themeHeader", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @Column(name = "theme_db_list")
+    @Convert(converter = ThemeDBListConverter.class)
     private List<ThemeDB> themeDBList;
-    @OneToMany(mappedBy = "themeHeader", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @Column(name = "theme_custom_list")
+    @Convert(converter = ThemeCustomListConverter.class)
     private List<ThemeCustom> themeCustomList;
 
     @Serial

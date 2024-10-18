@@ -1,6 +1,7 @@
 package com.lsb.listProjectBackend.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.lsb.listProjectBackend.utils.Global.ThemeLabelType;
 import jakarta.persistence.*;
 import lombok.Data;
@@ -9,15 +10,7 @@ import java.io.Serial;
 import java.io.Serializable;
 
 @Data
-@Entity
-@Table(name = "theme_label")
-@IdClass(ThemeLabelPK.class)
-public class ThemeLabel implements Serializable {
-    @Id
-    private Integer id;
-    @Id
-    @Column(name = "header_id")
-    private String headerId;
+public class ThemeLabel  {
     @Enumerated(EnumType.STRING)
     private ThemeLabelType type;
     private String seq;
@@ -25,17 +18,17 @@ public class ThemeLabel implements Serializable {
     private String label;
     private String splitBy;
     private String useSpace;
-    private boolean isSearchValue;
+    @JsonProperty("isSearchButton")
     private boolean isSearchButton;
+    @JsonProperty("isSearchValue")
+    private boolean isSearchValue;
+    @JsonProperty("isCopy")
     private boolean isCopy;
+    @JsonProperty("isVisible")
     private boolean isVisible;
+    @JsonProperty("isSort")
     private boolean isSort;
+    @JsonProperty("isDefaultKey")
     private boolean isDefaultKey;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "header_id")
-    private ThemeHeader themeHeader;
-
-    @Serial
-    private static final long serialVersionUID = 1L;
 }

@@ -20,12 +20,12 @@ public class ThemeController {
     }
 
     @GetMapping("/theme/id")
-    ThemeResponse getByHeaderId(@RequestParam("headerId") String headerId) {
+    ThemeHeaderTO getByHeaderId(@RequestParam("headerId") String headerId) {
         return themeService.getByHeaderId(headerId);
     }
 
     @PostMapping("/theme/one")
-    ThemeResponse findTheme(@RequestBody ThemeHeaderTO headerTO) {
+    ThemeHeaderTO findTheme(@RequestBody ThemeHeaderTO headerTO) {
         return themeService.findTheme(headerTO);
     }
 
@@ -35,7 +35,7 @@ public class ThemeController {
     }
 
     @PostMapping("/theme/update")
-    void updateTheme(@RequestBody ThemeRequest theme) throws Exception {
+    void updateTheme(@RequestBody ThemeHeaderTO theme) throws Exception {
         themeService.updateTheme(theme);
     }
 
