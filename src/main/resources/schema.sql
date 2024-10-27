@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS theme_header (
+create TABLE IF NOT EXISTS theme_header (
     header_id TEXT NOT NULL,
     name TEXT NOT NULL,
     version TEXT NOT NULL,
@@ -12,7 +12,7 @@ CREATE TABLE IF NOT EXISTS theme_header (
     PRIMARY KEY (header_id)
 );
 
-CREATE TABLE IF NOT EXISTS theme_custom_value (
+create TABLE IF NOT EXISTS theme_custom_value (
     header_id TEXT NOT NULL,
     by_key TEXT NOT NULL,
     correspond_data_value TEXT NOT NULL,
@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS theme_custom_value (
     PRIMARY KEY ( header_id, by_key, correspond_data_value)
 );
 
-CREATE TABLE IF NOT EXISTS api_config (
+create TABLE IF NOT EXISTS api_config (
     api_name TEXT NOT NULL,
     api_label TEXT NOT NULL,
     http_method TEXT NOT NULL,  -- 如 'GET', 'POST', 'PUT', 'DELETE'
@@ -31,4 +31,13 @@ CREATE TABLE IF NOT EXISTS api_config (
     success_message TEXT,
     updated_time TEXT, -- 更新時間
     PRIMARY KEY (api_name, api_label)
+);
+
+create TABLE IF NOT EXISTS scrapy_config (
+    name TEXT PRIMARY KEY,
+    data TEXT NOT NULL,
+    test_json TEXT,
+    test_url TEXT,
+    created_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 );

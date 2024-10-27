@@ -1,10 +1,7 @@
 package com.lsb.listProjectBackend.mapper;
 
 import com.lsb.listProjectBackend.domain.ApiConfigTO;
-import com.lsb.listProjectBackend.domain.ThemeHeaderTO;
 import com.lsb.listProjectBackend.entity.ApiConfig;
-import com.lsb.listProjectBackend.entity.ApiConfigPK;
-import com.lsb.listProjectBackend.entity.ThemeHeader;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
 

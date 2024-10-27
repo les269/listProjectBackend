@@ -1,13 +1,9 @@
 package com.lsb.listProjectBackend.entity;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.lsb.listProjectBackend.utils.Global.ThemeLabelType;
 import jakarta.persistence.*;
 import lombok.Data;
-
-import java.io.Serial;
-import java.io.Serializable;
 
 @Data
 public class ThemeLabel  {

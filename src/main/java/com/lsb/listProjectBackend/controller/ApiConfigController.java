@@ -4,7 +4,6 @@ import com.lsb.listProjectBackend.domain.ApiConfigTO;
 import com.lsb.listProjectBackend.entity.ApiConfigPK;
 import com.lsb.listProjectBackend.service.ApiConfigService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;

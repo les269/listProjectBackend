@@ -9,7 +9,9 @@ public class Global {
 
     public enum ThemeDBType {json, group}
 
-    public enum ThemeCustomType {openUrl, openUrlByKey, writeNote, copyValue, copyValueByKey, buttonIconBoolean, buttonIconFill, buttonInputUrl,apiArray}
+    public enum ThemeCustomType {openUrl, openUrlByKey, writeNote, copyValue, copyValueByKey, buttonIconBoolean, buttonIconFill, buttonInputUrl, apiArray}
 
     public enum HttpMethodType {get, post, delete, put}
+
+    public enum ScrapyPageType {redirect, scrapyData}
 }

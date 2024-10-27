@@ -1,9 +1,6 @@
 package com.lsb.listProjectBackend.utils;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -13,7 +10,7 @@ public class Utils {
 
     public static boolean notNull(Object o){return !isNull(o);}
     public static boolean isBlank(String str) {
-        return null == str || "".equals(str);
+        return null == str || str.trim().isEmpty();
     }
 
     public static String replaceBlank(String oldStr) {
@@ -98,4 +95,47 @@ public class Utils {
         return name.substring(0, name.indexOf("."));
     }
 
+    public static String replaceValue(String value, Map<String, Object> obj) {
+        Pattern pattern = Pattern.compile("\\$\\{(.*?)}");
+        Matcher matcher = pattern.matcher(value);
+
+        StringBuilder result = new StringBuilder();
+        while (matcher.find()) {
+            String key = matcher.group(1).trim();
+            Object replacement = resolveKeyPath(key, obj);
+            // 如果找到值就替换，未找到则保留原样
+            matcher.appendReplacement(result, replacement != null ? replacement.toString() : matcher.group(0));
+        }
+        matcher.appendTail(result);
+        return result.toString();
+    }
+
+    @SuppressWarnings("unchecked")
+    private static Object resolveKeyPath(String keyPath, Map<String, Object> obj) {
+        String[] keys = keyPath.split("[.\\[\\]]+");
+        Object current = obj;
+
+        for (String key : keys) {
+            if (current instanceof Map) {
+                current = ((Map<String, Object>) current).get(key);
+            } else if (current instanceof List && isNumeric(key)) {
+                current = ((List<Object>) current).get(Integer.parseInt(key));
+            } else {
+                return null; // 如果路径解析失败，则返回 null
+            }
+            if (current == null) {
+                return null;
+            }
+        }
+        return current;
+    }
+
+    private static boolean isNumeric(String str) {
+        try {
+            Integer.parseInt(str);
+            return true;
+        } catch (NumberFormatException e) {
+            return false;
+        }
+    }
 }
