@@ -1,6 +1,6 @@
 package com.lsb.listProjectBackend.entity;
 
-import com.lsb.listProjectBackend.converter.ScrapyDataListConverter;
+import com.lsb.listProjectBackend.converter.DatasetConfigConverter;
 import jakarta.persistence.*;
 import lombok.Data;
 import org.hibernate.annotations.CreationTimestamp;
@@ -13,19 +13,16 @@ import java.util.List;
 
 @Data
 @Entity
-@Table(name = "scrapy_config")
-public class ScrapyConfig implements Serializable {
+@Table(name = "dataset_config")
+public class Dataset implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
 
     @Id
     private String name;
-    @Column(name = "param_size")
-    private String paramSize;
 
-    @Column(nullable = false)
-    @Convert(converter = ScrapyDataListConverter.class)
-    private List<ScrapyData> data;
+    @Convert(converter = DatasetConfigConverter.class)
+    private DatasetConfig config;
 
     @CreationTimestamp
     @Column(updatable = false)
@@ -34,9 +31,4 @@ public class ScrapyConfig implements Serializable {
     @UpdateTimestamp
     @Column(nullable = false)
     private LocalDateTime updatedTime;
-
-    @Column(name = "test_json")
-    private String testJson;
-    @Column(name = "test_url")
-    private String testUrl;
 }

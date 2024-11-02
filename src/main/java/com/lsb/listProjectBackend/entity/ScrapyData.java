@@ -15,6 +15,7 @@ public class ScrapyData {
 
     private String name;
     private String url;
+    private Integer urlParamSize;
 
     @Convert(converter = CookieListConverter.class)
     private List<Cookie> cookie;

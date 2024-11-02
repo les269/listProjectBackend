@@ -4,15 +4,12 @@ import com.lsb.listProjectBackend.domain.*;
 import com.lsb.listProjectBackend.entity.*;
 import com.lsb.listProjectBackend.mapper.ThemeMapper;
 import com.lsb.listProjectBackend.repository.*;
-import com.lsb.listProjectBackend.utils.Global;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toMap;

@@ -34,6 +34,11 @@ public class ScrapyController {
         return scrapyService.getAllConfig();
     }
 
+    @GetMapping("/scrapy/allName")
+    List<String> getAllName() {
+        return scrapyService.getAllName();
+    }
+
     @PostMapping("/scrapy/update")
     void updateConfig(@RequestBody ScrapyConfigTO req) {
         scrapyService.updateConfig(req);

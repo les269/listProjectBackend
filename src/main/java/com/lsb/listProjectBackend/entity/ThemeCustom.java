@@ -21,6 +21,6 @@ public class ThemeCustom  {
     private String buttonIconFillColor;
     private String buttonIconTrue;
     private String buttonIconFalse;
-    private String apiArray;
+    private ApiConfig apiConfig;
 
 }

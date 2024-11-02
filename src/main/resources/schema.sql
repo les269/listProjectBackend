@@ -35,9 +35,36 @@ create TABLE IF NOT EXISTS api_config (
 
 create TABLE IF NOT EXISTS scrapy_config (
     name TEXT PRIMARY KEY,
+    param_size INTEGER NOT NULL DEFAULT 1,
     data TEXT NOT NULL,
     test_json TEXT,
     test_url TEXT,
     created_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+create TABLE IF NOT EXISTS group_dataset (
+    group_name TEXT NOT NULL,
+    prime_value TEXT NOT NULL,
+    json TEXT NOT NULL,
+    created_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (group_name, prime_value)
+);
+
+create TABLE IF NOT EXISTS dataset_config (
+    name TEXT,
+    config TEXT NOT NULL,
+    created_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (name)
+);
+
+create TABLE IF NOT EXISTS dataset_data (
+    dataset_config_name TEXT,
+    group_name TEXT,
+    data TEXT NOT NULL,
+    created_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (dataset_config_name)
 );

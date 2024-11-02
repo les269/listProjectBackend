@@ -54,6 +54,9 @@ public class ScrapyService {
     public boolean existConfig(String name) {
         return scrapyConfigRepository.existsById(name);
     }
+    public List<String> getAllName(){
+        return scrapyConfigRepository.findAll().stream().map(ScrapyConfig::getName).toList();
+    }
 
     public Map<String, Object> testParseHtml(String html, ScrapyData data) {
         Map<String, Object> result = new HashMap<>();
@@ -129,11 +132,7 @@ public class ScrapyService {
                         .map(String::trim)
                         .toList();
                 if (Utils.isNotBlank(cssSelect.getReplaceString())) {
-                    Map<String, Object> replaceMap = IntStream.range(0, textList.size()).boxed().collect(Collectors.toMap(
-                            i -> i + "",
-                            textList::get
-                    ));
-                    String rv = Utils.replaceValue(cssSelect.getReplaceString(), replaceMap);
+                    String rv = Utils.replaceValue(cssSelect.getReplaceString(), textList);
                     result.put(cssSelect.getKey(), cssSelect.isConvertToArray() ? List.of(rv) : rv);
                     continue;
                 }

@@ -1,4 +1,6 @@
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -48,10 +50,9 @@ public class TestCode {
     }
 
     @Test
-    public void test2() {
-        var map = new HashMap<>(Map.of("test", "test123"));
-        System.out.println(map);
-        map.remove("test");
-        System.out.println(map);
+    public void test2() throws JsonProcessingException {
+        var  objectMapper = new ObjectMapper();
+        var object=objectMapper.readValue("{\"a\":{\"b\":{\"c\":\"123\"}}}",Object.class);
+        System.out.println(object);
     }
 }

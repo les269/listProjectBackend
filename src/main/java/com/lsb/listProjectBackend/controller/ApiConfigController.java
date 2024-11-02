@@ -24,6 +24,11 @@ public class ApiConfigController {
         return this.apiConfigService.getListById(pkList);
     }
 
+    @PostMapping("/api-config/id")
+    public ApiConfigTO getById(@RequestBody ApiConfigPK pk){
+        return this.apiConfigService.getById(pk);
+    }
+
     @PostMapping("/api-config/update")
     public void update(@RequestBody ApiConfigTO apiConfigTO){
         this.apiConfigService.update(apiConfigTO);

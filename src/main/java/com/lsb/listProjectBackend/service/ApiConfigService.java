@@ -26,6 +26,12 @@ public class ApiConfigService {
         return apiConfigMapper.toDomainList(apiConfigRepository.findAllById(pkList));
     }
 
+    public ApiConfigTO getById(ApiConfigPK pk) {
+        return apiConfigMapper.toDomain(
+                apiConfigRepository.findById(pk).orElse(null)
+        );
+    }
+
     public void update(ApiConfigTO apiConfigTO) {
         ApiConfig apiConfig = apiConfigMapper.toEntity(apiConfigTO);
         apiConfig.setUpdatedTime(new Date().getTime());

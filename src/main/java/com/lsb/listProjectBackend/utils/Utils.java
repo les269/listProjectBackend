@@ -4,6 +4,7 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public class Utils {
     public static boolean isNull(Object o){return o == null;}
@@ -93,6 +94,14 @@ public class Utils {
 
     public static String getFileName(String name) {
         return name.substring(0, name.indexOf("."));
+    }
+
+    public static String replaceValue(String value, List<String> arr) {
+        Map<String, Object> replaceMap = IntStream.range(0, arr.size()).boxed().collect(Collectors.toMap(
+                i -> i + "",
+                arr::get
+        ));
+        return replaceValue(value, replaceMap);
     }
 
     public static String replaceValue(String value, Map<String, Object> obj) {

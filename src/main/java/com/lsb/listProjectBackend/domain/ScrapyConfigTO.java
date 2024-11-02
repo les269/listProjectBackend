@@ -9,6 +9,7 @@ import java.util.List;
 @Data
 public class ScrapyConfigTO {
     private String name;
+    private String paramSize;
     private List<ScrapyData> data;
     private LocalDateTime createdTime;
     private LocalDateTime updatedTime;

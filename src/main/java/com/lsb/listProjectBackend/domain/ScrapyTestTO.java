@@ -10,6 +10,6 @@ import java.util.Map;
 public class ScrapyTestTO {
     private ScrapyData scrapyData;
     private List<ScrapyData> scrapyDataList;
-    private Map<String, Object> json;
+    private List<String> json;
     private String url;
 }
