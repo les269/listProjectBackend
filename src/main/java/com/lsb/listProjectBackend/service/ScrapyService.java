@@ -60,6 +60,10 @@ public class ScrapyService {
         return scrapyConfigRepository.findAll().stream().map(ScrapyConfig::getName).toList();
     }
 
+    public List<ScrapyConfigTO> getByNameList(List<String> nameList) {
+        return scrapyConfigMapper.toDomainList(scrapyConfigRepository.findAllById(nameList));
+    }
+
     public Map<String, Object> testParseHtml(String html, ScrapyData data) {
         Map<String, Object> result = new HashMap<>();
         useCssSelect(html, data.getCssSelectList(), result);

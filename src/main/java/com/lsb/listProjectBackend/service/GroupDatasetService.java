@@ -13,19 +13,16 @@ import java.util.List;
 @Service
 public class GroupDatasetService {
     @Autowired
-    private GroupDatasetDataRepository groupDatasetDataRepository;
-    @Autowired
     private GroupDatasetRepository groupDatasetRepository;
 
     private final GroupDatasetMapper groupDatasetMapper = GroupDatasetMapper.INSTANCE;
-    private final GroupDatasetDataMapper groupDatasetDataMapper = GroupDatasetDataMapper.INSTANCE;
 
-    public GroupDatasetTO getGroupDataset(String name) {
-        return groupDatasetMapper.toDomain(groupDatasetRepository.findById(name).orElse(null));
+    public GroupDatasetTO getGroupDataset(String groupName) {
+        return groupDatasetMapper.toDomain(groupDatasetRepository.findById(groupName).orElse(null));
     }
 
-    public boolean existGroupDataset(String name) {
-        return groupDatasetRepository.existsById(name);
+    public boolean existGroupDataset(String groupName) {
+        return groupDatasetRepository.existsById(groupName);
     }
 
     public List<GroupDatasetTO> getAllGroupDataset(){
@@ -36,7 +33,7 @@ public class GroupDatasetService {
         groupDatasetRepository.save(groupDatasetMapper.toEntity(req));
     }
 
-    public void deleteGroupDataset(String name){
-        groupDatasetRepository.deleteById(name);
+    public void deleteGroupDataset(String groupName){
+        groupDatasetRepository.deleteById(groupName);
     }
 }

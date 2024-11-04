@@ -14,13 +14,13 @@ public class GroupDatasetController {
     private GroupDatasetService groupDatasetService;
 
     @GetMapping("/group-dataset/get")
-    GroupDatasetTO getGroupDataset(@RequestParam("name") String name) {
-        return groupDatasetService.getGroupDataset(name);
+    GroupDatasetTO getGroupDataset(@RequestParam("groupName") String groupName) {
+        return groupDatasetService.getGroupDataset(groupName);
     }
 
     @GetMapping("/group-dataset/exist")
-    boolean existGroupDataset(@RequestParam("name") String name) {
-        return groupDatasetService.existGroupDataset(name);
+    boolean existGroupDataset(@RequestParam("groupName") String groupName) {
+        return groupDatasetService.existGroupDataset(groupName);
     }
 
     @GetMapping("/group-dataset/all")
@@ -33,8 +33,10 @@ public class GroupDatasetController {
         groupDatasetService.updateGroupDataset(req);
     }
 
+
     @DeleteMapping("/group-dataset/delete")
-    void deleteGroupDataset(@RequestParam("name") String name) {
-        groupDatasetService.deleteGroupDataset(name);
+    void deleteGroupDataset(@RequestParam("groupName") String groupName) {
+        groupDatasetService.deleteGroupDataset(groupName);
     }
+
 }

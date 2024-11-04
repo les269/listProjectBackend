@@ -20,6 +20,7 @@ public class DatasetController {
     DatasetTO getDataset(@RequestParam("name") String name) {
         return datasetService.getDataset(name);
     }
+
     @GetMapping("/dataset/getData")
     DatasetDataTO getDatasetDataByName(@RequestParam("name") String name) {
         return datasetService.getDatasetDataByName(name);
@@ -44,8 +45,15 @@ public class DatasetController {
     void deleteDataset(@RequestParam("name") String name) {
         datasetService.deleteDataset(name);
     }
+
     @GetMapping("/dataset/refresh")
     void refreshData(@RequestParam("name") String name) throws Exception {
         datasetService.refreshData(name);
+    }
+
+    @PostMapping("/dataset/name-list/refresh")
+    void refreshData(@RequestBody List<String> nameList) throws Exception {
+        for (var name : nameList)
+            datasetService.refreshData(name);
     }
 }

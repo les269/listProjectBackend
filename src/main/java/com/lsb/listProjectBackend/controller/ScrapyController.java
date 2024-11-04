@@ -39,6 +39,11 @@ public class ScrapyController {
         return scrapyService.getAllName();
     }
 
+    @PostMapping("/scrapy/by-name-list")
+    List<ScrapyConfigTO> getByNameList(@RequestBody List<String> nameList) {
+        return scrapyService.getByNameList(nameList);
+    }
+
     @PostMapping("/scrapy/update")
     void updateConfig(@RequestBody ScrapyConfigTO req) {
         scrapyService.updateConfig(req);
