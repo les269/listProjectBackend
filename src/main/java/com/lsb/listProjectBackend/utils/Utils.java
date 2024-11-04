@@ -1,6 +1,9 @@
 package com.lsb.listProjectBackend.utils;
 
+import com.sun.jna.platform.FileUtils;
+
 import java.io.File;
+import java.io.IOException;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -184,4 +187,13 @@ public class Utils {
         }
         return false;
     }
+
+    public static void deleteFile(String path) throws IOException {
+        File file = new File(path);
+        //避免刪除smb檔案
+        if(file.exists() && !path.startsWith("\\\\")){
+            FileUtils.getInstance().moveToTrash(file);
+        }
+    }
+
 }

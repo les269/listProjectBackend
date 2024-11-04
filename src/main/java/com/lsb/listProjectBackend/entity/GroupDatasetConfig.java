@@ -10,6 +10,7 @@ import java.util.List;
 @Data
 public class GroupDatasetConfig {
     private String byKey;
+    private String imageSaveFolder;
     @Convert(converter = GroupDatasetScrapyListConverter.class)
     private List<GroupDatasetScrapy> groupDatasetScrapyList;
     @Convert(converter = GroupDatasetFieldListConverter.class)

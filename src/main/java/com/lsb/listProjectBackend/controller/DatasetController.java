@@ -53,7 +53,8 @@ public class DatasetController {
 
     @PostMapping("/dataset/name-list/refresh")
     void refreshData(@RequestBody List<String> nameList) throws Exception {
-        for (var name : nameList)
+        for (var name : nameList) {
             datasetService.refreshData(name);
+        }
     }
 }

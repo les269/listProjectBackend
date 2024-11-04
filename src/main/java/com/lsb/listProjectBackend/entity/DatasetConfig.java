@@ -23,5 +23,5 @@ public class DatasetConfig {
     private List<DatasetField> fieldList;
     private boolean autoImageDownload;
     private String imageByKey;
-    private String imageSaveFolder;
+
 }

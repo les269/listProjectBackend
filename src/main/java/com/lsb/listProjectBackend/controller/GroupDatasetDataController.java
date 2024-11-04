@@ -5,6 +5,7 @@ import com.lsb.listProjectBackend.service.GroupDatasetDataService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.List;
 
 @CrossOrigin("*")
@@ -44,5 +45,12 @@ public class GroupDatasetDataController {
             @RequestParam("groupName") String groupName,
             @RequestParam("primeValue") String primeValue) {
         groupDatasetDataService.deleteGroupDatasetData(groupName, primeValue);
+    }
+
+    @DeleteMapping("/group-dataset-data/delete-image")
+    String deleteGroupDatasetDataForImage(
+            @RequestParam("groupName") String groupName,
+            @RequestParam("primeValue") String primeValue) throws IOException {
+        return groupDatasetDataService.deleteGroupDatasetDataForImage(groupName, primeValue);
     }
 }

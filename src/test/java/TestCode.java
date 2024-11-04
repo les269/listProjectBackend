@@ -1,18 +1,12 @@
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.lsb.listProjectBackend.utils.Utils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.nodes.Node;
-import org.jsoup.nodes.TextNode;
-import org.jsoup.parser.Parser;
-import org.jsoup.select.Elements;
 import org.junit.jupiter.api.Test;
 
 import javax.script.*;
 import java.io.*;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -54,5 +48,8 @@ public class TestCode {
         var  objectMapper = new ObjectMapper();
         var object=objectMapper.readValue("{\"a\":{\"b\":{\"c\":\"123\"}}}",Object.class);
         System.out.println(object);
+    }
+    @Test
+    public void test3() throws IOException {
     }
 }

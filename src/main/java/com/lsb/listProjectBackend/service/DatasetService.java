@@ -196,8 +196,8 @@ public class DatasetService {
                     String imageUrl = (String) groupDatasetData.getJson().get(datasetConfig.getImageByKey());
                     String value = (String) groupDatasetData.getJson().get(groupDataset.getByKey());
                     String referer = (String) groupDatasetData.getJson().get("__image_referer");
-                    if (!new File(datasetConfig.getImageSaveFolder() + "\\" + value).exists()) {
-                        imageService.downloadImageFromUrl(imageUrl, datasetConfig.getImageSaveFolder(), value, new HashMap<>(), null, referer);
+                    if (!new File(groupDataset.getImageSaveFolder() + "\\" + value).exists()) {
+                        imageService.downloadImageFromUrl(imageUrl, groupDataset.getImageSaveFolder(), value, new HashMap<>(), null, referer);
                     }
                 }
             }
