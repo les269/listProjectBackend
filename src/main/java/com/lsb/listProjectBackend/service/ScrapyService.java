@@ -11,6 +11,7 @@ import com.lsb.listProjectBackend.mapper.ScrapyConfigMapper;
 import com.lsb.listProjectBackend.repository.ScrapyConfigRepository;
 import com.lsb.listProjectBackend.utils.Global;
 import com.lsb.listProjectBackend.utils.Utils;
+import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -54,7 +55,8 @@ public class ScrapyService {
     public boolean existConfig(String name) {
         return scrapyConfigRepository.existsById(name);
     }
-    public List<String> getAllName(){
+
+    public List<String> getAllName() {
         return scrapyConfigRepository.findAll().stream().map(ScrapyConfig::getName).toList();
     }
 
@@ -64,23 +66,23 @@ public class ScrapyService {
         return result;
     }
 
-    public Map<String, Object> testJson(ScrapyTestTO to) throws Exception {
+    public Map<String, Object> scrapyByJson(List<ScrapyData> scrapyDataList, List<String> json) throws Exception {
         Map<String, Object> result = new HashMap<>();
         boolean redirect = false;
         String redirectUrl = "";
 
-        for (ScrapyData data : to.getScrapyDataList()) {
+        for (ScrapyData data : scrapyDataList) {
             Map<String, String> cookies = data.getCookie().stream().
                     collect(Collectors.toMap(Cookie::getName, Cookie::getValue));
             //當是轉址時要確保url不為空
             if (Global.ScrapyPageType.redirect == data.getScrapyPageType() && Utils.isNotBlank(data.getUrl())) {
                 //替換url的參數
-                String url = Utils.replaceValue(data.getUrl(), to.getJson());
+                String url = Utils.replaceValue(data.getUrl(), json);
                 // 當有轉址了就用轉址來query
                 if (redirect && Utils.isNotBlank(redirectUrl)) {
                     url = redirectUrl;
                 }
-                Document document = Jsoup.connect(url).cookies(cookies).get();
+                Document document = getConnection(url).cookies(cookies).get();
                 useCssSelect(document.html(), data.getCssSelectList(), result);
                 if (result.containsKey("__redirect") && Utils.isNotBlank(result.get("__redirect").toString())) {
                     redirect = true;
@@ -88,10 +90,16 @@ public class ScrapyService {
                     result.remove("__redirect");
                 }
             } else if (redirect && Utils.isNotBlank(redirectUrl) && Global.ScrapyPageType.scrapyData == data.getScrapyPageType()) {
-                Document document = Jsoup.connect(redirectUrl).cookies(cookies).get();
+                Document document = getConnection(redirectUrl)
+                        .cookies(cookies).get();
                 useCssSelect(document.html(), data.getCssSelectList(), result);
                 redirect = false;
                 redirectUrl = "";
+            } else if (Global.ScrapyPageType.scrapyData == data.getScrapyPageType()) {
+                String url = Utils.replaceValue(data.getUrl(), json);
+                Document document = getConnection(url)
+                        .cookies(cookies).get();
+                useCssSelect(document.html(), data.getCssSelectList(), result);
             }
         }
         return result;
@@ -106,7 +114,8 @@ public class ScrapyService {
                     Map<String, String> cookies = data.getCookie().stream().
                             collect(Collectors.toMap(Cookie::getName, Cookie::getValue));
                     try {
-                        Document document = Jsoup.connect(to.getUrl()).cookies(cookies).get();
+                        Document document = getConnection(to.getUrl())
+                                .cookies(cookies).get();
                         useCssSelect(document.html(), data.getCssSelectList(), result);
                     } catch (IOException e) {
                         throw new RuntimeException(e);
@@ -126,12 +135,21 @@ public class ScrapyService {
                             if (Utils.isNotBlank(cssSelect.getAttr())) {
                                 return x.attr(cssSelect.getAttr());
                             }
+                            if (cssSelect.isOnlyOwn()) {
+                                return x.ownText();
+                            }
                             return x.text();
                         })
                         .filter(Utils::isNotBlank)
+                        .map(x -> {
+                            if (Utils.isNotBlank(cssSelect.getReplaceRegular())) {
+                                return x.replaceAll(cssSelect.getReplaceRegular(), cssSelect.getReplaceRegularTo());
+                            }
+                            return x;
+                        })
                         .map(String::trim)
                         .toList();
-                if (Utils.isNotBlank(cssSelect.getReplaceString())) {
+                if (Utils.isNotBlank(cssSelect.getReplaceString()) && !textList.isEmpty()) {
                     String rv = Utils.replaceValue(cssSelect.getReplaceString(), textList);
                     result.put(cssSelect.getKey(), cssSelect.isConvertToArray() ? List.of(rv) : rv);
                     continue;
@@ -150,4 +168,10 @@ public class ScrapyService {
         }
     }
 
+    public static Connection getConnection(String url) {
+        return Jsoup.connect(url)
+                .header("Accept-Language", "zh-TW,zh;q=0.9,en-US;q=0.8,en;q=0.7,zh-CN;q=0.6,ja;q=0.5")
+                .header("Accept", "*/*")
+                .header("Accept-Encoding", "gzip, deflate, br, zstd");
+    }
 }

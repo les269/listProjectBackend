@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 @Data
-public class DatasetScrapy {
+public class GroupDatasetScrapy {
     private Integer seq;
     private String name;
     private String label;

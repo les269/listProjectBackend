@@ -1,5 +1,6 @@
 package com.lsb.listProjectBackend.controller;
 
+import com.lsb.listProjectBackend.domain.DatasetDataTO;
 import com.lsb.listProjectBackend.domain.DatasetTO;
 import com.lsb.listProjectBackend.domain.ScrapyConfigTO;
 import com.lsb.listProjectBackend.service.DatasetService;
@@ -18,6 +19,10 @@ public class DatasetController {
     @GetMapping("/dataset/get")
     DatasetTO getDataset(@RequestParam("name") String name) {
         return datasetService.getDataset(name);
+    }
+    @GetMapping("/dataset/getData")
+    DatasetDataTO getDatasetDataByName(@RequestParam("name") String name) {
+        return datasetService.getDatasetDataByName(name);
     }
 
     @GetMapping("/dataset/exist")
@@ -38,5 +43,9 @@ public class DatasetController {
     @DeleteMapping("/dataset/delete")
     void deleteDataset(@RequestParam("name") String name) {
         datasetService.deleteDataset(name);
+    }
+    @GetMapping("/dataset/refresh")
+    void refreshData(@RequestParam("name") String name) throws Exception {
+        datasetService.refreshData(name);
     }
 }

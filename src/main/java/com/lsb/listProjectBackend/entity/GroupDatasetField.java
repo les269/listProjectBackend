@@ -4,9 +4,9 @@ import com.lsb.listProjectBackend.utils.Global;
 import lombok.Data;
 
 @Data
-public class DatasetField {
+public class GroupDatasetField {
     private Integer seq;
-    private Global.DatasetFieldType type;
+    private Global.GroupDatasetFieldType type;
     private String key;
     private String label;
     private String fixedString;

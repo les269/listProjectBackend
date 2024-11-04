@@ -43,13 +43,21 @@ create TABLE IF NOT EXISTS scrapy_config (
     updated_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
-create TABLE IF NOT EXISTS group_dataset (
+create TABLE IF NOT EXISTS group_dataset_data (
     group_name TEXT NOT NULL,
     prime_value TEXT NOT NULL,
     json TEXT NOT NULL,
     created_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (group_name, prime_value)
+);
+
+create TABLE IF NOT EXISTS group_dataset (
+    group_name TEXT NOT NULL,
+    config TEXT NOT NULL,
+    created_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (group_name)
 );
 
 create TABLE IF NOT EXISTS dataset_config (
@@ -68,3 +76,4 @@ create TABLE IF NOT EXISTS dataset_data (
     updated_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (dataset_config_name)
 );
+

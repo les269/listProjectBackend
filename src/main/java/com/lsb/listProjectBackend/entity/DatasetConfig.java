@@ -1,7 +1,6 @@
 package com.lsb.listProjectBackend.entity;
 
 import com.lsb.listProjectBackend.converter.DatasetFieldListConverter;
-import com.lsb.listProjectBackend.converter.DatasetScrapyListConverter;
 import com.lsb.listProjectBackend.utils.Global;
 import jakarta.persistence.Convert;
 import jakarta.persistence.EnumType;
@@ -15,7 +14,6 @@ public class DatasetConfig {
     @Enumerated(EnumType.STRING)
     private Global.ConfigDatasetType type;
     private String groupName;
-    private String byKey;
     private String filePath;
     private String fileExtension;
     private String folderPath;
@@ -26,6 +24,4 @@ public class DatasetConfig {
     private boolean autoImageDownload;
     private String imageByKey;
     private String imageSaveFolder;
-    @Convert(converter = DatasetScrapyListConverter.class)
-    private List<DatasetScrapy> datasetScrapyList;
 }

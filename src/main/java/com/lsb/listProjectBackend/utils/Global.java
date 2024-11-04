@@ -7,7 +7,7 @@ public class Global {
 
     public enum ThemeLabelType {string, stringSplit, seq, fileSize, dateFormat}
 
-    public enum ThemeDBType {json, group}
+    public enum ThemeDBType {dataset, group}
 
     public enum ThemeCustomType {openUrl, openUrlByKey, writeNote, copyValue, copyValueByKey, buttonIconBoolean, buttonIconFill, buttonInputUrl, apiConfig}
 
@@ -17,5 +17,7 @@ public class Global {
 
     public enum ConfigDatasetType {file, folder, all}
 
-    public enum DatasetFieldType {string, stringArray, number, date}
+    public enum DatasetFieldType {path, fileName, fixedString, fileSize}
+
+    public enum GroupDatasetFieldType {string, stringArray, number, date}
 }

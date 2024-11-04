@@ -10,7 +10,7 @@ import java.io.Serializable;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class GroupDatasetPK implements Serializable {
+public class GroupDatasetDataPK implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
 

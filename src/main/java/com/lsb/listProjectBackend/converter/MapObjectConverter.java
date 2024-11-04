@@ -2,9 +2,11 @@ package com.lsb.listProjectBackend.converter;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 
-public class ObjectConverter extends JsonAttributeConverter<Object>{
+import java.util.Map;
+
+public class MapObjectConverter extends JsonAttributeConverter<Map<String,Object>>{
     @Override
-    protected TypeReference<Object> getTypeClass() {
+    protected TypeReference<Map<String,Object>> getTypeClass() {
         return new TypeReference<>() {
         };
     }

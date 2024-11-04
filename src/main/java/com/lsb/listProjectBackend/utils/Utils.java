@@ -1,5 +1,6 @@
 package com.lsb.listProjectBackend.utils;
 
+import java.io.File;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -7,22 +8,42 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class Utils {
-    public static boolean isNull(Object o){return o == null;}
+    public static boolean isNull(Object o) {
+        return o == null;
+    }
 
-    public static boolean notNull(Object o){return !isNull(o);}
+    public static boolean notNull(Object o) {
+        return !isNull(o);
+    }
+
     public static boolean isBlank(String str) {
         return null == str || str.trim().isEmpty();
+    }
+
+    public static boolean isBlank(String ...str) {
+        if (str == null) return true; // Return true if the entire array is null
+        for (String s : str) {
+            if (isBlank(s)) {
+                return true; // Return true if any string is null or blank
+            }
+        }
+        return false;
+    }
+
+    public static boolean isNotBlank(String str) {
+        return !isBlank(str);
+    }
+
+    public static boolean isNotBlank(String ...str) {
+        return !isBlank(str);
     }
 
     public static String replaceBlank(String oldStr) {
         return isNotBlank(oldStr) ? oldStr : "";
     }
+
     public static String replaceBlank(String oldStr, String newStr) {
         return isNotBlank(oldStr) ? oldStr : newStr;
-    }
-
-    public static boolean isNotBlank(String str) {
-        return !isBlank(str);
     }
 
     public static boolean objIsEmpty(Object object) {
@@ -146,5 +167,21 @@ public class Utils {
         } catch (NumberFormatException e) {
             return false;
         }
+    }
+
+    public static String getFileNameWithoutExtension(File file) {
+        String name = file.getName();
+        int lastDotIndex = name.lastIndexOf('.');
+        return (lastDotIndex == -1) ? name : name.substring(0, lastDotIndex);
+    }
+
+    public static boolean checkFileExtension(File file, String extension) {
+        if (isBlank(extension)) {
+            return false;
+        }
+        if (file.isFile()) {
+            return file.getName().toLowerCase().endsWith("." + extension.trim().toLowerCase());
+        }
+        return false;
     }
 }

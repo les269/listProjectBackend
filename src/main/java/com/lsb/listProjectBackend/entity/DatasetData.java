@@ -1,6 +1,6 @@
 package com.lsb.listProjectBackend.entity;
 
-import com.lsb.listProjectBackend.converter.ObjectListConverter;
+import com.lsb.listProjectBackend.converter.MapObjectListConverter;
 import jakarta.persistence.*;
 import lombok.Data;
 import org.hibernate.annotations.CreationTimestamp;
@@ -10,6 +10,7 @@ import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 @Data
 @Entity
@@ -22,8 +23,8 @@ public class DatasetData implements Serializable {
     @Column(name = "dataset_config_name")
     private String datasetConfigName;
 
-    @Convert(converter = ObjectListConverter.class)
-    private List<Object> data;
+    @Convert(converter = MapObjectListConverter.class)
+    private List<Map<String,Object>> data;
 
     @CreationTimestamp
     @Column(updatable = false)
