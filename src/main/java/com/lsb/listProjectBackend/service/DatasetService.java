@@ -187,7 +187,7 @@ public class DatasetService {
         datasetDataRepository.save(datasetData);
     }
 
-    public void doDownloadImage(String groupName, DatasetConfig datasetConfig) {
+    private void doDownloadImage(String groupName, DatasetConfig datasetConfig) {
         if (datasetConfig.isAutoImageDownload()) {
             var groupDatasetDataList = groupDatasetDataRepository.findByGroupName(groupName);
             var groupDataset = getGroupDatasetConfig(groupName);
@@ -204,7 +204,7 @@ public class DatasetService {
         }
     }
 
-    public GroupDatasetConfig getGroupDatasetConfig(String groupName) {
+    private GroupDatasetConfig getGroupDatasetConfig(String groupName) {
         var groupDatasetOptional = groupDatasetRepository.findById(groupName);
         if (groupDatasetOptional.isPresent()) {
             GroupDataset groupDataset = groupDatasetOptional.get();
@@ -213,8 +213,7 @@ public class DatasetService {
         return null;
     }
 
-
-    public ScrapyConfigTO getDefaultScrapy(String groupName) {
+    private ScrapyConfigTO getDefaultScrapy(String groupName) {
         GroupDatasetConfig groupDatasetConfig = getGroupDatasetConfig(groupName);
         var groupDatasetScrapyOptional = groupDatasetConfig.getGroupDatasetScrapyList()
                 .stream()
@@ -231,9 +230,9 @@ public class DatasetService {
         if (datasetConfig.getType() == Global.ConfigDatasetType.file) {
             var path = new File(datasetConfig.getFilePath());
             //取得目錄底下所有檔案
-            var allFile = Arrays.stream(Objects.requireNonNull(path.listFiles(File::isFile)))
+            var allFile = new ArrayList<>(Arrays.stream(Objects.requireNonNull(path.listFiles(File::isFile)))
                     .filter(file -> Utils.isBlank(datasetConfig.getFileExtension()) || Utils.checkFileExtension(file, datasetConfig.getFileExtension()))
-                    .toList();
+                    .toList());
             //有歸檔時需要檢索資料夾裡面的資料
             if (datasetConfig.isFiling()) {
                 //取得目錄底下的所有資料夾
@@ -243,6 +242,9 @@ public class DatasetService {
                     var subFiles = folder.listFiles(file ->
                             file.isFile() && (Utils.isBlank(datasetConfig.getFileExtension()) || Utils.checkFileExtension(file, datasetConfig.getFileExtension()))
                     );
+                    if(subFiles==null){
+                        continue;
+                    }
                     allFile.addAll(List.of(subFiles));
                 }
             }
@@ -263,7 +265,7 @@ public class DatasetService {
         return new ArrayList<>();
     }
 
-    public static boolean shouldIncludeConfigFile(File file, DatasetConfig config) {
+    private boolean shouldIncludeConfigFile(File file, DatasetConfig config) {
         return switch (config.getType()) {
             case file -> {
                 if (file.isFile()) {
