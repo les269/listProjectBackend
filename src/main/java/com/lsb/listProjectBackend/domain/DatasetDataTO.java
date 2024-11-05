@@ -8,7 +8,7 @@ import java.util.Map;
 
 @Data
 public class DatasetDataTO {
-    private String datasetConfigName;
+    private String datasetName;
     private List<Map<String,Object>> data;
     private LocalDateTime createdTime;
     private LocalDateTime updatedTime;

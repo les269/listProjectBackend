@@ -20,8 +20,8 @@ public class DatasetData implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @Id
-    @Column(name = "dataset_config_name")
-    private String datasetConfigName;
+    @Column(name = "dataset_name")
+    private String datasetName;
 
     @Convert(converter = MapObjectListConverter.class)
     private List<Map<String,Object>> data;

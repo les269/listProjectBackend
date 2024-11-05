@@ -2,6 +2,7 @@ package com.lsb.listProjectBackend.service;
 
 import com.lsb.listProjectBackend.domain.LsbException;
 import com.lsb.listProjectBackend.domain.ScrapyConfigTO;
+import com.lsb.listProjectBackend.domain.ScrapyReqTO;
 import com.lsb.listProjectBackend.domain.ScrapyTestTO;
 import com.lsb.listProjectBackend.entity.Cookie;
 import com.lsb.listProjectBackend.entity.CssSelect;
@@ -70,7 +71,15 @@ public class ScrapyService {
         return result;
     }
 
-    public Map<String, Object> scrapyByJson(List<ScrapyData> scrapyDataList, List<String> json) throws Exception {
+    public Map<String, Object> scrapyByJson(ScrapyReqTO to) throws Exception {
+        ScrapyConfigTO scrapyConfigTO = getConfig(to.getScrapyName());
+        if (scrapyConfigTO != null) {
+            return doScrapyByJson(to.getJson(), scrapyConfigTO.getData());
+        }
+        return new HashMap<>();
+    }
+
+    public Map<String, Object> doScrapyByJson(List<String> json, List<ScrapyData> scrapyDataList) throws Exception {
         Map<String, Object> result = new HashMap<>();
         boolean redirect = false;
         String redirectUrl = "";
@@ -109,22 +118,29 @@ public class ScrapyService {
         return result;
     }
 
-    public Map<String, Object> testUrl(ScrapyTestTO to) throws Exception {
+    public Map<String, Object> scrapyByUrl(ScrapyReqTO to) throws Exception {
+        ScrapyConfigTO scrapyConfigTO = getConfig(to.getScrapyName());
+        if (scrapyConfigTO != null) {
+            return doScrapyByUrl(to.getUrl(), scrapyConfigTO.getData());
+        }
+        return new HashMap<>();
+    }
+
+    public Map<String, Object> doScrapyByUrl(String url, List<ScrapyData> scrapyDataList) {
         Map<String, Object> result = new HashMap<>();
-        to.getScrapyDataList().stream()
+        scrapyDataList.stream()
                 .filter(x -> x.getScrapyPageType() == Global.ScrapyPageType.scrapyData)
                 .findFirst()
                 .ifPresent(data -> {
                     Map<String, String> cookies = data.getCookie().stream().
                             collect(Collectors.toMap(Cookie::getName, Cookie::getValue));
                     try {
-                        Document document = getConnection(to.getUrl())
+                        Document document = getConnection(url)
                                 .cookies(cookies).get();
                         useCssSelect(document.html(), data.getCssSelectList(), result);
                     } catch (IOException e) {
                         throw new RuntimeException(e);
                     }
-
                 });
         return result;
     }

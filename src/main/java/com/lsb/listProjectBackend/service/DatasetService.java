@@ -61,6 +61,10 @@ public class DatasetService {
         return datasetDataMapper.toDomain(datasetDataRepository.findById(name).orElse(null));
     }
 
+    public List<DatasetDataTO> getDatasetDataByNameList(List<String> nameList) {
+        return datasetDataMapper.toDomainList(datasetDataRepository.findAllById(nameList));
+    }
+
     public boolean existDataset(String name) {
         return datasetRepository.existsById(name);
     }
@@ -83,7 +87,7 @@ public class DatasetService {
                     .stream()
                     .map(GroupDatasetData::getJson).toList();
             DatasetData datasetData = new DatasetData();
-            datasetData.setDatasetConfigName(dataset.getName());
+            datasetData.setDatasetName(dataset.getName());
             datasetData.setData(data);
             datasetDataRepository.save(datasetData);
         }
@@ -153,7 +157,7 @@ public class DatasetService {
             GroupDatasetConfig groupDatasetConfig = groupDatasetOptional.get().getConfig();
             List<GroupDatasetData> saveGroupDataset = new ArrayList<>();
             for (String fileName : needScrapyList) {
-                Map<String, Object> scrapyResult = scrapyService.scrapyByJson(scrapyConfigTO.getData(), List.of(fileName));
+                Map<String, Object> scrapyResult = scrapyService.doScrapyByJson(List.of(fileName), scrapyConfigTO.getData());
                 Thread.sleep(100);
                 scrapyResult.put(groupDatasetConfig.getByKey(), fileName);
                 GroupDatasetData groupDatasetData = new GroupDatasetData();
@@ -182,7 +186,7 @@ public class DatasetService {
                     });
         }
         DatasetData datasetData = new DatasetData();
-        datasetData.setDatasetConfigName(datasetName);
+        datasetData.setDatasetName(datasetName);
         datasetData.setData(groupDatasetDataList.stream().map(GroupDatasetData::getJson).toList());
         datasetDataRepository.save(datasetData);
     }
@@ -242,7 +246,7 @@ public class DatasetService {
                     var subFiles = folder.listFiles(file ->
                             file.isFile() && (Utils.isBlank(datasetConfig.getFileExtension()) || Utils.checkFileExtension(file, datasetConfig.getFileExtension()))
                     );
-                    if(subFiles==null){
+                    if (subFiles == null) {
                         continue;
                     }
                     allFile.addAll(List.of(subFiles));

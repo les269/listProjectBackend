@@ -13,7 +13,7 @@ import java.util.List;
 
 @Data
 @Entity
-@Table(name = "dataset_config")
+@Table(name = "dataset")
 public class Dataset implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;

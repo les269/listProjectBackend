@@ -7,7 +7,7 @@ create TABLE IF NOT EXISTS theme_header (
     update_time NUMERIC NOT NULL,
     theme_image TEXT NOT NULL,
     theme_label_list TEXT NOT NULL,
-    theme_db_list TEXT NOT NULL,
+    theme_dataset_list TEXT NOT NULL,
     theme_custom_list TEXT NOT NULL,
     PRIMARY KEY (header_id)
 );
@@ -60,7 +60,7 @@ create TABLE IF NOT EXISTS group_dataset (
     PRIMARY KEY (group_name)
 );
 
-create TABLE IF NOT EXISTS dataset_config (
+create TABLE IF NOT EXISTS dataset (
     name TEXT,
     config TEXT NOT NULL,
     created_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -69,11 +69,10 @@ create TABLE IF NOT EXISTS dataset_config (
 );
 
 create TABLE IF NOT EXISTS dataset_data (
-    dataset_config_name TEXT,
-    group_name TEXT,
+    dataset_name TEXT,
     data TEXT NOT NULL,
     created_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    PRIMARY KEY (dataset_config_name)
+    PRIMARY KEY (dataset_name)
 );
 

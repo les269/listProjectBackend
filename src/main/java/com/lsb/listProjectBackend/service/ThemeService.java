@@ -30,14 +30,13 @@ public class ThemeService {
     public ThemeHeaderTO getByHeaderId(String headerId) {
         Optional<ThemeHeader> themeHeader = themeHeaderRepository.findById(headerId);
 
-        return themeMapper.headerToDomain(themeHeaderRepository.findById(headerId).orElse(null));
+        return themeMapper.headerToDomain(themeHeader.orElse(null));
     }
 
     public ThemeHeaderTO findTheme(ThemeHeaderTO headerTO) {
-        ThemeHeader header = themeMapper.headerToEntity(headerTO);
-        themeHeaderRepository.findById(header.getId());
+        ThemeHeader themeHeader = themeMapper.headerToEntity(headerTO);
 
-        return themeMapper.headerToDomain(themeHeaderRepository.findById(header.getId()).orElse(null));
+        return themeMapper.headerToDomain(themeHeaderRepository.findById(themeHeader.getId()).orElse(null));
     }
 
     public boolean existTheme(ThemeHeaderTO headerTO) {

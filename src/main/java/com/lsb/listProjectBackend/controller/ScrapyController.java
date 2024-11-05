@@ -61,11 +61,21 @@ public class ScrapyController {
 
     @PostMapping("/scrapy/test/json")
     public Map<String, Object> testJson(@RequestBody ScrapyTestTO req) throws Exception {
-        return scrapyService.scrapyByJson(req.getScrapyDataList(), req.getJson());
+        return scrapyService.doScrapyByJson(req.getJson(), req.getScrapyDataList());
     }
 
     @PostMapping("/scrapy/test/url")
     public Map<String, Object> testUrl(@RequestBody ScrapyTestTO req) throws Exception {
-        return scrapyService.testUrl(req);
+        return scrapyService.doScrapyByUrl(req.getUrl(), req.getScrapyDataList());
+    }
+
+    @PostMapping("/scrapy/use-json")
+    public Map<String, Object> scrapyByJson(@RequestBody ScrapyReqTO req) throws Exception {
+        return scrapyService.scrapyByJson(req);
+    }
+
+    @PostMapping("/scrapy/use-url")
+    public Map<String, Object> scrapyByUrl(@RequestBody ScrapyReqTO req) throws Exception {
+        return scrapyService.scrapyByUrl(req);
     }
 }

@@ -1,7 +1,7 @@
 package com.lsb.listProjectBackend.entity;
 
 import com.lsb.listProjectBackend.converter.ThemeCustomListConverter;
-import com.lsb.listProjectBackend.converter.ThemeDBListConverter;
+import com.lsb.listProjectBackend.converter.ThemeDatasetListConverter;
 import com.lsb.listProjectBackend.converter.ThemeImageConverter;
 import com.lsb.listProjectBackend.converter.ThemeLabelListConverter;
 import com.lsb.listProjectBackend.utils.Global;
@@ -32,9 +32,9 @@ public class ThemeHeader implements Serializable {
     @Column(name = "theme_label_list")
     @Convert(converter = ThemeLabelListConverter.class)
     private List<ThemeLabel> themeLabelList;
-    @Column(name = "theme_db_list")
-    @Convert(converter = ThemeDBListConverter.class)
-    private List<ThemeDB> themeDBList;
+    @Column(name = "theme_dataset_list")
+    @Convert(converter = ThemeDatasetListConverter.class)
+    private List<ThemeDataset> themeDatasetList;
     @Column(name = "theme_custom_list")
     @Convert(converter = ThemeCustomListConverter.class)
     private List<ThemeCustom> themeCustomList;

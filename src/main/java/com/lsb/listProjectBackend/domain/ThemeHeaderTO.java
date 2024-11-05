@@ -1,7 +1,7 @@
 package com.lsb.listProjectBackend.domain;
 
 import com.lsb.listProjectBackend.entity.ThemeCustom;
-import com.lsb.listProjectBackend.entity.ThemeDB;
+import com.lsb.listProjectBackend.entity.ThemeDataset;
 import com.lsb.listProjectBackend.entity.ThemeImage;
 import com.lsb.listProjectBackend.entity.ThemeLabel;
 import com.lsb.listProjectBackend.utils.Global;
@@ -17,6 +17,6 @@ public class ThemeHeaderTO {
     private Global.ThemeHeaderType type;
     private ThemeImage themeImage;
     private List<ThemeLabel> themeLabelList;
-    private List<ThemeDB> themeDBList;
+    private List<ThemeDataset> themeDatasetList;
     private List<ThemeCustom> themeCustomList;
 }

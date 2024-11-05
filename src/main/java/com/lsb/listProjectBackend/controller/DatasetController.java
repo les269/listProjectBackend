@@ -21,7 +21,7 @@ public class DatasetController {
         return datasetService.getDataset(name);
     }
 
-    @GetMapping("/dataset/getData")
+    @GetMapping("/dataset/get-data")
     DatasetDataTO getDatasetDataByName(@RequestParam("name") String name) {
         return datasetService.getDatasetDataByName(name);
     }
@@ -32,7 +32,7 @@ public class DatasetController {
     }
 
     @GetMapping("/dataset/all")
-    List<DatasetTO> getAllConfig() {
+    List<DatasetTO> getAllDataset() {
         return datasetService.getAllDataset();
     }
 
@@ -52,9 +52,14 @@ public class DatasetController {
     }
 
     @PostMapping("/dataset/name-list/refresh")
-    void refreshData(@RequestBody List<String> nameList) throws Exception {
+    void refreshDataByNameList(@RequestBody List<String> nameList) throws Exception {
         for (var name : nameList) {
             datasetService.refreshData(name);
         }
+    }
+
+    @PostMapping("/dataset/name-list/get-data")
+    List<DatasetDataTO> getDatasetDataByNameList(@RequestBody List<String> nameList)  {
+        return datasetService.getDatasetDataByNameList(nameList);
     }
 }
