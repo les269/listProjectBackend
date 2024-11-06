@@ -10,7 +10,6 @@ import java.io.Serializable;
 @Data
 @Entity
 @Table(name = "api_config")
-@IdClass(ApiConfigPK.class)
 public class ApiConfig implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
@@ -18,9 +17,6 @@ public class ApiConfig implements Serializable {
     @Id
     @Column(name = "api_name")
     private String apiName;
-    @Id
-    @Column(name = "api_label")
-    private String apiLabel;
 
     @Column(name = "http_method")
     @Enumerated(EnumType.STRING)

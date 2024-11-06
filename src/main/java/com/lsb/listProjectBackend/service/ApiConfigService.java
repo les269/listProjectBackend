@@ -2,7 +2,6 @@ package com.lsb.listProjectBackend.service;
 
 import com.lsb.listProjectBackend.domain.ApiConfigTO;
 import com.lsb.listProjectBackend.entity.ApiConfig;
-import com.lsb.listProjectBackend.entity.ApiConfigPK;
 import com.lsb.listProjectBackend.mapper.ApiConfigMapper;
 import com.lsb.listProjectBackend.repository.ApiConfigRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,13 +21,13 @@ public class ApiConfigService {
         return apiConfigMapper.toDomainList(apiConfigRepository.findAll());
     }
 
-    public List<ApiConfigTO> getListById(List<ApiConfigPK> pkList) {
-        return apiConfigMapper.toDomainList(apiConfigRepository.findAllById(pkList));
+    public List<ApiConfigTO> getListById(List<String> nameList) {
+        return apiConfigMapper.toDomainList(apiConfigRepository.findAllById(nameList));
     }
 
-    public ApiConfigTO getById(ApiConfigPK pk) {
+    public ApiConfigTO getByName(String name) {
         return apiConfigMapper.toDomain(
-                apiConfigRepository.findById(pk).orElse(null)
+                apiConfigRepository.findById(name).orElse(null)
         );
     }
 
@@ -39,6 +38,6 @@ public class ApiConfigService {
     }
 
     public void delete(ApiConfigTO apiConfigTO) {
-        this.apiConfigRepository.deleteById(new ApiConfigPK(apiConfigTO.getApiName(), apiConfigTO.getApiLabel()));
+        this.apiConfigRepository.deleteById(apiConfigTO.getApiName());
     }
 }

@@ -1,7 +1,6 @@
 package com.lsb.listProjectBackend.controller;
 
 import com.lsb.listProjectBackend.domain.ApiConfigTO;
-import com.lsb.listProjectBackend.entity.ApiConfigPK;
 import com.lsb.listProjectBackend.service.ApiConfigService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -19,14 +18,14 @@ public class ApiConfigController {
         return this.apiConfigService.getAll();
     }
 
-    @PostMapping("/api-config/all/id")
-    public List<ApiConfigTO> getListById(@RequestBody List<ApiConfigPK> pkList){
-        return this.apiConfigService.getListById(pkList);
+    @PostMapping("/api-config/all/name")
+    public List<ApiConfigTO> getListByName(@RequestBody List<String> nameList){
+        return this.apiConfigService.getListById(nameList);
     }
 
-    @PostMapping("/api-config/id")
-    public ApiConfigTO getById(@RequestBody ApiConfigPK pk){
-        return this.apiConfigService.getById(pk);
+    @PostMapping("/api-config/name")
+    public ApiConfigTO getByName(@RequestParam("name") String name){
+        return this.apiConfigService.getByName(name);
     }
 
     @PostMapping("/api-config/update")
