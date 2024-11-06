@@ -43,6 +43,10 @@ public class GroupDatasetDataService {
         groupDatasetDataRepository.save(groupDatasetDataMapper.toEntity(req));
     }
 
+    public void updateGroupDatasetDataList(List<GroupDatasetDataTO> req) {
+        groupDatasetDataRepository.saveAll(groupDatasetDataMapper.toEntityList(req));
+    }
+
     public void deleteGroupDatasetData(String groupName, String primeValue) {
         var pk = new GroupDatasetDataPK(groupName, primeValue);
         groupDatasetDataRepository.deleteById(pk);

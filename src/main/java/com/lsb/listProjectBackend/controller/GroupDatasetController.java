@@ -38,5 +38,8 @@ public class GroupDatasetController {
     void deleteGroupDataset(@RequestParam("groupName") String groupName) {
         groupDatasetService.deleteGroupDataset(groupName);
     }
-
+    @GetMapping("/group-dataset/refresh")
+    void refreshGroupDataset(@RequestParam("groupName") String groupName) {
+        groupDatasetService.refreshGroupDataset(groupName);
+    }
 }

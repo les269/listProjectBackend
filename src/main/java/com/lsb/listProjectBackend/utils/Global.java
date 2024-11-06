@@ -19,5 +19,5 @@ public class Global {
 
     public enum GroupDatasetFieldType {string, stringArray, number, date}
 
-    public enum UpdateTagValue {add, remove}
+    public enum GroupDatasetConfigType {scrapy, api}
 }
