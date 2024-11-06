@@ -9,6 +9,7 @@ create TABLE IF NOT EXISTS theme_header (
     theme_label_list TEXT NOT NULL,
     theme_dataset_list TEXT NOT NULL,
     theme_custom_list TEXT NOT NULL,
+    theme_tag_list TEXT NOT NULL,
     PRIMARY KEY (header_id)
 );
 
@@ -18,6 +19,13 @@ create TABLE IF NOT EXISTS theme_custom_value (
     correspond_data_value TEXT NOT NULL,
     custom_value TEXT,
     PRIMARY KEY ( header_id, by_key, correspond_data_value)
+);
+
+create TABLE IF NOT EXISTS theme_tag_value (
+    header_id TEXT NOT NULL,
+    tag TEXT NOT NULL,
+    value_list TEXT NOT NULL,
+    PRIMARY KEY ( header_id, tag)
 );
 
 create TABLE IF NOT EXISTS api_config (

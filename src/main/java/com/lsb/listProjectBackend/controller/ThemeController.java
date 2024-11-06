@@ -58,4 +58,14 @@ public class ThemeController {
     void updateCustomValue(@RequestBody ThemeCustomValueTO customValueTO){
         themeService.updateCustomValue(customValueTO);
     }
+
+    @PostMapping("/theme/tag/update")
+    void updateTagValue(@RequestBody List<ThemeTagValueTO> list) {
+        themeService.updateTagValue(list);
+    }
+
+    @GetMapping("/theme/tag/value")
+    List<ThemeTagValueTO> getTagValueList(@RequestParam("headerId") String headerId) {
+        return themeService.getTagValueList(headerId);
+    }
 }

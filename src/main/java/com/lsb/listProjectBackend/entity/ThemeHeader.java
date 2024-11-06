@@ -1,9 +1,6 @@
 package com.lsb.listProjectBackend.entity;
 
-import com.lsb.listProjectBackend.converter.ThemeCustomListConverter;
-import com.lsb.listProjectBackend.converter.ThemeDatasetListConverter;
-import com.lsb.listProjectBackend.converter.ThemeImageConverter;
-import com.lsb.listProjectBackend.converter.ThemeLabelListConverter;
+import com.lsb.listProjectBackend.converter.*;
 import com.lsb.listProjectBackend.utils.Global;
 import jakarta.persistence.*;
 import lombok.Data;
@@ -38,6 +35,9 @@ public class ThemeHeader implements Serializable {
     @Column(name = "theme_custom_list")
     @Convert(converter = ThemeCustomListConverter.class)
     private List<ThemeCustom> themeCustomList;
+    @Column(name = "theme_tag_list")
+    @Convert(converter = ThemeTagListConverter.class)
+    private List<ThemeTag> themeTagList;
 
     @Serial
     private static final long serialVersionUID = 1L;

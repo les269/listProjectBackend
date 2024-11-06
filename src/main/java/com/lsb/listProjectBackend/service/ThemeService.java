@@ -3,6 +3,7 @@ package com.lsb.listProjectBackend.service;
 import com.lsb.listProjectBackend.domain.*;
 import com.lsb.listProjectBackend.entity.*;
 import com.lsb.listProjectBackend.mapper.ThemeMapper;
+import com.lsb.listProjectBackend.mapper.ThemeTagValueMapper;
 import com.lsb.listProjectBackend.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -20,8 +21,11 @@ public class ThemeService {
     private ThemeHeaderRepository themeHeaderRepository;
     @Autowired
     private ThemeCustomValueRepository themeCustomValueRepository;
+    @Autowired
+    private ThemeTagValueRepository themeTagValueRepository;
 
     private final ThemeMapper themeMapper = ThemeMapper.INSTANCE;
+    private final ThemeTagValueMapper themeTagValueMapper = ThemeTagValueMapper.INSTANCE;
 
     public List<ThemeHeaderTO> getAllTheme() {
         return themeMapper.headerToDomainList(themeHeaderRepository.findAll());
@@ -91,7 +95,47 @@ public class ThemeService {
 
     }
 
-    public void updateCustomValue(ThemeCustomValueTO customValueTO){
+    public void updateCustomValue(ThemeCustomValueTO customValueTO) {
         themeCustomValueRepository.save(themeMapper.customValueToEntity(customValueTO));
+    }
+
+//    public List<String> updateTagValue(ThemeTagValueReqTO tagValueReqTO) {
+//        List<String> result = new ArrayList<>();
+//        ThemeTagValuePK pk = new ThemeTagValuePK(tagValueReqTO.getHeaderId(), tagValueReqTO.getTag());
+//        var optional = themeTagValueRepository.findById(pk);
+//        optional.ifPresent(themeTagValue -> result.addAll(themeTagValue.getValueList()));
+//        switch (tagValueReqTO.getType()) {
+//            case add -> result.add(tagValueReqTO.getValue());
+//            case remove -> result.remove(tagValueReqTO.getValue());
+//        }
+//
+//        ThemeTagValue themeTagValue = new ThemeTagValue();
+//        themeTagValue.setHeaderId(tagValueReqTO.getHeaderId());
+//        themeTagValue.setTag(tagValueReqTO.getTag());
+//        themeTagValue.setValueList(result);
+//
+//        return result;
+//    }
+
+    public void updateTagValue(List<ThemeTagValueTO> req) {
+        List<ThemeTagValue> list = themeTagValueMapper.toEntityList(req);
+        themeTagValueRepository.saveAll(list);
+    }
+
+    public List<ThemeTagValueTO> getTagValueList(String headerId) {
+        var result = themeTagValueMapper.toDomainList(themeTagValueRepository.findByHeaderId(headerId));
+        themeHeaderRepository.findById(headerId).ifPresent(theme -> {
+            for (var tag : theme.getThemeTagList()) {
+                var tagValue = result.stream().filter(x -> x.getTag().equals(tag.getTag())).findFirst();
+                if (tagValue.isEmpty()) {
+                    ThemeTagValueTO themeTagValueTO = new ThemeTagValueTO();
+                    themeTagValueTO.setHeaderId(headerId);
+                    themeTagValueTO.setTag(tag.getTag());
+                    themeTagValueTO.setValueList(new ArrayList<>());
+                    result.add(themeTagValueTO);
+                }
+            }
+        });
+        return result;
     }
 }

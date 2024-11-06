@@ -1,9 +1,6 @@
 package com.lsb.listProjectBackend.domain;
 
-import com.lsb.listProjectBackend.entity.ThemeCustom;
-import com.lsb.listProjectBackend.entity.ThemeDataset;
-import com.lsb.listProjectBackend.entity.ThemeImage;
-import com.lsb.listProjectBackend.entity.ThemeLabel;
+import com.lsb.listProjectBackend.entity.*;
 import com.lsb.listProjectBackend.utils.Global;
 import lombok.Data;
 
@@ -19,4 +16,5 @@ public class ThemeHeaderTO {
     private List<ThemeLabel> themeLabelList;
     private List<ThemeDataset> themeDatasetList;
     private List<ThemeCustom> themeCustomList;
+    private List<ThemeTag> themeTagList;
 }

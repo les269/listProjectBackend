@@ -18,4 +18,6 @@ public class Global {
     public enum DatasetFieldType {path, fileName, fixedString, fileSize}
 
     public enum GroupDatasetFieldType {string, stringArray, number, date}
+
+    public enum UpdateTagValue {add, remove}
 }
