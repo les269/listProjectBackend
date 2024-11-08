@@ -38,6 +38,10 @@ public class ThemeHeader implements Serializable {
     @Column(name = "theme_tag_list")
     @Convert(converter = ThemeTagListConverter.class)
     private List<ThemeTag> themeTagList;
+    @Column(name = "theme_other_setting")
+    @Convert(converter = ThemeOtherSettingConverter.class)
+    private ThemeOtherSetting themeOtherSetting;
+    private Integer seq;
 
     @Serial
     private static final long serialVersionUID = 1L;

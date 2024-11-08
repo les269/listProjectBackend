@@ -17,4 +17,6 @@ public class ThemeHeaderTO {
     private List<ThemeDataset> themeDatasetList;
     private List<ThemeCustom> themeCustomList;
     private List<ThemeTag> themeTagList;
+    private ThemeOtherSetting themeOtherSetting;
+    private Integer seq;
 }

@@ -10,6 +10,8 @@ create TABLE IF NOT EXISTS theme_header (
     theme_dataset_list TEXT NOT NULL,
     theme_custom_list TEXT NOT NULL,
     theme_tag_list TEXT NOT NULL,
+    theme_other_setting TEXT NOT NULL,
+    seq	INTEGER,
     PRIMARY KEY (header_id)
 );
 

@@ -1,5 +1,6 @@
 package com.lsb.listProjectBackend.entity;
 
+import com.lsb.listProjectBackend.converter.StringListConverter;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -17,5 +18,6 @@ public class ThemeTagValue {
     private String tag;
 
     @Column(name = "value_list")
+    @Convert(converter = StringListConverter.class)
     private List<String> valueList;
 }

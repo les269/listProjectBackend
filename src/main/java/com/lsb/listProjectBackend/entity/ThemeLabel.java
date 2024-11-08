@@ -1,5 +1,6 @@
 package com.lsb.listProjectBackend.entity;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.lsb.listProjectBackend.utils.Global.ThemeLabelType;
 import jakarta.persistence.*;
@@ -26,5 +27,10 @@ public class ThemeLabel  {
     private boolean isSort;
     @JsonProperty("isDefaultKey")
     private boolean isDefaultKey;
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
+    private String dateFormat;
+    private String width;
+    private String maxWidth;
+    private String minWidth;
 
 }
