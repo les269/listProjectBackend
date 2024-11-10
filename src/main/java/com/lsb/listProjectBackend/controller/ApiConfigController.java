@@ -23,7 +23,7 @@ public class ApiConfigController {
         return this.apiConfigService.getListById(nameList);
     }
 
-    @PostMapping("/api-config/name")
+    @GetMapping("/api-config/name")
     public ApiConfigTO getByName(@RequestParam("name") String name){
         return this.apiConfigService.getByName(name);
     }

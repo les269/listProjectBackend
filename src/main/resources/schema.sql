@@ -23,6 +23,13 @@ create TABLE IF NOT EXISTS theme_custom_value (
     PRIMARY KEY ( header_id, by_key, correspond_data_value)
 );
 
+create TABLE IF NOT EXISTS theme_top_custom_value (
+    header_id TEXT NOT NULL,
+    by_key TEXT NOT NULL,
+    custom_value TEXT,
+    PRIMARY KEY ( header_id, by_key)
+);
+
 create TABLE IF NOT EXISTS theme_tag_value (
     header_id TEXT NOT NULL,
     tag TEXT NOT NULL,

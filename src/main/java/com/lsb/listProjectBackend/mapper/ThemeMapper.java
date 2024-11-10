@@ -18,4 +18,6 @@ public interface ThemeMapper {
 
 
     ThemeCustomValue customValueToEntity(ThemeCustomValueTO to);
+
+    ThemeTopCustomValue topCustomValueToEntity(ThemeTopCustomValueTO to);
 }

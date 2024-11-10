@@ -68,4 +68,15 @@ public class ThemeController {
     List<ThemeTagValueTO> getTagValueList(@RequestParam("headerId") String headerId) {
         return themeService.getTagValueList(headerId);
     }
+
+    @GetMapping("/theme/top-custom/value")
+    Map<String, String> findTopCustomValue(@RequestParam("headerId") String headerId)  {
+        return themeService.findTopCustomValue(headerId);
+    }
+
+    @PostMapping("/theme/top-custom/update")
+    void updateTopCustomValue(@RequestBody ThemeTopCustomValueTO topCustomValueTO){
+        themeService.updateTopCustomValue(topCustomValueTO);
+    }
+
 }

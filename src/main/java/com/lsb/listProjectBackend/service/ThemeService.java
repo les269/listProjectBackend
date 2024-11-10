@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toMap;
@@ -21,6 +22,8 @@ public class ThemeService {
     private ThemeHeaderRepository themeHeaderRepository;
     @Autowired
     private ThemeCustomValueRepository themeCustomValueRepository;
+    @Autowired
+    private ThemeTopCustomValueRepository themeTopCustomValueRepository;
     @Autowired
     private ThemeTagValueRepository themeTagValueRepository;
 
@@ -99,24 +102,6 @@ public class ThemeService {
         themeCustomValueRepository.save(themeMapper.customValueToEntity(customValueTO));
     }
 
-//    public List<String> updateTagValue(ThemeTagValueReqTO tagValueReqTO) {
-//        List<String> result = new ArrayList<>();
-//        ThemeTagValuePK pk = new ThemeTagValuePK(tagValueReqTO.getHeaderId(), tagValueReqTO.getTag());
-//        var optional = themeTagValueRepository.findById(pk);
-//        optional.ifPresent(themeTagValue -> result.addAll(themeTagValue.getValueList()));
-//        switch (tagValueReqTO.getType()) {
-//            case add -> result.add(tagValueReqTO.getValue());
-//            case remove -> result.remove(tagValueReqTO.getValue());
-//        }
-//
-//        ThemeTagValue themeTagValue = new ThemeTagValue();
-//        themeTagValue.setHeaderId(tagValueReqTO.getHeaderId());
-//        themeTagValue.setTag(tagValueReqTO.getTag());
-//        themeTagValue.setValueList(result);
-//
-//        return result;
-//    }
-
     public void updateTagValue(List<ThemeTagValueTO> req) {
         List<ThemeTagValue> list = themeTagValueMapper.toEntityList(req);
         themeTagValueRepository.saveAll(list);
@@ -137,5 +122,16 @@ public class ThemeService {
             }
         });
         return result;
+    }
+
+    public Map<String, String> findTopCustomValue(String headerId) {
+        List<ThemeTopCustomValue> list = themeTopCustomValueRepository.findByHeaderId(headerId);
+        //先用data來groupBy,toMap成自定義的byKey跟value
+        return list.stream().collect(
+                Collectors.toMap(ThemeTopCustomValue::getByKey, ThemeTopCustomValue::getCustomValue));
+    }
+
+    public void updateTopCustomValue(ThemeTopCustomValueTO topCustomValueTO) {
+        themeTopCustomValueRepository.save(themeMapper.topCustomValueToEntity(topCustomValueTO));
     }
 }
