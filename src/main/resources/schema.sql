@@ -92,3 +92,10 @@ create TABLE IF NOT EXISTS dataset_data (
     PRIMARY KEY (dataset_name)
 );
 
+create TABLE IF NOT EXISTS replace_value_map (
+    name TEXT,
+    map TEXT NOT NULL,
+    created_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (name)
+);

@@ -2,9 +2,7 @@ package com.lsb.listProjectBackend.controller;
 
 import com.lsb.listProjectBackend.domain.DatasetDataTO;
 import com.lsb.listProjectBackend.domain.DatasetTO;
-import com.lsb.listProjectBackend.domain.ScrapyConfigTO;
 import com.lsb.listProjectBackend.service.DatasetService;
-import com.lsb.listProjectBackend.service.ScrapyService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 

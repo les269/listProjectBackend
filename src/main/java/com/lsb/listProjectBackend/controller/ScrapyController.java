@@ -2,16 +2,11 @@ package com.lsb.listProjectBackend.controller;
 
 import com.lsb.listProjectBackend.domain.*;
 import com.lsb.listProjectBackend.service.ScrapyService;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.IOException;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @CrossOrigin("*")
 @RestController
