@@ -3,11 +3,9 @@ package com.lsb.listProjectBackend.service.impl;
 import com.lsb.listProjectBackend.domain.LsbException;
 import com.lsb.listProjectBackend.domain.ScrapyConfigTO;
 import com.lsb.listProjectBackend.domain.ScrapyReqTO;
-import com.lsb.listProjectBackend.entity.Cookie;
-import com.lsb.listProjectBackend.entity.CssSelect;
-import com.lsb.listProjectBackend.entity.ScrapyConfig;
-import com.lsb.listProjectBackend.entity.ScrapyData;
+import com.lsb.listProjectBackend.entity.*;
 import com.lsb.listProjectBackend.mapper.ScrapyConfigMapper;
+import com.lsb.listProjectBackend.repository.ReplaceValueMapRepository;
 import com.lsb.listProjectBackend.repository.ScrapyConfigRepository;
 import com.lsb.listProjectBackend.service.ScrapyService;
 import com.lsb.listProjectBackend.utils.Global;
@@ -27,6 +25,9 @@ import java.util.stream.Collectors;
 public class ScrapyServiceImpl implements ScrapyService {
     @Autowired
     private ScrapyConfigRepository scrapyConfigRepository;
+    @Autowired
+    private ReplaceValueMapRepository replaceValueMapRepository;
+
     private final ScrapyConfigMapper scrapyConfigMapper = ScrapyConfigMapper.INSTANCE;
 
     public List<ScrapyConfigTO> getAllConfig() {
@@ -111,7 +112,7 @@ public class ScrapyServiceImpl implements ScrapyService {
         return result;
     }
 
-    public Map<String, Object> scrapyByUrl(ScrapyReqTO to)  {
+    public Map<String, Object> scrapyByUrl(ScrapyReqTO to) {
         ScrapyConfigTO scrapyConfigTO = getConfig(to.getScrapyName());
         if (scrapyConfigTO != null) {
             return doScrapyByUrl(to.getUrl(), scrapyConfigTO.getData());
@@ -129,7 +130,9 @@ public class ScrapyServiceImpl implements ScrapyService {
                             collect(Collectors.toMap(Cookie::getName, Cookie::getValue));
                     try {
                         Document document = getConnection(url)
-                                .cookies(cookies).get();
+                                .cookies(cookies)
+                                .postDataCharset("UTF-8")
+                                .get();
                         useCssSelect(document.html(), data.getCssSelectList(), result);
                     } catch (IOException e) {
                         throw new RuntimeException(e);
@@ -139,7 +142,7 @@ public class ScrapyServiceImpl implements ScrapyService {
     }
 
     public void useCssSelect(String htmlString, List<CssSelect> select, Map<String, Object> result) {
-        Map<String, Map<String, String>> replaceValueMap = new HashMap<>();
+        Map<String, Map<String, Object>> replaceValueMap = new HashMap<>();
         try {
             Document doc = Jsoup.parse(htmlString);
             for (CssSelect cssSelect : select) {
@@ -170,6 +173,7 @@ public class ScrapyServiceImpl implements ScrapyService {
                 }
                 // 判斷是否合併已有資料
                 mergeResult(result, cssSelect.getKey(), textList, cssSelect.isConvertToArray());
+                resultReplaceValue(cssSelect, result, replaceValueMap);
             }
         } catch (Exception e) {
             throw new LsbException(e.getMessage());
@@ -193,10 +197,33 @@ public class ScrapyServiceImpl implements ScrapyService {
         }
     }
 
+    private void resultReplaceValue(CssSelect cssSelect, Map<String, Object> result, Map<String, Map<String, Object>> replaceValueMap) {
+        // 提前返回，如果沒有 replaceValueMapName
+        var name = cssSelect.getReplaceValueMapName();
+        if (Utils.isBlank(name)) return;
+        // 獲取 key
+        var key = cssSelect.getKey();
+
+        Map<String, Object> map = replaceValueMap.computeIfAbsent(name, k ->
+                replaceValueMapRepository.findById(k)
+                        .map(ReplaceValueMap::getMap)
+                        .orElseGet(HashMap::new)
+        );
+
+        // 處理 result 中的 key，確保其值為 List<String>
+        if (result.containsKey(key) && result.get(key) instanceof List<?> list) {
+            List<String> replacedList = list.stream()
+                    .map(Object::toString) // 確保元素轉為 String
+                    .map(s -> Utils.isNotBlank(map.get(s).toString()) ? map.get(s).toString() : s)
+                    .toList();
+            result.put(key, replacedList);
+        }
+    }
+
     private Connection getConnection(String url) {
         return Jsoup.connect(url)
                 .header("Accept-Language", "zh-TW,zh;q=0.9,en-US;q=0.8,en;q=0.7,zh-CN;q=0.6,ja;q=0.5")
                 .header("Accept", "*/*")
-                .header("Accept-Encoding", "gzip, deflate, br, zstd");
+                .header("Content-Type", "text/html; charset=UTF-8");
     }
 }

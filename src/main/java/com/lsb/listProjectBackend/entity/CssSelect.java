@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 
 @Data
-@JsonInclude(JsonInclude.Include.NON_NULL)
 public class CssSelect {
     private String key;
     private String value;
@@ -12,6 +11,7 @@ public class CssSelect {
     private String attr;
     private boolean convertToArray;
     private boolean onlyOwn;
-    private String replaceRegular = "";
-    private String replaceRegularTo = "";
+    private String replaceRegular;
+    private String replaceRegularTo;
+    private String replaceValueMapName;
 }

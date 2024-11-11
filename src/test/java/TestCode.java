@@ -45,10 +45,11 @@ public class TestCode {
 
     @Test
     public void test2() throws JsonProcessingException {
-        var  objectMapper = new ObjectMapper();
-        var object=objectMapper.readValue("{\"a\":{\"b\":{\"c\":\"123\"}}}",Object.class);
+        var objectMapper = new ObjectMapper();
+        var object = objectMapper.readValue("{\"a\":{\"b\":{\"c\":\"123\"}}}", Object.class);
         System.out.println(object);
     }
+
     @Test
     public void test3() throws IOException {
     }
