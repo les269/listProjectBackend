@@ -5,6 +5,7 @@ import lombok.Data;
 
 @Data
 public class CssSelect {
+    private Integer seq;
     private String key;
     private String value;
     private String replaceString;

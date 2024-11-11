@@ -13,6 +13,8 @@ import com.lsb.listProjectBackend.utils.Utils;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -23,6 +25,7 @@ import java.util.stream.Collectors;
 
 @Service
 public class ScrapyServiceImpl implements ScrapyService {
+    final static Logger logger = LoggerFactory.getLogger(ScrapyServiceImpl.class);
     @Autowired
     private ScrapyConfigRepository scrapyConfigRepository;
     @Autowired
@@ -89,7 +92,7 @@ public class ScrapyServiceImpl implements ScrapyService {
                 if (redirect && Utils.isNotBlank(redirectUrl)) {
                     url = redirectUrl;
                 }
-                Document document = getConnection(url).cookies(cookies).get();
+                Document document = getConnection(url).cookies(cookies).followRedirects(true).get();
                 useCssSelect(document.html(), data.getCssSelectList(), result);
                 if (result.containsKey("__redirect") && Utils.isNotBlank(result.get("__redirect").toString())) {
                     redirect = true;
@@ -102,7 +105,7 @@ public class ScrapyServiceImpl implements ScrapyService {
                 useCssSelect(document.html(), data.getCssSelectList(), result);
                 redirect = false;
                 redirectUrl = "";
-            } else if (Global.ScrapyPageType.scrapyData == data.getScrapyPageType()) {
+            } else if (Global.ScrapyPageType.scrapyData == data.getScrapyPageType() && Utils.isNotBlank(data.getUrl())) {
                 String url = Utils.replaceValue(data.getUrl(), json);
                 Document document = getConnection(url)
                         .cookies(cookies).get();
@@ -145,8 +148,9 @@ public class ScrapyServiceImpl implements ScrapyService {
 
         try {
             Document doc = Jsoup.parse(htmlString);
-            for (CssSelect cssSelect : select) {
-                List<String> textList = doc.select(cssSelect.getValue())
+            for (CssSelect cssSelect : select.stream().sorted((a, b) -> a.getSeq() > b.getSeq() ? 1 : -1).toList()) {
+                var value = Utils.replaceValue(cssSelect.getValue(), result);
+                List<String> textList = doc.select(value)
                         .stream()
                         .map(x -> {
                             if (Utils.isNotBlank(cssSelect.getAttr())) {
@@ -179,6 +183,7 @@ public class ScrapyServiceImpl implements ScrapyService {
                 resultReplaceValue(cssSelect, result, replaceValueMap);
             }
         } catch (Exception e) {
+            logger.error("An error occurred", e);
             throw new LsbException(e.getMessage());
         }
     }
@@ -217,7 +222,7 @@ public class ScrapyServiceImpl implements ScrapyService {
         if (result.containsKey(key) && result.get(key) instanceof List<?> list) {
             List<String> replacedList = list.stream()
                     .map(Object::toString) // 確保元素轉為 String
-                    .map(s -> Utils.isNotBlank(map.get(s).toString()) ? map.get(s).toString() : s)
+                    .map(s -> map.containsKey(s) && Utils.isNotBlank(map.get(s).toString()) ? map.get(s).toString() : s)
                     .toList();
             result.put(key, replacedList);
         }
