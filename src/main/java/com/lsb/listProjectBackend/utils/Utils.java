@@ -182,8 +182,19 @@ public class Utils {
         if (isBlank(extension)) {
             return false;
         }
+        var extList = Arrays.stream(extension.split(","))
+                .toList()
+                .stream()
+                .map(x->x.trim().toLowerCase())
+                .filter(Utils::isNotBlank)
+                .toList();
         if (file.isFile()) {
-            return file.getName().toLowerCase().endsWith("." + extension.trim().toLowerCase());
+            String fileName = file.getName().toLowerCase();
+            for (String ext : extList) {
+                if (fileName.endsWith("." + ext)) {
+                    return true;
+                }
+            }
         }
         return false;
     }
