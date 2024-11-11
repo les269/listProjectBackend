@@ -142,7 +142,7 @@ public class ScrapyServiceImpl implements ScrapyService {
     }
 
     public void useCssSelect(String htmlString, List<CssSelect> select, Map<String, Object> result) {
-        Map<String, Map<String, Object>> replaceValueMap = new HashMap<>();
+
         try {
             Document doc = Jsoup.parse(htmlString);
             for (CssSelect cssSelect : select) {
@@ -173,6 +173,9 @@ public class ScrapyServiceImpl implements ScrapyService {
                 }
                 // 判斷是否合併已有資料
                 mergeResult(result, cssSelect.getKey(), textList, cssSelect.isConvertToArray());
+            }
+            Map<String, Map<String, Object>> replaceValueMap = new HashMap<>();
+            for (CssSelect cssSelect : select) {
                 resultReplaceValue(cssSelect, result, replaceValueMap);
             }
         } catch (Exception e) {
