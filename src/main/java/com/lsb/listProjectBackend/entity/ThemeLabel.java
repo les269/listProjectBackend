@@ -32,5 +32,7 @@ public class ThemeLabel  {
     private String width;
     private String maxWidth;
     private String minWidth;
+    @JsonProperty("autoComplete")
+    private boolean autoComplete;
 
 }
