@@ -9,5 +9,5 @@ public class GroupDatasetField {
     private Global.GroupDatasetFieldType type;
     private String key;
     private String label;
-    private String fixedString;
+    private String replaceValueMapName;
 }

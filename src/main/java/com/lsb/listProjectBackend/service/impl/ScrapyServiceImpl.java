@@ -145,7 +145,6 @@ public class ScrapyServiceImpl implements ScrapyService {
     }
 
     public void useCssSelect(String htmlString, List<CssSelect> select, Map<String, Object> result) {
-
         try {
             Document doc = Jsoup.parse(htmlString);
             for (CssSelect cssSelect : select.stream().sorted((a, b) -> a.getSeq() > b.getSeq() ? 1 : -1).toList()) {

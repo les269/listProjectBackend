@@ -7,6 +7,7 @@ import com.lsb.listProjectBackend.entity.ApiConfig;
 import com.lsb.listProjectBackend.mapper.ApiConfigMapper;
 import com.lsb.listProjectBackend.repository.ApiConfigRepository;
 import com.lsb.listProjectBackend.service.ApiConfigService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpStatusCodeException;
@@ -16,6 +17,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+@Slf4j
 @Service
 public class ApiConfigServiceImpl implements ApiConfigService {
     @Autowired
@@ -57,7 +59,27 @@ public class ApiConfigServiceImpl implements ApiConfigService {
     public List<Map<String, Object>> callApi(ApiConfigTO apiConfig) throws Exception {
         try {
             String url = apiConfig.getEndpointUrl();
-            String response = restTemplate.getForObject(url, String.class);
+            String response = "";
+            switch (apiConfig.getHttpMethod()) {
+                case get:
+                    response = restTemplate.getForObject(url, String.class);
+                    break;
+                case post:
+                    response = restTemplate.postForObject(url,
+                            objectMapper.readValue(apiConfig.getRequestBody(), new TypeReference<>() {
+                            }),
+                            String.class);
+                    break;
+                case put:
+                    restTemplate.put(url,
+                            objectMapper.readValue(apiConfig.getRequestBody(), new TypeReference<>() {
+                            }),
+                            String.class);
+                    break;
+                case delete:
+                    restTemplate.delete(url, String.class);
+                    break;
+            }
             if (response != null) {
                 return objectMapper.readValue(response, new TypeReference<>() {
                 });
@@ -65,10 +87,10 @@ public class ApiConfigServiceImpl implements ApiConfigService {
                 throw new IllegalArgumentException("Response is null");
             }
         } catch (HttpStatusCodeException e) {
-            System.err.println("HTTP error: " + e.getStatusCode() + " - " + e.getResponseBodyAsString());
+            log.error("HTTP error", e);
             throw e;
         } catch (Exception e) {
-            System.err.println("Failed to call API: " + e.getMessage());
+            log.error("Failed to call API", e);
             throw e;
         }
     }

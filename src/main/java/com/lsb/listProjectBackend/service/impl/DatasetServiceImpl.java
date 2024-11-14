@@ -5,11 +5,9 @@ import com.lsb.listProjectBackend.entity.*;
 import com.lsb.listProjectBackend.mapper.DatasetDataMapper;
 import com.lsb.listProjectBackend.mapper.DatasetMapper;
 import com.lsb.listProjectBackend.mapper.GroupDatasetDataMapper;
-import com.lsb.listProjectBackend.repository.DatasetDataRepository;
-import com.lsb.listProjectBackend.repository.DatasetRepository;
-import com.lsb.listProjectBackend.repository.GroupDatasetDataRepository;
-import com.lsb.listProjectBackend.repository.GroupDatasetRepository;
+import com.lsb.listProjectBackend.repository.*;
 import com.lsb.listProjectBackend.service.DatasetService;
+import com.lsb.listProjectBackend.service.GroupDatasetService;
 import com.lsb.listProjectBackend.service.ImageService;
 import com.lsb.listProjectBackend.service.ScrapyService;
 import com.lsb.listProjectBackend.utils.Global;
@@ -31,11 +29,15 @@ public class DatasetServiceImpl implements DatasetService {
     @Autowired
     private GroupDatasetRepository groupDatasetRepository;
     @Autowired
+    private GroupDatasetService groupDatasetService;
+    @Autowired
     private ScrapyService scrapyService;
     @Autowired
     private DatasetDataRepository datasetDataRepository;
     @Autowired
     private ImageService imageService;
+    @Autowired
+    private ReplaceValueMapRepository replaceValueMapRepository;
 
     private final DatasetMapper datasetMapper = DatasetMapper.INSTANCE;
     private final DatasetDataMapper datasetDataMapper = DatasetDataMapper.INSTANCE;
@@ -78,6 +80,7 @@ public class DatasetServiceImpl implements DatasetService {
         DatasetConfig datasetConfig = dataset.getConfig();
         String groupName = datasetConfig.getGroupName();
         Global.ConfigDatasetType configDatasetType = datasetConfig.getType();
+        groupDatasetService.refreshGroupDataset(groupName);
 
         // 1. 執行歸檔
         doFiling(datasetConfig);
@@ -96,6 +99,9 @@ public class DatasetServiceImpl implements DatasetService {
         else if (configDatasetType == Global.ConfigDatasetType.file || configDatasetType == Global.ConfigDatasetType.folder) {
             doScrapy(name, datasetConfig);
         }
+
+        useReplaceValueMap(groupName);
+
         // 下載圖片
         doDownloadImage(groupName, datasetConfig);
     }
@@ -153,8 +159,8 @@ public class DatasetServiceImpl implements DatasetService {
         // 檢查是否有這GroupDataset, 並判斷該GroupDataset的Scrapy是否有可預設使用的爬蟲
         var groupDatasetOptional = groupDatasetRepository.findById(datasetConfig.getGroupName());
         // 把缺少資訊的資料進行爬蟲
-        if (groupDatasetOptional.isPresent()) {
-            ScrapyConfigTO scrapyConfigTO = getDefaultScrapy(groupName);
+        ScrapyConfigTO scrapyConfigTO = getDefaultScrapy(groupName);
+        if (groupDatasetOptional.isPresent() && scrapyConfigTO != null) {
             GroupDatasetConfig groupDatasetConfig = groupDatasetOptional.get().getConfig();
             List<GroupDatasetData> saveGroupDataset = new ArrayList<>();
             for (String fileName : needScrapyList) {
@@ -180,7 +186,8 @@ public class DatasetServiceImpl implements DatasetService {
                                 case Global.DatasetFieldType.fileName -> file.getName();
                                 case Global.DatasetFieldType.fileSize -> file.length();
                                 case Global.DatasetFieldType.path -> file.getAbsoluteFile();
-                                case Global.DatasetFieldType.fixedString -> datasetField.getFixedString();
+                                case Global.DatasetFieldType.fixedString ->
+                                        Utils.replaceValue(datasetField.getFixedString(), x.getJson());
                             };
                             x.getJson().put(datasetField.getKey(), value);
                         });
@@ -284,5 +291,52 @@ public class DatasetServiceImpl implements DatasetService {
             case folder -> file.isDirectory();
             default -> false;
         };
+    }
+
+    private void useReplaceValueMap(String groupName) {
+        Map<String, Map<String, Object>> replaceValueMap = new HashMap<>();
+        var groupDataset = groupDatasetRepository.findById(groupName).orElse(null);
+        if (groupDataset == null) {
+            return;
+        }
+        var dataList = groupDatasetDataRepository.findByGroupName(groupName);
+        if (dataList.isEmpty()) {
+            return;
+        }
+        for (GroupDatasetField field : groupDataset.getConfig().getGroupDatasetFieldList()) {
+            var fieldKey = field.getKey();
+            var mapName = field.getReplaceValueMapName();
+            if (Utils.isBlank(mapName)) {
+                continue;
+            }
+            var map = replaceValueMap.computeIfAbsent(mapName, key ->
+                    replaceValueMapRepository.findById(key).map(ReplaceValueMap::getMap).orElse(null)
+            );
+            if (map == null || map.isEmpty()) {
+                continue;
+            }
+            for (var data : dataList) {
+                var json = data.getJson();
+                switch (field.getType()) {
+                    case string -> {
+                        var s = json.get(fieldKey).toString();
+                        if (map.containsKey(s) && Utils.isNotBlank(map.get(s).toString())) {
+                            json.put(fieldKey, map.get(s));
+                        }
+                    }
+                    case stringArray -> {
+                        if (json.get(fieldKey) instanceof List<?> list) {
+                            var replacedList = list
+                                    .stream()
+                                    .map(Object::toString) // 確保元素轉為 String
+                                    .map(s -> map.containsKey(s) && Utils.isNotBlank(map.get(s).toString()) ? map.get(s).toString() : s)
+                                    .toList();
+                            json.put(fieldKey, replacedList);
+                        }
+                    }
+                }
+            }
+        }
+        groupDatasetDataRepository.saveAll(dataList);
     }
 }
