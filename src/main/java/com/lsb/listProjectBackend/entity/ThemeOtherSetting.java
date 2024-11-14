@@ -10,4 +10,5 @@ public class ThemeOtherSetting {
     private Integer listPageSize;
     private boolean showDuplicate;
     private List<ThemeTopCustom> themeTopCustomList;
+    private String checkFileExist;
 }

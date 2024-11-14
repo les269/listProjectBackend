@@ -20,8 +20,6 @@ public class ImageProxyController {
         RestTemplate restTemplate = new RestTemplate();
         try {
             byte[] imageBytes = restTemplate.getForObject(url, byte[].class);
-            HttpHeaders headers = new HttpHeaders();
-            headers.set("Content-Type", "image/jpeg");
             return ResponseEntity.ok()
                     .cacheControl(CacheControl.maxAge(1, TimeUnit.DAYS))
                     .body(imageBytes);

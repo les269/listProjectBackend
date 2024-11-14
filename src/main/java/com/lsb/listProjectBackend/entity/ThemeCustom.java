@@ -22,5 +22,8 @@ public class ThemeCustom  {
     private String buttonIconTrue;
     private String buttonIconFalse;
     private ApiConfig apiConfig;
+    private String deleteFile;
+    private String filePathForMoveTo;
+    private String moveTo;
 
 }

@@ -10,6 +10,7 @@ import com.lsb.listProjectBackend.repository.ScrapyConfigRepository;
 import com.lsb.listProjectBackend.service.ScrapyService;
 import com.lsb.listProjectBackend.utils.Global;
 import com.lsb.listProjectBackend.utils.Utils;
+import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -22,10 +23,9 @@ import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
-
+@Slf4j
 @Service
 public class ScrapyServiceImpl implements ScrapyService {
-    final static Logger logger = LoggerFactory.getLogger(ScrapyServiceImpl.class);
     @Autowired
     private ScrapyConfigRepository scrapyConfigRepository;
     @Autowired
@@ -183,7 +183,7 @@ public class ScrapyServiceImpl implements ScrapyService {
                 resultReplaceValue(cssSelect, result, replaceValueMap);
             }
         } catch (Exception e) {
-            logger.error("An error occurred", e);
+            log.error("An error occurred", e);
             throw new LsbException(e.getMessage());
         }
     }
