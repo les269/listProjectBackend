@@ -9,6 +9,7 @@ import java.util.List;
 
 @CrossOrigin("*")
 @RestController
+@RequestMapping("api")
 public class ApiConfigController {
     @Autowired
     private ApiConfigService apiConfigService;

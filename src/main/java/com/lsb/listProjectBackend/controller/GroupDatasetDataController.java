@@ -10,6 +10,7 @@ import java.util.List;
 
 @CrossOrigin("*")
 @RestController
+@RequestMapping("api")
 public class GroupDatasetDataController {
     @Autowired
     private GroupDatasetDataService groupDatasetDataService;

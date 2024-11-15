@@ -5,10 +5,7 @@ import com.lsb.listProjectBackend.domain.FileRequest;
 import com.lsb.listProjectBackend.domain.LsbException;
 import com.lsb.listProjectBackend.utils.Utils;
 import com.sun.jna.platform.FileUtils;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.io.File;
 import java.nio.file.Path;
@@ -21,6 +18,7 @@ import java.util.stream.Collectors;
 
 @CrossOrigin("*")
 @RestController
+@RequestMapping("api")
 public class FileController {
 
     @PostMapping("/file/delete")

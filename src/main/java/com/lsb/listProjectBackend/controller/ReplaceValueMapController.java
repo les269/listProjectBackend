@@ -10,6 +10,7 @@ import java.util.List;
 
 @CrossOrigin("*")
 @RestController
+@RequestMapping("api")
 public class ReplaceValueMapController {
     @Autowired
     private ReplaceValueMapService replaceValueMapService;

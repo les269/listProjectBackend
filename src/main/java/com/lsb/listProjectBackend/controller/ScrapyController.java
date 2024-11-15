@@ -10,6 +10,7 @@ import java.util.Map;
 
 @CrossOrigin("*")
 @RestController
+@RequestMapping("api")
 public class ScrapyController {
     @Autowired
     private ScrapyService scrapyService;
