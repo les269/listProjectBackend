@@ -79,25 +79,24 @@ public class DatasetServiceImpl implements DatasetService {
         }
         DatasetConfig datasetConfig = dataset.getConfig();
         String groupName = datasetConfig.getGroupName();
-        Global.ConfigDatasetType configDatasetType = datasetConfig.getType();
+        Global.DatasetConfigType configDatasetType = datasetConfig.getType();
         groupDatasetService.refreshGroupDataset(groupName);
 
         // 1. 執行歸檔
         doFiling(datasetConfig);
         // 2. 執行爬蟲
         // all 把當前group所擁有資料放入資料集
-        if (configDatasetType == Global.ConfigDatasetType.all) {
-            var data = groupDatasetDataRepository.findByGroupName(groupName)
-                    .stream()
-                    .map(GroupDatasetData::getJson).toList();
-            DatasetData datasetData = new DatasetData();
-            datasetData.setDatasetName(dataset.getName());
-            datasetData.setData(data);
-            datasetDataRepository.save(datasetData);
-        }
-        // file, folder 需要進行進行爬蟲
-        else if (configDatasetType == Global.ConfigDatasetType.file || configDatasetType == Global.ConfigDatasetType.folder) {
-            doScrapy(name, datasetConfig);
+        switch (configDatasetType) {
+            case all -> {
+                var data = groupDatasetDataRepository.findByGroupName(groupName)
+                        .stream()
+                        .map(GroupDatasetData::getJson).toList();
+                DatasetData datasetData = new DatasetData();
+                datasetData.setDatasetName(dataset.getName());
+                datasetData.setData(data);
+                datasetDataRepository.save(datasetData);
+            }
+            case file, folder, text -> doScrapy(name, datasetConfig, configDatasetType);
         }
 
         useReplaceValueMap(groupName);
@@ -110,9 +109,9 @@ public class DatasetServiceImpl implements DatasetService {
         boolean filing = datasetConfig.isFiling();
         String filingRegular = datasetConfig.getFilingRegular();
         String pathString = switch (datasetConfig.getType()) {
-            case Global.ConfigDatasetType.file -> datasetConfig.getFilePath();
-            case Global.ConfigDatasetType.folder -> datasetConfig.getFolderPath();
-            case all -> "";
+            case Global.DatasetConfigType.file -> datasetConfig.getFilePath();
+            case Global.DatasetConfigType.folder -> datasetConfig.getFolderPath();
+            case text, all -> "";
         };
         if (!filing || Utils.isBlank(pathString, filingRegular)) {
             return;
@@ -132,54 +131,88 @@ public class DatasetServiceImpl implements DatasetService {
         }
     }
 
-    private void doScrapy(String datasetName, DatasetConfig datasetConfig) throws Exception {
-        //群組名稱
+    private void doScrapy(String datasetName, DatasetConfig datasetConfig, Global.DatasetConfigType type) throws Exception {
+        // 群組名稱
         String groupName = datasetConfig.getGroupName();
         // 取得群組所有資料
         List<GroupDatasetData> allGroupDatasetDataList = groupDatasetDataRepository.findByGroupName(groupName);
-        // 取得存在的value
-        List<String> primeValueList = allGroupDatasetDataList.stream().map(GroupDatasetData::getPrimeValue).toList();
-        // 取得所有的檔案
-        List<File> allFile = getAllFile(datasetConfig);
-        // 取得所有檔案名稱
-        List<String> allFileName = allFile.stream()
-                .map(Utils::getFileNameWithoutExtension)
+        // 取得存在的 primeValue
+        List<String> primeValueList = allGroupDatasetDataList.stream()
+                .map(GroupDatasetData::getPrimeValue)
                 .toList();
-        // 判斷在DB是否存在資料,不存在則需要爬蟲
-        List<String> needScrapyList = allFile.stream()
-                .map(Utils::getFileNameWithoutExtension)
-                .filter(x -> !primeValueList.contains(x))
-                .toList();
-        // 找出檔案名稱在存在groupDatasetData有資料並且去除副檔名
-        List<GroupDatasetData> notNeedScrapyList = allGroupDatasetDataList.stream()
-                .filter(x -> allFileName.contains(x.getPrimeValue()))
-                .toList();
-        List<GroupDatasetData> groupDatasetDataList = groupDatasetDataMapper.toCopyEntityList(notNeedScrapyList);
 
-        // 檢查是否有這GroupDataset, 並判斷該GroupDataset的Scrapy是否有可預設使用的爬蟲
-        var groupDatasetOptional = groupDatasetRepository.findById(datasetConfig.getGroupName());
-        // 把缺少資訊的資料進行爬蟲
+        List<List<String>> targetList = new ArrayList<>();
+        List<GroupDatasetData> groupDatasetDataList = new ArrayList<>();
+
+        // 根據不同類型處理資料來源 (File 或 Text)
+        if (type == Global.DatasetConfigType.file || type == Global.DatasetConfigType.folder) {
+            // 取得所有檔案
+            List<File> allFiles = getAllFile(datasetConfig);
+            List<String> allFileNames = allFiles.stream()
+                    .map(Utils::getFileNameWithoutExtension)
+                    .toList();
+
+            targetList = allFileNames.stream()
+                    .filter(x -> !primeValueList.contains(x))
+                    .map(List::of)
+                    .toList();
+
+            groupDatasetDataList.addAll(allGroupDatasetDataList.stream()
+                    .filter(x -> allFileNames.contains(x.getPrimeValue()))
+                    .toList());
+        } else if (type == Global.DatasetConfigType.text) {
+            List<List<String>> textList = Utils.textToList(datasetConfig.getScrapyText(), ",");
+            List<String> firstTextList = textList.stream().map(List::getFirst).toList();
+
+            targetList = textList.stream()
+                    .filter(x -> !primeValueList.contains(x.getFirst()))
+                    .toList();
+
+            groupDatasetDataList.addAll(allGroupDatasetDataList.stream()
+                    .filter(x -> firstTextList.contains(x.getPrimeValue()))
+                    .toList());
+        }
+        // 檢查是否有這 GroupDataset, 並判斷該 GroupDataset 的 Scrapy 是否有可預設使用的爬蟲
+        var groupDatasetOptional = groupDatasetRepository.findById(groupName);
         ScrapyConfigTO scrapyConfigTO = getDefaultScrapy(groupName);
-        if (groupDatasetOptional.isPresent() && scrapyConfigTO != null) {
+        if (groupDatasetOptional.isPresent() && scrapyConfigTO != null && !targetList.isEmpty()) {
             GroupDatasetConfig groupDatasetConfig = groupDatasetOptional.get().getConfig();
             List<GroupDatasetData> saveGroupDataset = new ArrayList<>();
-            for (String fileName : needScrapyList) {
-                Map<String, Object> scrapyResult = scrapyService.doScrapyByJson(List.of(fileName), scrapyConfigTO.getData());
+            for (List<String> target : targetList) {
+                Map<String, Object> scrapyResult = scrapyService.doScrapyByJson(target, scrapyConfigTO.getData());
                 Thread.sleep(100);
-                scrapyResult.put(groupDatasetConfig.getByKey(), fileName);
+                scrapyResult.put(groupDatasetConfig.getByKey(), target.getFirst());
+
                 GroupDatasetData groupDatasetData = new GroupDatasetData();
-                groupDatasetData.setGroupName(datasetConfig.getGroupName());
-                groupDatasetData.setPrimeValue(fileName);
+                groupDatasetData.setGroupName(groupName);
+                groupDatasetData.setPrimeValue(target.getFirst());
                 groupDatasetData.setJson(scrapyResult);
                 saveGroupDataset.add(groupDatasetData);
             }
             groupDatasetDataRepository.saveAll(saveGroupDataset);
             groupDatasetDataList.addAll(groupDatasetDataMapper.toCopyEntityList(saveGroupDataset));
         }
-        // 設定自定義的資料
-        for (File file : allFile) {
+
+        //設定自定義資料
+        if (type == Global.DatasetConfigType.file || type == Global.DatasetConfigType.folder) {
+            List<File> allFiles = getAllFile(datasetConfig);
+            setCustomDataForFiles(groupDatasetDataList, allFiles, datasetConfig);
+        } else if (type == Global.DatasetConfigType.text) {
+            setCustomDataForText(groupDatasetDataList, datasetConfig);
+        }
+
+        // 保存資料至 DatasetData
+        DatasetData datasetData = new DatasetData();
+        datasetData.setDatasetName(datasetName);
+        datasetData.setData(groupDatasetDataList.stream().map(GroupDatasetData::getJson).toList());
+        datasetDataRepository.save(datasetData);
+    }
+
+    private void setCustomDataForFiles(List<GroupDatasetData> groupDatasetDataList, List<File> allFiles, DatasetConfig datasetConfig) {
+        for (File file : allFiles) {
             String fileName = Utils.getFileNameWithoutExtension(file);
-            groupDatasetDataList.stream().filter(x -> fileName.equals(x.getPrimeValue()))
+            groupDatasetDataList.stream()
+                    .filter(x -> fileName.equals(x.getPrimeValue()))
                     .forEach(x -> {
                         datasetConfig.getFieldList().forEach(datasetField -> {
                             var value = switch (datasetField.getType()) {
@@ -193,10 +226,20 @@ public class DatasetServiceImpl implements DatasetService {
                         });
                     });
         }
-        DatasetData datasetData = new DatasetData();
-        datasetData.setDatasetName(datasetName);
-        datasetData.setData(groupDatasetDataList.stream().map(GroupDatasetData::getJson).toList());
-        datasetDataRepository.save(datasetData);
+    }
+
+    private void setCustomDataForText(List<GroupDatasetData> groupDatasetDataList, DatasetConfig datasetConfig) {
+        groupDatasetDataList.forEach(x -> {
+            datasetConfig.getFieldList().forEach(datasetField -> {
+                var value = switch (datasetField.getType()) {
+                    case Global.DatasetFieldType.fileName, Global.DatasetFieldType.path,
+                         Global.DatasetFieldType.fileSize -> "";
+                    case Global.DatasetFieldType.fixedString ->
+                            Utils.replaceValue(datasetField.getFixedString(), x.getJson());
+                };
+                x.getJson().put(datasetField.getKey(), value);
+            });
+        });
     }
 
     private void doDownloadImage(String groupName, DatasetConfig datasetConfig) {
@@ -239,7 +282,7 @@ public class DatasetServiceImpl implements DatasetService {
     }
 
     private List<File> getAllFile(DatasetConfig datasetConfig) {
-        if (datasetConfig.getType() == Global.ConfigDatasetType.file) {
+        if (datasetConfig.getType() == Global.DatasetConfigType.file) {
             var path = new File(datasetConfig.getFilePath());
             //取得目錄底下所有檔案
             var allFile = new ArrayList<>(Arrays.stream(Objects.requireNonNull(path.listFiles(File::isFile)))
@@ -261,7 +304,7 @@ public class DatasetServiceImpl implements DatasetService {
                 }
             }
             return allFile;
-        } else if (datasetConfig.getType() == Global.ConfigDatasetType.folder) {
+        } else if (datasetConfig.getType() == Global.DatasetConfigType.folder) {
             var path = new File(datasetConfig.getFolderPath());
             var folders = Arrays.stream(Objects.requireNonNull(path.listFiles(File::isDirectory))).toList();
             if (datasetConfig.isFiling()) {

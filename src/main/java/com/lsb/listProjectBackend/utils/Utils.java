@@ -23,7 +23,7 @@ public class Utils {
         return null == str || str.trim().isEmpty();
     }
 
-    public static boolean isBlank(String ...str) {
+    public static boolean isBlank(String... str) {
         if (str == null) return true; // Return true if the entire array is null
         for (String s : str) {
             if (isBlank(s)) {
@@ -37,7 +37,7 @@ public class Utils {
         return !isBlank(str);
     }
 
-    public static boolean isNotBlank(String ...str) {
+    public static boolean isNotBlank(String... str) {
         return !isBlank(str);
     }
 
@@ -185,7 +185,7 @@ public class Utils {
         var extList = Arrays.stream(extension.split(","))
                 .toList()
                 .stream()
-                .map(x->x.trim().toLowerCase())
+                .map(x -> x.trim().toLowerCase())
                 .filter(Utils::isNotBlank)
                 .toList();
         if (file.isFile()) {
@@ -202,9 +202,35 @@ public class Utils {
     public static void deleteFile(String path) throws IOException {
         File file = new File(path);
         //避免刪除smb檔案
-        if(file.exists() && !path.startsWith("\\\\")){
+        if (file.exists() && !path.startsWith("\\\\")) {
             FileUtils.getInstance().moveToTrash(file);
         }
+    }
+
+    public static List<List<String>> textToList(String text, String split) {
+        List<List<String>> result = new ArrayList<>();
+        if (isBlank(text)) {
+            return result;
+        }
+        // 按照換行符分割文字 (\r\n 支援 Windows 換行符)
+        String[] lines = text.split("\\r?\\n");
+
+        for (String line : lines) {
+            if (isBlank(line)) {
+                continue;
+            }
+            // 按逗號分割每一行，並轉換為 List<String>
+            List<String> lineItems = Arrays.stream(line.split(split))
+                    .map(String::trim)
+                    .filter(Utils::isNotBlank)
+                    .toList();
+            if (lineItems.isEmpty()) {
+                continue;
+            }
+            result.add(lineItems);
+        }
+
+        return result;
     }
 
 }

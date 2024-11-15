@@ -15,7 +15,7 @@ public class Global {
 
     public enum ScrapyPageType {redirect, scrapyData}
 
-    public enum ConfigDatasetType {file, folder, all}
+    public enum DatasetConfigType {file, folder, all, text}
 
     public enum DatasetFieldType {path, fileName, fixedString, fileSize}
 

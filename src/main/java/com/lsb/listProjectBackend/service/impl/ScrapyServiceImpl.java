@@ -80,38 +80,42 @@ public class ScrapyServiceImpl implements ScrapyService {
         Map<String, Object> result = new HashMap<>();
         boolean redirect = false;
         String redirectUrl = "";
-
-        for (ScrapyData data : scrapyDataList) {
-            Map<String, String> cookies = data.getCookie().stream().
-                    collect(Collectors.toMap(Cookie::getName, Cookie::getValue));
-            //當是轉址時要確保url不為空
-            if (Global.ScrapyPageType.redirect == data.getScrapyPageType() && Utils.isNotBlank(data.getUrl())) {
-                //替換url的參數
-                String url = Utils.replaceValue(data.getUrl(), json);
-                // 當有轉址了就用轉址來query
-                if (redirect && Utils.isNotBlank(redirectUrl)) {
-                    url = redirectUrl;
+        try {
+            for (ScrapyData data : scrapyDataList) {
+                Map<String, String> cookies = data.getCookie().stream().
+                        collect(Collectors.toMap(Cookie::getName, Cookie::getValue));
+                //當是轉址時要確保url不為空
+                if (Global.ScrapyPageType.redirect == data.getScrapyPageType() && Utils.isNotBlank(data.getUrl())) {
+                    //替換url的參數
+                    String url = Utils.replaceValue(data.getUrl(), json);
+                    // 當有轉址了就用轉址來query
+                    if (redirect && Utils.isNotBlank(redirectUrl)) {
+                        url = redirectUrl;
+                    }
+                    Document document = getConnection(url).cookies(cookies).followRedirects(true).get();
+                    useCssSelect(document.html(), data.getCssSelectList(), result);
+                    if (result.containsKey("__redirect") && Utils.isNotBlank(result.get("__redirect").toString())) {
+                        redirect = true;
+                        redirectUrl = result.get("__redirect").toString();
+                        result.remove("__redirect");
+                    }
+                } else if (redirect && Utils.isNotBlank(redirectUrl) && Global.ScrapyPageType.scrapyData == data.getScrapyPageType()) {
+                    Document document = getConnection(redirectUrl)
+                            .cookies(cookies).get();
+                    useCssSelect(document.html(), data.getCssSelectList(), result);
+                    redirect = false;
+                    redirectUrl = "";
+                } else if (Global.ScrapyPageType.scrapyData == data.getScrapyPageType() && Utils.isNotBlank(data.getUrl())) {
+                    String url = Utils.replaceValue(data.getUrl(), json);
+                    Document document = getConnection(url)
+                            .cookies(cookies).get();
+                    useCssSelect(document.html(), data.getCssSelectList(), result);
                 }
-                Document document = getConnection(url).cookies(cookies).followRedirects(true).get();
-                useCssSelect(document.html(), data.getCssSelectList(), result);
-                if (result.containsKey("__redirect") && Utils.isNotBlank(result.get("__redirect").toString())) {
-                    redirect = true;
-                    redirectUrl = result.get("__redirect").toString();
-                    result.remove("__redirect");
-                }
-            } else if (redirect && Utils.isNotBlank(redirectUrl) && Global.ScrapyPageType.scrapyData == data.getScrapyPageType()) {
-                Document document = getConnection(redirectUrl)
-                        .cookies(cookies).get();
-                useCssSelect(document.html(), data.getCssSelectList(), result);
-                redirect = false;
-                redirectUrl = "";
-            } else if (Global.ScrapyPageType.scrapyData == data.getScrapyPageType() && Utils.isNotBlank(data.getUrl())) {
-                String url = Utils.replaceValue(data.getUrl(), json);
-                Document document = getConnection(url)
-                        .cookies(cookies).get();
-                useCssSelect(document.html(), data.getCssSelectList(), result);
             }
+        } catch (Exception e) {
+            log.error("scrapy error", e);
         }
+
         return result;
     }
 

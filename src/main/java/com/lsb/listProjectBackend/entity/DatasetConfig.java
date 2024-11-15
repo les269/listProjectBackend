@@ -12,7 +12,7 @@ import java.util.List;
 @Data
 public class DatasetConfig {
     @Enumerated(EnumType.STRING)
-    private Global.ConfigDatasetType type;
+    private Global.DatasetConfigType type;
     private String groupName;
     private String filePath;
     private String fileExtension;
@@ -23,5 +23,6 @@ public class DatasetConfig {
     private List<DatasetField> fieldList;
     private boolean autoImageDownload;
     private String imageByKey;
+    private String scrapyText;
 
 }
