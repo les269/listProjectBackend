@@ -7,7 +7,7 @@ public class Global {
 
     public enum ThemeLabelType {string, stringSplit, seq, fileSize, stringArray, date}
 
-    public enum ThemeCustomType {openUrl, openUrlByKey, writeNote, copyValue, copyValueByKey, buttonIconBoolean, buttonIconFill, buttonInputUrl, apiConfig, deleteFile, moveTo}
+    public enum ThemeCustomType {openUrl, writeNote, copyValue,  buttonIconBoolean, buttonIconFill, buttonInputUrl, apiConfig, deleteFile, moveTo}
 
     public enum ThemeTopCustomType {openUrl, writeNote, apiConfig}
 
