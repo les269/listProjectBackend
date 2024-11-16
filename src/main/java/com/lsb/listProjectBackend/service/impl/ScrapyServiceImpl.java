@@ -133,10 +133,14 @@ public class ScrapyServiceImpl implements ScrapyService {
                 .filter(x -> x.getScrapyPageType() == Global.ScrapyPageType.scrapyData)
                 .findFirst()
                 .ifPresent(data -> {
+                    var _url = url;
                     Map<String, String> cookies = data.getCookie().stream().
                             collect(Collectors.toMap(Cookie::getName, Cookie::getValue));
+                    if (Utils.isNotBlank(data.getUrl())) {
+                        _url = Utils.replaceValue(data.getUrl(), List.of(url));
+                    }
                     try {
-                        Document document = getConnection(url)
+                        Document document = getConnection(_url)
                                 .cookies(cookies)
                                 .postDataCharset("UTF-8")
                                 .get();
