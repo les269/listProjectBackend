@@ -23,5 +23,6 @@ public class ThemeCustom  {
     private String deleteFile;
     private String filePathForMoveTo;
     private String moveTo;
+    private Global.OpenWindowTargetType openWindowsTarget;
 
 }

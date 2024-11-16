@@ -7,7 +7,7 @@ public class Global {
 
     public enum ThemeLabelType {string, stringSplit, seq, fileSize, stringArray, date}
 
-    public enum ThemeCustomType {openUrl, writeNote, copyValue,  buttonIconBoolean, buttonIconFill, buttonInputUrl, apiConfig, deleteFile, moveTo}
+    public enum ThemeCustomType {openUrl, writeNote, copyValue, buttonIconBoolean, buttonIconFill, buttonInputUrl, apiConfig, deleteFile, moveTo}
 
     public enum ThemeTopCustomType {openUrl, writeNote, apiConfig}
 
@@ -22,4 +22,6 @@ public class Global {
     public enum GroupDatasetFieldType {string, stringArray, number, date}
 
     public enum GroupDatasetConfigType {scrapy, api}
+
+    public enum OpenWindowTargetType {_self, _blank, _parent, _top}
 }
