@@ -12,6 +12,7 @@ import com.lsb.listProjectBackend.service.ImageService;
 import com.lsb.listProjectBackend.service.ScrapyService;
 import com.lsb.listProjectBackend.utils.Global;
 import com.lsb.listProjectBackend.utils.Utils;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -20,6 +21,7 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+@Slf4j
 @Service
 public class DatasetServiceImpl implements DatasetService {
     @Autowired
@@ -179,7 +181,9 @@ public class DatasetServiceImpl implements DatasetService {
             GroupDatasetConfig groupDatasetConfig = groupDatasetOptional.get().getConfig();
             List<GroupDatasetData> saveGroupDataset = new ArrayList<>();
             for (List<String> target : targetList) {
+                log.info("scrapy key is {}", target.getFirst());
                 Map<String, Object> scrapyResult = scrapyService.doScrapyByJson(target, scrapyConfigTO.getData());
+
                 Thread.sleep(100);
                 scrapyResult.put(groupDatasetConfig.getByKey(), target.getFirst());
 
@@ -247,13 +251,17 @@ public class DatasetServiceImpl implements DatasetService {
             var groupDatasetDataList = groupDatasetDataRepository.findByGroupName(groupName);
             var groupDataset = getGroupDatasetConfig(groupName);
             if (groupDataset != null) {
+                var path = groupDataset.getImageSaveFolder();
+                List<String> nameList = Arrays.asList(Objects.requireNonNull(new File(path).list()));
+                groupDatasetDataList = groupDatasetDataList.stream().filter(x -> !nameList.contains(x.getPrimeValue())).toList();
                 for (GroupDatasetData groupDatasetData : groupDatasetDataList) {
                     String imageUrl = (String) groupDatasetData.getJson().get(datasetConfig.getImageByKey());
-                    String value = (String) groupDatasetData.getJson().get(groupDataset.getByKey());
+                    String fileName = groupDatasetData.getPrimeValue();
                     String referer = (String) groupDatasetData.getJson().get("__image_referer");
-                    if (!new File(groupDataset.getImageSaveFolder() + "\\" + value).exists()) {
-                        imageService.downloadImageFromUrl(imageUrl, groupDataset.getImageSaveFolder(), value, new HashMap<>(), null, referer);
+                    if(Utils.isBlank(imageUrl)){
+                        continue;
                     }
+                    imageService.downloadImageFromUrl(imageUrl, path, fileName, new HashMap<>(), null, referer);
                 }
             }
         }
@@ -343,7 +351,15 @@ public class DatasetServiceImpl implements DatasetService {
             return;
         }
         var dataList = groupDatasetDataRepository.findByGroupName(groupName);
-        if (dataList.isEmpty()) {
+        if (dataList.isEmpty()
+        ) {
+            return;
+        }
+        if (groupDataset.getConfig()
+                .getGroupDatasetFieldList()
+                .stream()
+                .map(GroupDatasetField::getReplaceValueMapName)
+                .allMatch(Utils::isBlank)) {
             return;
         }
         for (GroupDatasetField field : groupDataset.getConfig().getGroupDatasetFieldList()) {

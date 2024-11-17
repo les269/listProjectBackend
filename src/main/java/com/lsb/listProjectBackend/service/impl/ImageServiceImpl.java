@@ -1,6 +1,7 @@
 package com.lsb.listProjectBackend.service.impl;
 
 import com.lsb.listProjectBackend.service.ImageService;
+import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.springframework.stereotype.Service;
@@ -15,6 +16,7 @@ import java.security.SecureRandom;
 import java.security.cert.X509Certificate;
 import java.util.Map;
 
+@Slf4j
 @Service
 public class ImageServiceImpl implements ImageService {
     public void downloadImageFromUrl(String url, String fileDirectoryPath, String fileName, Map<String, String> cookie, String extension, String referer) {

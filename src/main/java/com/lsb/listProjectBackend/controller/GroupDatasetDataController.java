@@ -40,7 +40,6 @@ public class GroupDatasetDataController {
         groupDatasetDataService.updateGroupDatasetData(req);
     }
 
-
     @DeleteMapping("/group-dataset-data/delete")
     void deleteGroupDatasetData(
             @RequestParam("groupName") String groupName,
@@ -53,5 +52,10 @@ public class GroupDatasetDataController {
             @RequestParam("groupName") String groupName,
             @RequestParam("primeValue") String primeValue) throws IOException {
         return groupDatasetDataService.deleteGroupDatasetDataForImage(groupName, primeValue);
+    }
+
+    @PostMapping("/group-dataset-data/update-list")
+    void updateGroupDatasetDataList(@RequestBody List<GroupDatasetDataTO> req) {
+        groupDatasetDataService.updateGroupDatasetDataList(req);
     }
 }

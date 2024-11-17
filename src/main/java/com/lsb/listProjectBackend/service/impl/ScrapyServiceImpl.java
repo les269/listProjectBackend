@@ -129,26 +129,35 @@ public class ScrapyServiceImpl implements ScrapyService {
 
     public Map<String, Object> doScrapyByUrl(String url, List<ScrapyData> scrapyDataList) {
         Map<String, Object> result = new HashMap<>();
-        scrapyDataList.stream()
-                .filter(x -> x.getScrapyPageType() == Global.ScrapyPageType.scrapyData)
-                .findFirst()
-                .ifPresent(data -> {
-                    var _url = url;
-                    Map<String, String> cookies = data.getCookie().stream().
-                            collect(Collectors.toMap(Cookie::getName, Cookie::getValue));
-                    if (Utils.isNotBlank(data.getUrl())) {
-                        _url = Utils.replaceValue(data.getUrl(), List.of(url));
-                    }
-                    try {
-                        Document document = getConnection(_url)
-                                .cookies(cookies)
-                                .postDataCharset("UTF-8")
-                                .get();
-                        useCssSelect(document.html(), data.getCssSelectList(), result);
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
-                    }
-                });
+        boolean redirect = false;
+        String redirectUrl = "";
+        for (var data : scrapyDataList) {
+            var _url = url;
+            if (redirect) {
+                _url = redirectUrl;
+                redirect = false;
+                redirectUrl = "";
+            }
+            Map<String, String> cookies = data.getCookie().stream().
+                    collect(Collectors.toMap(Cookie::getName, Cookie::getValue));
+            if (Utils.isNotBlank(data.getUrl())) {
+                _url = Utils.replaceValue(data.getUrl(), List.of(url));
+            }
+            try {
+                Document document = getConnection(_url)
+                        .cookies(cookies)
+                        .postDataCharset("UTF-8")
+                        .get();
+                useCssSelect(document.html(), data.getCssSelectList(), result);
+                if (result.containsKey("__redirect") && Utils.isNotBlank(result.get("__redirect").toString())) {
+                    redirect = true;
+                    redirectUrl = result.get("__redirect").toString();
+                    result.remove("__redirect");
+                }
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
         return result;
     }
 
