@@ -62,4 +62,13 @@ public class FileController {
                         (a, b) -> a
                 ));
     }
+
+    @PostMapping("/file/open-file")
+    public boolean openHGame(@RequestBody FileRequest request) throws Exception {
+        File directory = new File(request.getPath());
+        if (directory.isDirectory()) {
+            return Runtime.getRuntime().exec(new String[]{"explorer", directory.getAbsolutePath()}).isAlive();
+        }
+        return false;
+    }
 }

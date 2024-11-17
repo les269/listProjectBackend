@@ -24,5 +24,6 @@ public class ThemeCustom  {
     private String filePathForMoveTo;
     private String moveTo;
     private Global.OpenWindowTargetType openWindowsTarget;
+    private String openFolder;
 
 }
