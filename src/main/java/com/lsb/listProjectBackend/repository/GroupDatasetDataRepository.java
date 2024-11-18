@@ -11,4 +11,7 @@ import java.util.List;
 public interface GroupDatasetDataRepository extends JpaRepository<GroupDatasetData, GroupDatasetDataPK> {
     @Query(value = "select * from group_dataset_data where group_name=:groupName", nativeQuery = true)
     List<GroupDatasetData> findByGroupName(@Param("groupName")String groupName);
+
+    @Query(value = "select '' as group_name,prime_value,'{}' as json,created_time,updated_time from group_dataset_data where group_name=:groupName", nativeQuery = true)
+    List<GroupDatasetData> getAllGroupDatasetDataOnlyPrimeValue(@Param("groupName")String groupName);
 }

@@ -40,6 +40,11 @@ public class GroupDatasetDataServiceImpl implements GroupDatasetDataService {
         return groupDatasetDataMapper.toDomainList(groupDatasetDataRepository.findByGroupName(groupName));
     }
 
+    @Override
+    public List<GroupDatasetDataTO> getAllGroupDatasetDataOnlyPrimeValue(String groupName) {
+        return groupDatasetDataMapper.toDomainList(groupDatasetDataRepository.getAllGroupDatasetDataOnlyPrimeValue(groupName));
+    }
+
     public void updateGroupDatasetData(GroupDatasetDataTO req) {
         groupDatasetDataRepository.save(groupDatasetDataMapper.toEntity(req));
     }

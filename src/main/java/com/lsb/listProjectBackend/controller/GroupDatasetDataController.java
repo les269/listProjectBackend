@@ -35,6 +35,12 @@ public class GroupDatasetDataController {
         return groupDatasetDataService.getAllGroupDatasetData(groupName);
     }
 
+    @GetMapping("/group-dataset-data/all-only-prime-value")
+    List<GroupDatasetDataTO> getAllGroupDatasetDataNoJson(
+            @RequestParam("groupName") String groupName) {
+        return groupDatasetDataService.getAllGroupDatasetDataOnlyPrimeValue(groupName);
+    }
+
     @PostMapping("/group-dataset-data/update")
     void updateGroupDatasetData(@RequestBody GroupDatasetDataTO req) {
         groupDatasetDataService.updateGroupDatasetData(req);

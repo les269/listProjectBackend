@@ -9,6 +9,7 @@ public interface GroupDatasetDataService {
     GroupDatasetDataTO getGroupDatasetData(String groupName, String primeValue);
     boolean existGroupDatasetData(String groupName, String primeValue);
     List<GroupDatasetDataTO> getAllGroupDatasetData(String groupName);
+    List<GroupDatasetDataTO> getAllGroupDatasetDataOnlyPrimeValue(String groupName);
     void updateGroupDatasetData(GroupDatasetDataTO req);
     void updateGroupDatasetDataList(List<GroupDatasetDataTO> req);
     void deleteGroupDatasetData(String groupName, String primeValue);
