@@ -52,13 +52,13 @@ public class DatasetController {
 
     @PostMapping("/dataset/name-list/refresh")
     void refreshDataByNameList(@RequestBody List<String> nameList) throws Exception {
-        for (var name : nameList) {
+        for (var name : nameList.stream().distinct().toList()) {
             datasetService.refreshData(name);
         }
     }
 
     @PostMapping("/dataset/name-list/get-data")
     List<DatasetDataTO> getDatasetDataByNameList(@RequestBody List<String> nameList)  {
-        return datasetService.getDatasetDataByNameList(nameList);
+        return datasetService.getDatasetDataByNameList(nameList.stream().distinct().toList());
     }
 }

@@ -83,9 +83,12 @@ public class DatasetServiceImpl implements DatasetService {
         String groupName = datasetConfig.getGroupName();
         Global.DatasetConfigType configDatasetType = datasetConfig.getType();
         groupDatasetService.refreshGroupDataset(groupName);
-
+        long startTime = System.currentTimeMillis();
         // 1. 執行歸檔
         doFiling(datasetConfig);
+        long endTime = System.currentTimeMillis();
+        System.out.println("doFiling time: " + (endTime - startTime) + " ms");
+        startTime = System.currentTimeMillis();
         // 2. 執行爬蟲
         // all 把當前group所擁有資料放入資料集
         switch (configDatasetType) {
@@ -101,10 +104,18 @@ public class DatasetServiceImpl implements DatasetService {
             case file, folder, text -> doScrapy(name, datasetConfig, configDatasetType);
         }
 
-        useReplaceValueMap(groupName);
+        endTime = System.currentTimeMillis();
+        System.out.println("scrapy time: " + (endTime - startTime) + " ms");
+        startTime = System.currentTimeMillis();
 
+        useReplaceValueMap(groupName);
+        endTime = System.currentTimeMillis();
+        System.out.println("useReplaceValueMap time: " + (endTime - startTime) + " ms");
+        startTime = System.currentTimeMillis();
         // 下載圖片
         doDownloadImage(groupName, datasetConfig);
+        endTime = System.currentTimeMillis();
+        System.out.println("doDownloadImage time: " + (endTime - startTime) + " ms");
     }
 
     private void doFiling(DatasetConfig datasetConfig) {
@@ -119,6 +130,9 @@ public class DatasetServiceImpl implements DatasetService {
             return;
         }
         File path = new File(pathString);
+        if(!path.exists()){
+            return;
+        }
         Pattern filingRegularPattern = Pattern.compile(datasetConfig.getFilingRegular());
         List<File> files = Arrays.stream(Objects.requireNonNull(
                 path.listFiles(file -> shouldIncludeConfigFile(file, datasetConfig))
@@ -148,6 +162,9 @@ public class DatasetServiceImpl implements DatasetService {
 
         // 根據不同類型處理資料來源 (File 或 Text)
         if (type == Global.DatasetConfigType.file || type == Global.DatasetConfigType.folder) {
+            if(!new File(datasetConfig.getFilePath()).exists()){
+                return;
+            }
             // 取得所有檔案
             List<File> allFiles = getAllFile(datasetConfig);
             List<String> allFileNames = allFiles.stream()
