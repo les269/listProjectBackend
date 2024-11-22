@@ -11,4 +11,5 @@ public class ThemeOtherSetting {
     private boolean showDuplicate;
     private List<ThemeTopCustom> themeTopCustomList;
     private String checkFileExist;
+    private boolean themeVisible;
 }
