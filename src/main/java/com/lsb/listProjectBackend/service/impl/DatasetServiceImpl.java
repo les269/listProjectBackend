@@ -269,8 +269,13 @@ public class DatasetServiceImpl implements DatasetService {
             var groupDataset = getGroupDatasetConfig(groupName);
             if (groupDataset != null) {
                 var path = groupDataset.getImageSaveFolder();
-                List<String> nameList = Arrays.asList(Objects.requireNonNull(new File(path).list()));
-                groupDatasetDataList = groupDatasetDataList.stream().filter(x -> !nameList.contains(x.getPrimeValue())).toList();
+                List<String> nameList = Arrays.stream(Objects.requireNonNull(new File(path).list()))
+                        .map(x->Utils.windowsFileNameReplace(x).toLowerCase())
+                        .distinct()
+                        .toList();
+                groupDatasetDataList = groupDatasetDataList.stream()
+                        .filter(x -> !nameList.contains(Utils.windowsFileNameReplace(x.getPrimeValue()).toLowerCase()))
+                        .toList();
                 for (GroupDatasetData groupDatasetData : groupDatasetDataList) {
                     String imageUrl = (String) groupDatasetData.getJson().get(datasetConfig.getImageByKey());
                     String fileName = groupDatasetData.getPrimeValue();
@@ -278,7 +283,7 @@ public class DatasetServiceImpl implements DatasetService {
                     if(Utils.isBlank(imageUrl)){
                         continue;
                     }
-                    imageService.downloadImageFromUrl(imageUrl, path, fileName, new HashMap<>(), null, referer);
+                    imageService.downloadImageFromUrl(imageUrl, path, Utils.windowsFileNameReplace(fileName), new HashMap<>(), null, referer);
                 }
             }
         }

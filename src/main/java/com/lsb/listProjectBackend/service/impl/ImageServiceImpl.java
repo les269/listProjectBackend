@@ -20,7 +20,7 @@ import java.util.Map;
 @Service
 public class ImageServiceImpl implements ImageService {
     public void downloadImageFromUrl(String url, String fileDirectoryPath, String fileName, Map<String, String> cookie, String extension, String referer) {
-
+    log.info("download image:{}",fileName);
         try {
             TrustManager[] trustAllCerts = new TrustManager[]{
                     new X509TrustManager() {

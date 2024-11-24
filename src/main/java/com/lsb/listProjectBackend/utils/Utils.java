@@ -233,4 +233,9 @@ public class Utils {
         return result;
     }
 
+    public static String windowsFileNameReplace(String fileName) {
+        // 替換非法字符為下劃線或其他符號
+        return fileName.replaceAll("[\\\\/:*?\"<>|]", "");
+    }
+
 }
