@@ -26,4 +26,7 @@ public class ScrapyData {
     private List<CssSelect> cssSelectList;
 
     private String html;
+
+    private String replaceRegular;
+    private String replaceRegularTo;
 }

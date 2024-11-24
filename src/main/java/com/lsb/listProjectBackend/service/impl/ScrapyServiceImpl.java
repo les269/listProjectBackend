@@ -84,10 +84,11 @@ public class ScrapyServiceImpl implements ScrapyService {
             for (ScrapyData data : scrapyDataList) {
                 Map<String, String> cookies = data.getCookie().stream().
                         collect(Collectors.toMap(Cookie::getName, Cookie::getValue));
+                var handleJson = handlePreJson(data, json);
                 //當是轉址時要確保url不為空
                 if (Global.ScrapyPageType.redirect == data.getScrapyPageType() && Utils.isNotBlank(data.getUrl())) {
                     //替換url的參數
-                    String url = Utils.replaceValue(data.getUrl(), json);
+                    String url = Utils.replaceValue(data.getUrl(), handleJson);
                     // 當有轉址了就用轉址來query
                     if (redirect && Utils.isNotBlank(redirectUrl)) {
                         url = redirectUrl;
@@ -106,7 +107,7 @@ public class ScrapyServiceImpl implements ScrapyService {
                     redirect = false;
                     redirectUrl = "";
                 } else if (Global.ScrapyPageType.scrapyData == data.getScrapyPageType() && Utils.isNotBlank(data.getUrl())) {
-                    String url = Utils.replaceValue(data.getUrl(), json);
+                    String url = Utils.replaceValue(data.getUrl(), handleJson);
                     Document document = getConnection(url)
                             .cookies(cookies).get();
                     useCssSelect(document.html(), data.getCssSelectList(), result);
@@ -249,5 +250,12 @@ public class ScrapyServiceImpl implements ScrapyService {
                 .header("Accept-Language", "zh-TW,zh;q=0.9,en-US;q=0.8,en;q=0.7,zh-CN;q=0.6,ja;q=0.5")
                 .header("Accept", "*/*")
                 .header("Content-Type", "text/html; charset=UTF-8");
+    }
+
+    private List<String> handlePreJson(ScrapyData scrapyData, List<String> json) {
+        if (Utils.isNotBlank(scrapyData.getReplaceRegular())) {
+            return json.stream().map(x -> x.replaceAll(scrapyData.getReplaceRegular(), scrapyData.getReplaceRegularTo())).toList();
+        }
+        return json;
     }
 }
