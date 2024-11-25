@@ -173,6 +173,9 @@ public class Utils {
     }
 
     public static String getFileNameWithoutExtension(File file) {
+        if(file.isDirectory()){
+            return file.getName();
+        }
         String name = file.getName();
         int lastDotIndex = name.lastIndexOf('.');
         return (lastDotIndex == -1) ? name : name.substring(0, lastDotIndex);

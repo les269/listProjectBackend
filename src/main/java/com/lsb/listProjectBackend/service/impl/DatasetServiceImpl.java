@@ -162,7 +162,10 @@ public class DatasetServiceImpl implements DatasetService {
 
         // 根據不同類型處理資料來源 (File 或 Text)
         if (type == Global.DatasetConfigType.file || type == Global.DatasetConfigType.folder) {
-            if(!new File(datasetConfig.getFilePath()).exists()){
+            if(type == Global.DatasetConfigType.file && !new File(datasetConfig.getFilePath()).exists()){
+                return;
+            }
+            if(type == Global.DatasetConfigType.folder && !new File(datasetConfig.getFolderPath()).exists()){
                 return;
             }
             // 取得所有檔案
