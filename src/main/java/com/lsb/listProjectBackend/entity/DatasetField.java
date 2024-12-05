@@ -10,4 +10,6 @@ public class DatasetField {
     private String key;
     private String label;
     private String fixedString;
+    private String replaceRegular;
+    private String replaceRegularTo;
 }

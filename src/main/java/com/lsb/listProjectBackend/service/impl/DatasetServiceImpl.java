@@ -130,7 +130,7 @@ public class DatasetServiceImpl implements DatasetService {
             return;
         }
         File path = new File(pathString);
-        if(!path.exists()){
+        if (!path.exists()) {
             return;
         }
         Pattern filingRegularPattern = Pattern.compile(datasetConfig.getFilingRegular());
@@ -162,10 +162,10 @@ public class DatasetServiceImpl implements DatasetService {
 
         // 根據不同類型處理資料來源 (File 或 Text)
         if (type == Global.DatasetConfigType.file || type == Global.DatasetConfigType.folder) {
-            if(type == Global.DatasetConfigType.file && !new File(datasetConfig.getFilePath()).exists()){
+            if (type == Global.DatasetConfigType.file && !new File(datasetConfig.getFilePath()).exists()) {
                 return;
             }
-            if(type == Global.DatasetConfigType.folder && !new File(datasetConfig.getFolderPath()).exists()){
+            if (type == Global.DatasetConfigType.folder && !new File(datasetConfig.getFolderPath()).exists()) {
                 return;
             }
             // 取得所有檔案
@@ -241,11 +241,14 @@ public class DatasetServiceImpl implements DatasetService {
                         datasetConfig.getFieldList().forEach(datasetField -> {
                             var value = switch (datasetField.getType()) {
                                 case Global.DatasetFieldType.fileName -> file.getName();
-                                case Global.DatasetFieldType.fileSize -> file.length();
-                                case Global.DatasetFieldType.path -> file.getAbsoluteFile();
+                                case Global.DatasetFieldType.fileSize -> file.length() + "";
+                                case Global.DatasetFieldType.path -> file.getAbsolutePath();
                                 case Global.DatasetFieldType.fixedString ->
                                         Utils.replaceValue(datasetField.getFixedString(), x.getJson());
                             };
+                            if (Utils.isNotBlank(datasetField.getReplaceRegular())) {
+                                value = value.replaceAll(datasetField.getReplaceRegular(), datasetField.getReplaceRegularTo());
+                            }
                             x.getJson().put(datasetField.getKey(), value);
                         });
                     });
@@ -261,6 +264,9 @@ public class DatasetServiceImpl implements DatasetService {
                     case Global.DatasetFieldType.fixedString ->
                             Utils.replaceValue(datasetField.getFixedString(), x.getJson());
                 };
+                if (Utils.isNotBlank(datasetField.getReplaceRegular())) {
+                    value = value.replaceAll(datasetField.getReplaceRegular(), datasetField.getReplaceRegularTo());
+                }
                 x.getJson().put(datasetField.getKey(), value);
             });
         });
@@ -273,7 +279,7 @@ public class DatasetServiceImpl implements DatasetService {
             if (groupDataset != null) {
                 var path = groupDataset.getImageSaveFolder();
                 List<String> nameList = Arrays.stream(Objects.requireNonNull(new File(path).list()))
-                        .map(x->Utils.windowsFileNameReplace(x).toLowerCase())
+                        .map(x -> Utils.windowsFileNameReplace(x).toLowerCase())
                         .distinct()
                         .toList();
                 groupDatasetDataList = groupDatasetDataList.stream()
@@ -283,7 +289,7 @@ public class DatasetServiceImpl implements DatasetService {
                     String imageUrl = (String) groupDatasetData.getJson().get(datasetConfig.getImageByKey());
                     String fileName = groupDatasetData.getPrimeValue();
                     String referer = (String) groupDatasetData.getJson().get("__image_referer");
-                    if(Utils.isBlank(imageUrl)){
+                    if (Utils.isBlank(imageUrl)) {
                         continue;
                     }
                     imageService.downloadImageFromUrl(imageUrl, path, Utils.windowsFileNameReplace(fileName), new HashMap<>(), null, referer);
