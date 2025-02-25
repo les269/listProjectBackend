@@ -6,10 +6,7 @@ import com.lsb.listProjectBackend.mapper.DatasetDataMapper;
 import com.lsb.listProjectBackend.mapper.DatasetMapper;
 import com.lsb.listProjectBackend.mapper.GroupDatasetDataMapper;
 import com.lsb.listProjectBackend.repository.*;
-import com.lsb.listProjectBackend.service.DatasetService;
-import com.lsb.listProjectBackend.service.GroupDatasetService;
-import com.lsb.listProjectBackend.service.ImageService;
-import com.lsb.listProjectBackend.service.ScrapyService;
+import com.lsb.listProjectBackend.service.*;
 import com.lsb.listProjectBackend.utils.Global;
 import com.lsb.listProjectBackend.utils.Utils;
 import lombok.extern.slf4j.Slf4j;
@@ -34,6 +31,8 @@ public class DatasetServiceImpl implements DatasetService {
     private GroupDatasetService groupDatasetService;
     @Autowired
     private ScrapyService scrapyService;
+    @Autowired
+    private ScrapyPaginationService scrapyPaginationService;
     @Autowired
     private DatasetDataRepository datasetDataRepository;
     @Autowired
@@ -101,7 +100,7 @@ public class DatasetServiceImpl implements DatasetService {
                 datasetData.setData(data);
                 datasetDataRepository.save(datasetData);
             }
-            case file, folder, text -> doScrapy(name, datasetConfig, configDatasetType);
+            case file, folder, text, pagination -> doScrapy(name, datasetConfig, configDatasetType);
         }
 
         endTime = System.currentTimeMillis();
@@ -124,7 +123,7 @@ public class DatasetServiceImpl implements DatasetService {
         String pathString = switch (datasetConfig.getType()) {
             case Global.DatasetConfigType.file -> datasetConfig.getFilePath();
             case Global.DatasetConfigType.folder -> datasetConfig.getFolderPath();
-            case text, all -> "";
+            case text, pagination, all -> "";
         };
         if (!filing || Utils.isBlank(pathString, filingRegular)) {
             return;
@@ -193,6 +192,22 @@ public class DatasetServiceImpl implements DatasetService {
             groupDatasetDataList.addAll(allGroupDatasetDataList.stream()
                     .filter(x -> firstTextList.contains(x.getPrimeValue()))
                     .toList());
+        } else if (type == Global.DatasetConfigType.pagination) {
+            if (scrapyPaginationService.checkForUpdate(datasetConfig.getScrapyPagination())) {
+                scrapyPaginationService.updateRedirectData(datasetConfig.getScrapyPagination());
+            }
+            var to = scrapyPaginationService.get(datasetConfig.getScrapyPagination());
+            var keyRedirectUrlMap = to.getConfig().getKeyRedirectUrlMap();
+            var keys = keyRedirectUrlMap.keySet();
+            // 過濾未獲取過的資料
+            targetList = keyRedirectUrlMap.entrySet().stream()
+                    .filter(x -> !primeValueList.contains(x.getKey()))
+                    .map(x -> List.of(x.getKey(), x.getValue()))
+                    .toList();
+            // 過濾已經取得的資料
+            groupDatasetDataList.addAll(allGroupDatasetDataList.stream()
+                    .filter(x -> keys.contains(x.getPrimeValue()))
+                    .toList());
         }
         // 檢查是否有這 GroupDataset, 並判斷該 GroupDataset 的 Scrapy 是否有可預設使用的爬蟲
         var groupDatasetOptional = groupDatasetRepository.findById(groupName);
@@ -221,7 +236,7 @@ public class DatasetServiceImpl implements DatasetService {
         if (type == Global.DatasetConfigType.file || type == Global.DatasetConfigType.folder) {
             List<File> allFiles = getAllFile(datasetConfig);
             setCustomDataForFiles(groupDatasetDataList, allFiles, datasetConfig);
-        } else if (type == Global.DatasetConfigType.text) {
+        } else if (type == Global.DatasetConfigType.text || type == Global.DatasetConfigType.pagination) {
             setCustomDataForText(groupDatasetDataList, datasetConfig);
         }
 

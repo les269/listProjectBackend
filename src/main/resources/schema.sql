@@ -99,3 +99,11 @@ create TABLE IF NOT EXISTS replace_value_map (
     updated_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (name)
 );
+
+create TABLE IF NOT EXISTS scrapy_pagination (
+    name TEXT,
+    config TEXT NOT NULL,
+    created_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (name)
+);

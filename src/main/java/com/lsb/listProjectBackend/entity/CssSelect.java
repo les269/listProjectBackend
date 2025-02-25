@@ -15,4 +15,5 @@ public class CssSelect {
     private String replaceRegular;
     private String replaceRegularTo;
     private String replaceValueMapName;
+    private String splitText;
 }

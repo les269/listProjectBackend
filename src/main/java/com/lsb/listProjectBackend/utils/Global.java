@@ -15,7 +15,7 @@ public class Global {
 
     public enum ScrapyPageType {redirect, scrapyData}
 
-    public enum DatasetConfigType {file, folder, all, text}
+    public enum DatasetConfigType {file, folder, all, text, pagination}
 
     public enum DatasetFieldType {path, fileName, fixedString, fileSize}
 
@@ -24,4 +24,6 @@ public class Global {
     public enum GroupDatasetConfigType {scrapy, api}
 
     public enum OpenWindowTargetType {_self, _blank, _parent, _top}
+
+    public enum UpdateIntervalType {year, month, day}
 }

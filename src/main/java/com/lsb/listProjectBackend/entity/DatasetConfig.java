@@ -24,5 +24,6 @@ public class DatasetConfig {
     private boolean autoImageDownload;
     private String imageByKey;
     private String scrapyText;
+    private String scrapyPagination;
 
 }
