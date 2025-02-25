@@ -1,6 +1,7 @@
 package com.lsb.listProjectBackend.utils;
 
 import com.sun.jna.platform.FileUtils;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
 import java.io.IOException;
@@ -10,6 +11,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+@Slf4j
 public class Utils {
     public static boolean isNull(Object o) {
         return o == null;
@@ -136,8 +138,10 @@ public class Utils {
         while (matcher.find()) {
             String key = matcher.group(1).trim();
             Object replacement = resolveKeyPath(key, obj);
+            String replacementStr = (replacement != null) ? replacement.toString() : matcher.group(0);
             // 如果找到值就替换，未找到则保留原样
-            matcher.appendReplacement(result, replacement != null ? replacement.toString() : matcher.group(0));
+            log.info(replacement.toString());
+            matcher.appendReplacement(result, Matcher.quoteReplacement(replacementStr));
         }
         matcher.appendTail(result);
         return result.toString();
