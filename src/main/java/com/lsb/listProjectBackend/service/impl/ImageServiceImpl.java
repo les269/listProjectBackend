@@ -42,6 +42,7 @@ public class ImageServiceImpl implements ImageService {
             var uri = new URI(url);
             Connection connection = Jsoup.connect(url)
                     .ignoreContentType(true)
+                    .maxBodySize(0)
                     .header("Referer", uri.getScheme() + "://" + uri.getHost())
                     .header("Accept", "*/*")
                     .header("Accept-Language", "zh-TW,zh;q=0.9,en-US;q=0.8,en;q=0.7,zh-CN;q=0.6,ja;q=0.5")
