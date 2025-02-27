@@ -1,5 +1,6 @@
 package com.lsb.listProjectBackend.service.impl;
 
+import com.google.common.util.concurrent.RateLimiter;
 import com.lsb.listProjectBackend.domain.*;
 import com.lsb.listProjectBackend.entity.*;
 import com.lsb.listProjectBackend.mapper.DatasetDataMapper;
@@ -17,6 +18,7 @@ import java.io.File;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -152,9 +154,9 @@ public class DatasetServiceImpl implements DatasetService {
         // 取得群組所有資料
         List<GroupDatasetData> allGroupDatasetDataList = groupDatasetDataRepository.findByGroupName(groupName);
         // 取得存在的 primeValue
-        List<String> primeValueList = allGroupDatasetDataList.stream()
+        Set<String> primeValueSet = allGroupDatasetDataList.stream()
                 .map(GroupDatasetData::getPrimeValue)
-                .toList();
+                .collect(Collectors.toSet());
 
         List<List<String>> targetList = new ArrayList<>();
         List<GroupDatasetData> groupDatasetDataList = new ArrayList<>();
@@ -169,39 +171,39 @@ public class DatasetServiceImpl implements DatasetService {
             }
             // 取得所有檔案
             List<File> allFiles = getAllFile(datasetConfig);
-            List<String> allFileNames = allFiles.stream()
+            Set<String> allFileNameSet = allFiles.stream()
                     .map(Utils::getFileNameWithoutExtension)
-                    .toList();
+                    .collect(Collectors.toSet());
 
-            targetList = allFileNames.stream()
-                    .filter(x -> !primeValueList.contains(x))
+            targetList = allFileNameSet.stream()
+                    .filter(x -> !primeValueSet.contains(x))
                     .map(List::of)
                     .toList();
 
             groupDatasetDataList.addAll(allGroupDatasetDataList.stream()
-                    .filter(x -> allFileNames.contains(x.getPrimeValue()))
+                    .filter(x -> allFileNameSet.contains(x.getPrimeValue()))
                     .toList());
         } else if (type == Global.DatasetConfigType.text) {
             List<List<String>> textList = Utils.textToList(datasetConfig.getScrapyText(), ",");
-            List<String> firstTextList = textList.stream().map(List::getFirst).toList();
+            Set<String> firstTextSet = textList.stream().map(List::getFirst).collect(Collectors.toSet());
 
             targetList = textList.stream()
-                    .filter(x -> !primeValueList.contains(x.getFirst()))
+                    .filter(x -> !primeValueSet.contains(x.getFirst()))
                     .toList();
 
             groupDatasetDataList.addAll(allGroupDatasetDataList.stream()
-                    .filter(x -> firstTextList.contains(x.getPrimeValue()))
+                    .filter(x -> firstTextSet.contains(x.getPrimeValue()))
                     .toList());
         } else if (type == Global.DatasetConfigType.pagination) {
             if (scrapyPaginationService.checkForUpdate(datasetConfig.getScrapyPagination())) {
                 scrapyPaginationService.updateRedirectData(datasetConfig.getScrapyPagination());
             }
             var to = scrapyPaginationService.get(datasetConfig.getScrapyPagination());
-            var keyRedirectUrlMap = to.getConfig().getKeyRedirectUrlMap();
-            var keys = keyRedirectUrlMap.keySet();
+            Map<String, String> keyRedirectUrlMap = to.getConfig().getKeyRedirectUrlMap();
+            Set<String> keys = keyRedirectUrlMap.keySet();
             // 過濾未獲取過的資料
             targetList = keyRedirectUrlMap.entrySet().stream()
-                    .filter(x -> !primeValueList.contains(x.getKey()))
+                    .filter(x -> !primeValueSet.contains(x.getKey()))
                     .map(x -> List.of(x.getKey(), x.getValue()))
                     .toList();
             // 過濾已經取得的資料
@@ -215,11 +217,12 @@ public class DatasetServiceImpl implements DatasetService {
         if (groupDatasetOptional.isPresent() && scrapyConfigTO != null && !targetList.isEmpty()) {
             GroupDatasetConfig groupDatasetConfig = groupDatasetOptional.get().getConfig();
             List<GroupDatasetData> saveGroupDataset = new ArrayList<>();
+            RateLimiter rateLimiter = RateLimiter.create(10.0);
             for (List<String> target : targetList) {
+                rateLimiter.acquire();
                 log.info("scrapy key is {}", target.getFirst());
                 Map<String, Object> scrapyResult = scrapyService.doScrapyByJson(target, scrapyConfigTO.getData());
 
-                Thread.sleep(100);
                 scrapyResult.put(groupDatasetConfig.getByKey(), target.getFirst());
 
                 GroupDatasetData groupDatasetData = new GroupDatasetData();
@@ -234,8 +237,7 @@ public class DatasetServiceImpl implements DatasetService {
 
         //設定自定義資料
         if (type == Global.DatasetConfigType.file || type == Global.DatasetConfigType.folder) {
-            List<File> allFiles = getAllFile(datasetConfig);
-            setCustomDataForFiles(groupDatasetDataList, allFiles, datasetConfig);
+            setCustomDataForFiles(groupDatasetDataList, datasetConfig);
         } else if (type == Global.DatasetConfigType.text || type == Global.DatasetConfigType.pagination) {
             setCustomDataForText(groupDatasetDataList, datasetConfig);
         }
@@ -247,8 +249,11 @@ public class DatasetServiceImpl implements DatasetService {
         datasetDataRepository.save(datasetData);
     }
 
-    private void setCustomDataForFiles(List<GroupDatasetData> groupDatasetDataList, List<File> allFiles, DatasetConfig datasetConfig) {
-        for (File file : allFiles) {
+    private void setCustomDataForFiles(List<GroupDatasetData> groupDatasetDataList, DatasetConfig datasetConfig) {
+        if (datasetConfig.getFieldList().isEmpty()) {
+            return;
+        }
+        for (File file : getAllFile(datasetConfig)) {
             String fileName = Utils.getFileNameWithoutExtension(file);
             groupDatasetDataList.stream()
                     .filter(x -> fileName.equals(x.getPrimeValue()))
@@ -271,6 +276,9 @@ public class DatasetServiceImpl implements DatasetService {
     }
 
     private void setCustomDataForText(List<GroupDatasetData> groupDatasetDataList, DatasetConfig datasetConfig) {
+        if (datasetConfig.getFieldList().isEmpty()) {
+            return;
+        }
         groupDatasetDataList.forEach(x -> {
             datasetConfig.getFieldList().forEach(datasetField -> {
                 var value = switch (datasetField.getType()) {
@@ -288,15 +296,16 @@ public class DatasetServiceImpl implements DatasetService {
     }
 
     private void doDownloadImage(String groupName, DatasetConfig datasetConfig) {
+        log.info("doDownloadImage start");
         if (datasetConfig.isAutoImageDownload()) {
             var groupDatasetDataList = groupDatasetDataRepository.findByGroupName(groupName);
             var groupDataset = getGroupDatasetConfig(groupName);
             if (groupDataset != null) {
                 var path = groupDataset.getImageSaveFolder();
-                List<String> nameList = Arrays.stream(Objects.requireNonNull(new File(path).list()))
+                Set<String> nameList = Arrays.stream(Objects.requireNonNull(new File(path).list()))
+                        .parallel()
                         .map(x -> Utils.windowsFileNameReplace(x).toLowerCase())
-                        .distinct()
-                        .toList();
+                        .collect(Collectors.toSet());
                 groupDatasetDataList = groupDatasetDataList.stream()
                         .filter(x -> !nameList.contains(Utils.windowsFileNameReplace(x.getPrimeValue()).toLowerCase()))
                         .toList();
@@ -311,6 +320,7 @@ public class DatasetServiceImpl implements DatasetService {
                 }
             }
         }
+        log.info("doDownloadImage end");
     }
 
     private GroupDatasetConfig getGroupDatasetConfig(String groupName) {
