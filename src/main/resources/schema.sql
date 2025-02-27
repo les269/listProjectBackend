@@ -68,6 +68,9 @@ create TABLE IF NOT EXISTS group_dataset_data (
     PRIMARY KEY (group_name, prime_value)
 );
 
+CREATE INDEX IF NOT EXISTS  idx_group_name ON group_dataset_data(group_name);
+CREATE INDEX IF NOT EXISTS  idx_prime_value ON group_dataset_data(prime_value);
+
 create TABLE IF NOT EXISTS group_dataset (
     group_name TEXT NOT NULL,
     config TEXT NOT NULL,
