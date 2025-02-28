@@ -1,9 +1,6 @@
 package com.lsb.listProjectBackend.controller;
 
-import org.springframework.http.CacheControl;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
@@ -27,6 +24,7 @@ public class ImageProxyController {
             path = URLEncoder.encode(path, StandardCharsets.UTF_8).replaceAll("\\+", "%20");
             byte[] imageBytes = restTemplate.getForObject(URI.create(scheme + host + "/" + path), byte[].class);
             return ResponseEntity.ok()
+                    .contentType(MediaType.IMAGE_JPEG)
                     .cacheControl(CacheControl.maxAge(1, TimeUnit.DAYS))
                     .body(imageBytes);
         } catch (Exception e) {
