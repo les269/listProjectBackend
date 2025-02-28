@@ -308,14 +308,12 @@ public class DatasetServiceImpl implements DatasetService {
                         .collect(Collectors.toSet());
                 groupDatasetDataList = groupDatasetDataList.stream()
                         .filter(x -> !nameList.contains(Utils.windowsFileNameReplace(x.getPrimeValue()).toLowerCase()))
+                        .filter(x -> Utils.isNotBlank((String) x.getJson().get(datasetConfig.getImageByKey())))
                         .toList();
                 for (GroupDatasetData groupDatasetData : groupDatasetDataList) {
                     String imageUrl = (String) groupDatasetData.getJson().get(datasetConfig.getImageByKey());
                     String fileName = groupDatasetData.getPrimeValue();
                     String referer = (String) groupDatasetData.getJson().get("__image_referer");
-                    if (Utils.isBlank(imageUrl)) {
-                        continue;
-                    }
                     imageService.downloadImageFromUrl(imageUrl, path, Utils.windowsFileNameReplace(fileName), new HashMap<>(), null, referer);
                 }
             }
