@@ -4,6 +4,8 @@ import com.lsb.listProjectBackend.utils.Global;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.util.List;
+
 @Data
 public class ThemeCustom  {
 
@@ -25,5 +27,6 @@ public class ThemeCustom  {
     private String moveTo;
     private Global.OpenWindowTargetType openWindowsTarget;
     private String openFolder;
+    private List<String> visibleDatasetNameList;
 
 }
