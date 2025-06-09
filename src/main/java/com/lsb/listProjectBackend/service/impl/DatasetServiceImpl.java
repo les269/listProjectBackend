@@ -217,14 +217,20 @@ public class DatasetServiceImpl implements DatasetService {
         if (groupDatasetOptional.isPresent() && scrapyConfigTO != null && !targetList.isEmpty()) {
             GroupDatasetConfig groupDatasetConfig = groupDatasetOptional.get().getConfig();
             List<GroupDatasetData> saveGroupDataset = new ArrayList<>();
-            RateLimiter rateLimiter = RateLimiter.create(10.0);
+            //TODO: 前端可以進行設定時間參數
+            RateLimiter rateLimiter = RateLimiter.create(2.0);
             for (List<String> target : targetList) {
                 rateLimiter.acquire();
+
                 log.info("scrapy key is {}", target.getFirst());
-                Map<String, Object> scrapyResult = scrapyService.doScrapyByJson(target, scrapyConfigTO.getData());
+                Map<String, Object> scrapyResult = type == Global.DatasetConfigType.pagination ?
+                        scrapyService.doScrapyByUrl(target.getLast(), scrapyConfigTO.getData()) :
+                        scrapyService.doScrapyByJson(target, scrapyConfigTO.getData());
 
                 scrapyResult.put(groupDatasetConfig.getByKey(), target.getFirst());
-
+                if (type == Global.DatasetConfigType.pagination) {
+                    scrapyResult.put("__item_url", target.getLast());
+                }
                 GroupDatasetData groupDatasetData = new GroupDatasetData();
                 groupDatasetData.setGroupName(groupName);
                 groupDatasetData.setPrimeValue(target.getFirst());

@@ -65,6 +65,11 @@ public class ThemeController {
         themeService.updateTagValue(list);
     }
 
+    @PostMapping("/theme/tag/update/single")
+    void updateSingleTagValue(@RequestBody ThemeTagValueTO to) {
+        themeService.updateSingleTagValue(to);
+    }
+
     @GetMapping("/theme/tag/value")
     List<ThemeTagValueTO> getTagValueList(@RequestParam("headerId") String headerId) {
         return themeService.getTagValueList(headerId);

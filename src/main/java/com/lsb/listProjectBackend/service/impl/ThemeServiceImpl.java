@@ -108,6 +108,11 @@ public class ThemeServiceImpl implements ThemeService {
         themeTagValueRepository.saveAll(list);
     }
 
+    public void updateSingleTagValue(ThemeTagValueTO req) {
+        ThemeTagValue entity = themeTagValueMapper.toEntity(req);
+        themeTagValueRepository.save(entity);
+    }
+
     public List<ThemeTagValueTO> getTagValueList(String headerId) {
         var result = themeTagValueMapper.toDomainList(themeTagValueRepository.findByHeaderId(headerId));
         themeHeaderRepository.findById(headerId).ifPresent(theme -> {

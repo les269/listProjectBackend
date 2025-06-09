@@ -17,6 +17,7 @@ public interface ThemeService {
     Map<String, Map<String, String>> findCustomValue(ThemeCustomValueRequest request);
     void updateCustomValue(ThemeCustomValueTO customValueTO);
     void updateTagValue(List<ThemeTagValueTO> req);
+    void updateSingleTagValue(ThemeTagValueTO req);
     List<ThemeTagValueTO> getTagValueList(String headerId);
     Map<String, String> findTopCustomValue(String headerId);
     void updateTopCustomValue(ThemeTopCustomValueTO topCustomValueTO);

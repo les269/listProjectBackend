@@ -110,3 +110,12 @@ create TABLE IF NOT EXISTS scrapy_pagination (
     updated_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (name)
 );
+
+create TABLE IF NOT EXISTS setting (
+    name TEXT PRIMARY KEY,
+    description TEXT,
+    value TEXT,
+    enabled TEXT,
+    created_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
