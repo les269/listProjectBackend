@@ -67,7 +67,8 @@ public class FileController {
     public boolean openHGame(@RequestBody FileRequest request) throws Exception {
         File directory = new File(request.getPath());
         if (directory.isDirectory()) {
-            return Runtime.getRuntime().exec(new String[]{"explorer", directory.getAbsolutePath()}).isAlive();
+            Runtime.getRuntime().exec(new String[]{"explorer", "/n,",directory.getAbsolutePath()});
+            return true;
         }
         return false;
     }

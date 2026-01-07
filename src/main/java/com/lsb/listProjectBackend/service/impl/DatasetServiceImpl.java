@@ -438,7 +438,7 @@ public class DatasetServiceImpl implements DatasetService {
                 var json = data.getJson();
                 switch (field.getType()) {
                     case string -> {
-                        var s = json.get(fieldKey).toString();
+                        var s = json.get(fieldKey).toString().toLowerCase();
                         if (map.containsKey(s) && Utils.isNotBlank(map.get(s).toString())) {
                             json.put(fieldKey, map.get(s));
                         }

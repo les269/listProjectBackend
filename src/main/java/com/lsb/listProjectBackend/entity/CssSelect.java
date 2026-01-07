@@ -1,6 +1,5 @@
 package com.lsb.listProjectBackend.entity;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 
 @Data

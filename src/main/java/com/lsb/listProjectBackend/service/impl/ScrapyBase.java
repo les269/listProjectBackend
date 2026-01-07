@@ -109,6 +109,7 @@ public class ScrapyBase {
         if (result.containsKey(key) && result.get(key) instanceof List<?> list) {
             List<String> replacedList = list.stream()
                     .map(Object::toString) // 確保元素轉為 String
+                    .map(String::toLowerCase)
                     .map(s -> map.containsKey(s) && Utils.isNotBlank(map.get(s).toString()) ? map.get(s).toString() : s)
                     .toList();
             result.put(key, replacedList);

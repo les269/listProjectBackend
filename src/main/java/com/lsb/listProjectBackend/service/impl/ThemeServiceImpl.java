@@ -9,6 +9,7 @@ import com.lsb.listProjectBackend.service.ThemeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.*;
@@ -27,6 +28,8 @@ public class ThemeServiceImpl implements ThemeService {
     private ThemeTopCustomValueRepository themeTopCustomValueRepository;
     @Autowired
     private ThemeTagValueRepository themeTagValueRepository;
+    @Autowired
+    private ShareTagMapRepository shareTagMapRepository;
 
     private final ThemeMapper themeMapper = ThemeMapper.INSTANCE;
     private final ThemeTagValueMapper themeTagValueMapper = ThemeTagValueMapper.INSTANCE;
@@ -60,6 +63,7 @@ public class ThemeServiceImpl implements ThemeService {
         themeHeader.setUpdateTime(new Date().getTime());
         themeHeaderRepository.deleteById(headerId);
         themeHeaderRepository.save(themeHeader);
+        syncShareTagMappings(headerId, themeHeader.getThemeTagList());
     }
 
     @Transactional
@@ -84,18 +88,19 @@ public class ThemeServiceImpl implements ThemeService {
             target.setHeaderId(headerId);
             target.setUpdateTime(new Date().getTime());
             themeHeaderRepository.save(target);
+            syncShareTagMappings(headerId, target.getThemeTagList());
         } else {
             throw new LsbException("主題不存在無法複製");
         }
     }
 
     public Map<String, Map<String, String>> findCustomValue(ThemeCustomValueRequest request) {
-        List<ThemeCustomValue> list = themeCustomValueRepository.findByHeaderIdAndInCorrDataValue(request.getHeaderId(), request.getValueList());
-        //先用data來groupBy,toMap成自定義的byKey跟value
+        List<ThemeCustomValue> list = themeCustomValueRepository.findByHeaderIdAndInCorrDataValue(request.getHeaderId(),
+                request.getValueList());
+        // 先用data來groupBy,toMap成自定義的byKey跟value
         return list.stream().collect(
                 groupingBy(ThemeCustomValue::getCorrespondDataValue,
-                        toMap(ThemeCustomValue::getByKey, ThemeCustomValue::getCustomValue)
-                ));
+                        toMap(ThemeCustomValue::getByKey, ThemeCustomValue::getCustomValue)));
 
     }
 
@@ -116,12 +121,19 @@ public class ThemeServiceImpl implements ThemeService {
     public List<ThemeTagValueTO> getTagValueList(String headerId) {
         var result = themeTagValueMapper.toDomainList(themeTagValueRepository.findByHeaderId(headerId));
         themeHeaderRepository.findById(headerId).ifPresent(theme -> {
+            if (theme.getThemeTagList() == null) {
+                return;
+            }
             for (var tag : theme.getThemeTagList()) {
-                var tagValue = result.stream().filter(x -> x.getTag().equals(tag.getTag())).findFirst();
+                String shareTagId = tag.getShareTagId();
+                if (!StringUtils.hasText(shareTagId)) {
+                    continue;
+                }
+                var tagValue = result.stream().filter(x -> shareTagId.equals(x.getTag())).findFirst();
                 if (tagValue.isEmpty()) {
                     ThemeTagValueTO themeTagValueTO = new ThemeTagValueTO();
                     themeTagValueTO.setHeaderId(headerId);
-                    themeTagValueTO.setTag(tag.getTag());
+                    themeTagValueTO.setTag(shareTagId);
                     themeTagValueTO.setValueList(new ArrayList<>());
                     result.add(themeTagValueTO);
                 }
@@ -132,12 +144,46 @@ public class ThemeServiceImpl implements ThemeService {
 
     public Map<String, String> findTopCustomValue(String headerId) {
         List<ThemeTopCustomValue> list = themeTopCustomValueRepository.findByHeaderId(headerId);
-        //先用data來groupBy,toMap成自定義的byKey跟value
+        // 先用data來groupBy,toMap成自定義的byKey跟value
         return list.stream().collect(
                 Collectors.toMap(ThemeTopCustomValue::getByKey, ThemeTopCustomValue::getCustomValue));
     }
 
     public void updateTopCustomValue(ThemeTopCustomValueTO topCustomValueTO) {
         themeTopCustomValueRepository.save(themeMapper.topCustomValueToEntity(topCustomValueTO));
+    }
+
+    private void syncShareTagMappings(String headerId, List<ThemeTag> themeTagList) {
+        List<ShareTagMap> existingMappings = shareTagMapRepository.findByThemeHeaderId(headerId);
+        Set<String> desiredShareTagIds = themeTagList == null
+                ? Collections.emptySet()
+                : themeTagList.stream()
+                        .map(ThemeTag::getShareTagId)
+                        .filter(StringUtils::hasText)
+                        .collect(Collectors.toSet());
+
+        Set<String> currentShareTagIds = existingMappings.stream()
+                .map(ShareTagMap::getShareTagId)
+                .collect(Collectors.toSet());
+
+        List<ShareTagMap> toRemove = existingMappings.stream()
+                .filter(mapping -> !desiredShareTagIds.contains(mapping.getShareTagId()))
+                .collect(Collectors.toList());
+        if (!toRemove.isEmpty()) {
+            shareTagMapRepository.deleteAll(toRemove);
+        }
+
+        List<ShareTagMap> toAdd = desiredShareTagIds.stream()
+                .filter(shareTagId -> !currentShareTagIds.contains(shareTagId))
+                .map(shareTagId -> {
+                    ShareTagMap shareTagMap = new ShareTagMap();
+                    shareTagMap.setShareTagId(shareTagId);
+                    shareTagMap.setThemeHeaderId(headerId);
+                    return shareTagMap;
+                })
+                .collect(Collectors.toList());
+        if (!toAdd.isEmpty()) {
+            shareTagMapRepository.saveAll(toAdd);
+        }
     }
 }

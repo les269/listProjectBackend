@@ -30,11 +30,25 @@ create TABLE IF NOT EXISTS theme_top_custom_value (
     PRIMARY KEY ( header_id, by_key)
 );
 
-create TABLE IF NOT EXISTS theme_tag_value (
-    header_id TEXT NOT NULL,
-    tag TEXT NOT NULL,
-    value_list TEXT NOT NULL,
-    PRIMARY KEY ( header_id, tag)
+create TABLE IF NOT EXISTS share_tag (
+    share_tag_id TEXT NOT NULL,
+    share_tag_name TEXT NOT NULL,
+    updated_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY ( share_tag_id)
+);
+
+create TABLE IF NOT EXISTS share_tag_value (
+    share_tag_id TEXT NOT NULL,
+    value TEXT NOT NULL,
+    updated_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY ( share_tag_id, value)
+);
+
+create TABLE IF NOT EXISTS share_tag_map (
+    share_tag_id TEXT NOT NULL,
+    theme_header_id TEXT NOT NULL,
+    updated_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (share_tag_id, theme_header_id)
 );
 
 create TABLE IF NOT EXISTS api_config (
