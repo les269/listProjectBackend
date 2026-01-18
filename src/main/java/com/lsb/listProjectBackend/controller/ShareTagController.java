@@ -1,6 +1,7 @@
 package com.lsb.listProjectBackend.controller;
 
 import com.lsb.listProjectBackend.domain.ShareTagTO;
+import com.lsb.listProjectBackend.domain.ShareTagValueDeleteListTO;
 import com.lsb.listProjectBackend.domain.ShareTagValueTO;
 import com.lsb.listProjectBackend.service.ShareTagService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,13 +32,18 @@ public class ShareTagController {
     }
 
     @GetMapping("/share-tag/in-use")
-    boolean isShareTagInUse(@RequestParam("shareTagId") String shareTagId) {
-        return shareTagService.hasThemeReference(shareTagId);
+    List<String> getThemeHeaderIdsByShareTagId(@RequestParam("shareTagId") String shareTagId) {
+        return shareTagService.getThemeHeaderIdsByShareTagId(shareTagId);
     }
 
     @PostMapping("/share-tag/value/by-ids")
     List<ShareTagValueTO> getShareTagValues(@RequestBody List<String> shareTagIds) {
         return shareTagService.findShareTagValues(shareTagIds);
+    }
+
+    @GetMapping("/share-tag/value/id")
+    List<ShareTagValueTO> getShareTagValueById(@RequestParam("shareTagId") String shareTagId) {
+        return shareTagService.findShareTagValueById(shareTagId);
     }
 
     @PostMapping("/share-tag/value/add")
@@ -49,5 +55,10 @@ public class ShareTagController {
     void deleteShareTagValue(@RequestParam("shareTagId") String shareTagId,
             @RequestParam("value") String value) {
         shareTagService.deleteShareTagValue(shareTagId, value);
+    }
+
+    @DeleteMapping("/share-tag/value/delete-list")
+    void deleteShareTagValueList(@RequestBody ShareTagValueDeleteListTO req) {
+        shareTagService.deleteShareTagValueList(req);
     }
 }

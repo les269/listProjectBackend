@@ -11,4 +11,7 @@ import java.util.List;
 public interface ShareTagValueRepository extends JpaRepository<ShareTagValue, ShareTagValuePK> {
     @Query(value = "SELECT * FROM share_tag_value WHERE share_tag_id IN (:shareTagIds)", nativeQuery = true)
     List<ShareTagValue> findByShareTagIdIn(@Param("shareTagIds") List<String> shareTagIds);
+
+    @Query(value = "SELECT * FROM share_tag_value WHERE share_tag_id = :shareTagId", nativeQuery = true)
+    List<ShareTagValue> findByShareTagId(@Param("shareTagId") String shareTagId);
 }

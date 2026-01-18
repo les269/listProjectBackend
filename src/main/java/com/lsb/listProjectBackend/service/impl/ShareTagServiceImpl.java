@@ -1,6 +1,7 @@
 package com.lsb.listProjectBackend.service.impl;
 
 import com.lsb.listProjectBackend.domain.ShareTagTO;
+import com.lsb.listProjectBackend.domain.ShareTagValueDeleteListTO;
 import com.lsb.listProjectBackend.domain.ShareTagValueTO;
 import com.lsb.listProjectBackend.entity.ShareTagValuePK;
 import com.lsb.listProjectBackend.mapper.ShareTagMapper;
@@ -44,8 +45,11 @@ public class ShareTagServiceImpl implements ShareTagService {
     }
 
     @Override
-    public boolean hasThemeReference(String shareTagId) {
-        return shareTagMapRepository.existsByShareTagId(shareTagId) > 0;
+    public List<String> getThemeHeaderIdsByShareTagId(String shareTagId) {
+        if (shareTagId == null || shareTagId.isEmpty()) {
+            return Collections.emptyList();
+        }
+        return shareTagMapRepository.findThemeHeaderIdsByShareTagId(shareTagId);
     }
 
     @Override
@@ -57,6 +61,14 @@ public class ShareTagServiceImpl implements ShareTagService {
     }
 
     @Override
+    public List<ShareTagValueTO> findShareTagValueById(String shareTagId) {
+        if (shareTagId == null || shareTagId.isEmpty()) {
+            return Collections.emptyList();
+        }
+        return shareTagMapper.toDomainValueList(shareTagValueRepository.findByShareTagId(shareTagId));
+    }
+
+    @Override
     public void addShareTagValue(ShareTagValueTO to) {
         shareTagValueRepository.save(shareTagValueMapper.toEntity(to));
     }
@@ -64,5 +76,15 @@ public class ShareTagServiceImpl implements ShareTagService {
     @Override
     public void deleteShareTagValue(String shareTagId, String value) {
         shareTagValueRepository.deleteById(new ShareTagValuePK(shareTagId, value));
+    }
+
+    @Override
+    public void deleteShareTagValueList(ShareTagValueDeleteListTO to) {
+        if (to == null || to.getShareTagId() == null || to.getValues() == null || to.getValues().isEmpty()) {
+            return;
+        }
+        String shareTagId = to.getShareTagId();
+        var shareTagValuePKs = to.getValues().stream().map(value -> new ShareTagValuePK(shareTagId, value)).toList();
+        shareTagValueRepository.deleteAllById(shareTagValuePKs);
     }
 }
