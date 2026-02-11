@@ -1,7 +1,6 @@
 package com.lsb.listProjectBackend.controller;
 
 import com.lsb.listProjectBackend.domain.ReplaceValueMapTO;
-import com.lsb.listProjectBackend.domain.ScrapyConfigTO;
 import com.lsb.listProjectBackend.service.ReplaceValueMapService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;

@@ -1,10 +1,11 @@
 package com.lsb.listProjectBackend.domain;
 
-import com.lsb.listProjectBackend.entity.ScrapyData;
 import lombok.Data;
 
 import java.util.List;
 import java.util.Map;
+
+import com.lsb.listProjectBackend.entity.dynamic.ScrapyData;
 
 @Data
 public class ScrapyTestTO {

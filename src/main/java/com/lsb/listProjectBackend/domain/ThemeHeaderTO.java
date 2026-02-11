@@ -1,6 +1,11 @@
 package com.lsb.listProjectBackend.domain;
 
-import com.lsb.listProjectBackend.entity.*;
+import com.lsb.listProjectBackend.entity.dynamic.ThemeCustom;
+import com.lsb.listProjectBackend.entity.dynamic.ThemeDataset;
+import com.lsb.listProjectBackend.entity.dynamic.ThemeImage;
+import com.lsb.listProjectBackend.entity.dynamic.ThemeLabel;
+import com.lsb.listProjectBackend.entity.dynamic.ThemeOtherSetting;
+import com.lsb.listProjectBackend.entity.dynamic.ThemeTag;
 import com.lsb.listProjectBackend.utils.Global;
 import lombok.Data;
 

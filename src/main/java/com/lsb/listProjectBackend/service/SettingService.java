@@ -6,6 +6,8 @@ import java.util.List;
 
 public interface SettingService {
     List<SettingTO> getAll();
-    void update(SettingTO settingTO);
-    void updateAll(List<SettingTO> settingTO);
+    void update(SettingTO to);
+    void updateAll(List<SettingTO> to);
+    SettingTO getByName(String name);
+    void changeDatabase(SettingTO to);
 }

@@ -1,14 +1,27 @@
 package com.lsb.listProjectBackend.service.impl;
 
+import com.lsb.listProjectBackend.aop.UseDynamic;
+import com.lsb.listProjectBackend.aop.UseDynamicTx;
 import com.lsb.listProjectBackend.domain.*;
-import com.lsb.listProjectBackend.entity.*;
+import com.lsb.listProjectBackend.entity.dynamic.ShareTagMap;
+import com.lsb.listProjectBackend.entity.dynamic.ThemeCustomValue;
+import com.lsb.listProjectBackend.entity.dynamic.ThemeHeader;
+import com.lsb.listProjectBackend.entity.dynamic.ThemeTag;
+import com.lsb.listProjectBackend.entity.dynamic.ThemeTagValue;
+import com.lsb.listProjectBackend.entity.dynamic.ThemeTopCustomValue;
 import com.lsb.listProjectBackend.mapper.ThemeMapper;
 import com.lsb.listProjectBackend.mapper.ThemeTagValueMapper;
-import com.lsb.listProjectBackend.repository.*;
+import com.lsb.listProjectBackend.repository.dynamic.ShareTagMapRepository;
+import com.lsb.listProjectBackend.repository.dynamic.ThemeCustomValueRepository;
+import com.lsb.listProjectBackend.repository.dynamic.ThemeHeaderRepository;
+import com.lsb.listProjectBackend.repository.dynamic.ThemeTagValueRepository;
+import com.lsb.listProjectBackend.repository.dynamic.ThemeTopCustomValueRepository;
 import com.lsb.listProjectBackend.service.ThemeService;
+
+import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestBody;
 
@@ -18,6 +31,8 @@ import java.util.stream.Collectors;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toMap;
 
+@Slf4j
+@UseDynamic
 @Service
 public class ThemeServiceImpl implements ThemeService {
     @Autowired
@@ -55,7 +70,7 @@ public class ThemeServiceImpl implements ThemeService {
         return themeHeaderRepository.existsById(header.getId());
     }
 
-    @Transactional
+    @UseDynamicTx
     public void updateTheme(@RequestBody ThemeHeaderTO theme) {
         ThemeHeader themeHeader = themeMapper.headerToEntity(theme);
         String headerId = themeHeader.getId();
@@ -66,7 +81,7 @@ public class ThemeServiceImpl implements ThemeService {
         syncShareTagMappings(headerId, themeHeader.getThemeTagList());
     }
 
-    @Transactional
+    @UseDynamicTx
     public void deleteTheme(ThemeHeaderTO headerTO) {
         ThemeHeader header = themeMapper.headerToEntity(headerTO);
         Optional<ThemeHeader> themeHeaderOptional = themeHeaderRepository.findById(header.getId());
@@ -77,7 +92,7 @@ public class ThemeServiceImpl implements ThemeService {
         }
     }
 
-    @Transactional
+    @UseDynamicTx
     public void copyTheme(CopyThemeRequest request) {
         ThemeHeader source = themeMapper.headerToEntity(request.getSource());
         ThemeHeader target = themeMapper.headerToEntity(request.getTarget());

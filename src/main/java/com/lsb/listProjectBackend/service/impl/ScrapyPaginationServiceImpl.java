@@ -1,12 +1,16 @@
 package com.lsb.listProjectBackend.service.impl;
 
+import com.lsb.listProjectBackend.aop.UseDynamic;
 import com.lsb.listProjectBackend.domain.ScrapyPaginationTO;
 import com.lsb.listProjectBackend.domain.ScrapyPaginationTestTO;
-import com.lsb.listProjectBackend.entity.Cookie;
+import com.lsb.listProjectBackend.entity.dynamic.Cookie;
 import com.lsb.listProjectBackend.mapper.ScrapyPaginationMapper;
-import com.lsb.listProjectBackend.repository.ScrapyPaginationRepository;
+import com.lsb.listProjectBackend.repository.dynamic.ScrapyPaginationRepository;
 import com.lsb.listProjectBackend.service.ScrapyPaginationService;
 import com.lsb.listProjectBackend.utils.Utils;
+
+import lombok.extern.slf4j.Slf4j;
+
 import org.jsoup.nodes.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -17,9 +21,8 @@ import java.time.ZoneId;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.lsb.listProjectBackend.utils.Utils.isBlank;
-import static com.lsb.listProjectBackend.utils.Utils.isNotBlank;
-
+@Slf4j
+@UseDynamic
 @Service
 public class ScrapyPaginationServiceImpl extends ScrapyBase implements ScrapyPaginationService {
 
@@ -69,8 +72,8 @@ public class ScrapyPaginationServiceImpl extends ScrapyBase implements ScrapyPag
             var entity = entityOp.get();
             var config = entityOp.get().getConfig();
             var redirectUrl = config.getStartUrl();
-            Map<String, String> cookies = config.getCookie().stream().
-                    collect(Collectors.toMap(Cookie::getName, Cookie::getValue));
+            Map<String, String> cookies = config.getCookie().stream()
+                    .collect(Collectors.toMap(Cookie::getName, Cookie::getValue));
             try {
                 while (Utils.isNotBlank(redirectUrl)) {
                     Document document = getConnection(redirectUrl)

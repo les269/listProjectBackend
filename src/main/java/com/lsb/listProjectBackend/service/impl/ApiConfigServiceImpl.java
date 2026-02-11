@@ -2,10 +2,11 @@ package com.lsb.listProjectBackend.service.impl;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.lsb.listProjectBackend.aop.UseDynamic;
 import com.lsb.listProjectBackend.domain.ApiConfigTO;
-import com.lsb.listProjectBackend.entity.ApiConfig;
+import com.lsb.listProjectBackend.entity.dynamic.ApiConfig;
 import com.lsb.listProjectBackend.mapper.ApiConfigMapper;
-import com.lsb.listProjectBackend.repository.ApiConfigRepository;
+import com.lsb.listProjectBackend.repository.dynamic.ApiConfigRepository;
 import com.lsb.listProjectBackend.service.ApiConfigService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 
 @Slf4j
+@UseDynamic
 @Service
 public class ApiConfigServiceImpl implements ApiConfigService {
     @Autowired
@@ -38,8 +40,7 @@ public class ApiConfigServiceImpl implements ApiConfigService {
 
     public ApiConfigTO getByName(String name) {
         return apiConfigMapper.toDomain(
-                apiConfigRepository.findById(name).orElse(null)
-        );
+                apiConfigRepository.findById(name).orElse(null));
     }
 
     public List<ApiConfigTO> getByNameList(List<String> nameList) {

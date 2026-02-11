@@ -1,10 +1,10 @@
 package com.lsb.listProjectBackend.service.impl;
 
+import com.lsb.listProjectBackend.aop.UseDynamic;
 import com.lsb.listProjectBackend.domain.LsbException;
-import com.lsb.listProjectBackend.entity.CssSelect;
-import com.lsb.listProjectBackend.entity.ReplaceValueMap;
-import com.lsb.listProjectBackend.entity.ScrapyData;
-import com.lsb.listProjectBackend.repository.ReplaceValueMapRepository;
+import com.lsb.listProjectBackend.entity.dynamic.CssSelect;
+import com.lsb.listProjectBackend.entity.dynamic.ReplaceValueMap;
+import com.lsb.listProjectBackend.repository.dynamic.ReplaceValueMapRepository;
 import com.lsb.listProjectBackend.utils.Utils;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Connection;
@@ -19,8 +19,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 
-@Service
 @Slf4j
+@UseDynamic
+@Service
 public class ScrapyBase {
 
     @Autowired
@@ -51,15 +52,16 @@ public class ScrapyBase {
                         })
                         .map(String::trim)
                         .toList();
-                //分割單一字串
-                if (Utils.isNotBlank(cssSelect.getSplitText()) && textList.size()==1){
+                // 分割單一字串
+                if (Utils.isNotBlank(cssSelect.getSplitText()) && textList.size() == 1) {
                     textList = Stream.of(textList.getFirst().split(cssSelect.getSplitText()))
                             .map(String::trim)
                             .toList();
                 }
                 if (Utils.isNotBlank(cssSelect.getReplaceString()) && !textList.isEmpty()) {
                     String replacedValue = Utils.replaceValue(cssSelect.getReplaceString(), textList);
-                    result.put(cssSelect.getKey(), cssSelect.isConvertToArray() ? List.of(replacedValue) : replacedValue);
+                    result.put(cssSelect.getKey(),
+                            cssSelect.isConvertToArray() ? List.of(replacedValue) : replacedValue);
                     continue;
                 }
                 // 判斷是否合併已有資料
@@ -92,18 +94,18 @@ public class ScrapyBase {
         }
     }
 
-    private void resultReplaceValue(CssSelect cssSelect, Map<String, Object> result, Map<String, Map<String, Object>> replaceValueMap) {
+    private void resultReplaceValue(CssSelect cssSelect, Map<String, Object> result,
+            Map<String, Map<String, Object>> replaceValueMap) {
         // 提前返回，如果沒有 replaceValueMapName
         var name = cssSelect.getReplaceValueMapName();
-        if (Utils.isBlank(name)) return;
+        if (Utils.isBlank(name))
+            return;
         // 獲取 key
         var key = cssSelect.getKey();
 
-        Map<String, Object> map = replaceValueMap.computeIfAbsent(name, k ->
-                replaceValueMapRepository.findById(k)
-                        .map(ReplaceValueMap::getMap)
-                        .orElseGet(HashMap::new)
-        );
+        Map<String, Object> map = replaceValueMap.computeIfAbsent(name, k -> replaceValueMapRepository.findById(k)
+                .map(ReplaceValueMap::getMap)
+                .orElseGet(HashMap::new));
 
         // 處理 result 中的 key，確保其值為 List<String>
         if (result.containsKey(key) && result.get(key) instanceof List<?> list) {

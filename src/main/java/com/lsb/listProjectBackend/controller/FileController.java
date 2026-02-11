@@ -8,10 +8,8 @@ import com.sun.jna.platform.FileUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.File;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -42,8 +40,7 @@ public class FileController {
         if (Utils.isBlank(
                 fileRequest.getPath(), fileRequest.getMoveTo()) ||
                 !file.exists() ||
-                !moveTo.exists()
-        ) {
+                !moveTo.exists()) {
             return false;
         }
         return file.renameTo(new File(fileRequest.getMoveTo() + "\\" + file.getName()));
@@ -59,15 +56,14 @@ public class FileController {
                 .collect(Collectors.toMap(
                         FileExistRequest::getName,
                         req -> Paths.get(req.getPath()).toFile().exists(),
-                        (a, b) -> a
-                ));
+                        (a, b) -> a));
     }
 
     @PostMapping("/file/open-file")
     public boolean openHGame(@RequestBody FileRequest request) throws Exception {
         File directory = new File(request.getPath());
         if (directory.isDirectory()) {
-            Runtime.getRuntime().exec(new String[]{"explorer", "/n,",directory.getAbsolutePath()});
+            Runtime.getRuntime().exec(new String[] { "explorer", "/n,", directory.getAbsolutePath() });
             return true;
         }
         return false;

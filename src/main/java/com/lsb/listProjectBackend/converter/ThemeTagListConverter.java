@@ -1,7 +1,7 @@
 package com.lsb.listProjectBackend.converter;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.lsb.listProjectBackend.entity.ThemeTag;
+import com.lsb.listProjectBackend.entity.dynamic.ThemeTag;
 
 import java.util.List;
 

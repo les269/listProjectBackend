@@ -29,4 +29,14 @@ public class SettingController {
     void update(@RequestBody List<SettingTO> req) {
         settingService.updateAll(req);
     }
+
+    @GetMapping("/setting/get-by-name")
+    SettingTO getByName(@RequestParam("name") String name){
+        return settingService.getByName(name);
+    }
+
+    @PostMapping("/setting/changeDatabase")
+    void changeDatabase(@RequestBody SettingTO req) {
+        settingService.changeDatabase(req);
+    }
 }

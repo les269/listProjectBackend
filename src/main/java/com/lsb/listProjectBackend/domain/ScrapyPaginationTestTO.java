@@ -1,6 +1,7 @@
 package com.lsb.listProjectBackend.domain;
 
-import com.lsb.listProjectBackend.entity.ScrapyPaginationConfig;
+import com.lsb.listProjectBackend.entity.dynamic.ScrapyPaginationConfig;
+
 import lombok.Data;
 
 @Data

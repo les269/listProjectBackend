@@ -1,12 +1,25 @@
 package com.lsb.listProjectBackend.service.impl;
 
 import com.google.common.util.concurrent.RateLimiter;
+import com.lsb.listProjectBackend.aop.UseDynamic;
 import com.lsb.listProjectBackend.domain.*;
-import com.lsb.listProjectBackend.entity.*;
+import com.lsb.listProjectBackend.entity.dynamic.Dataset;
+import com.lsb.listProjectBackend.entity.dynamic.DatasetConfig;
+import com.lsb.listProjectBackend.entity.dynamic.DatasetData;
+import com.lsb.listProjectBackend.entity.dynamic.GroupDataset;
+import com.lsb.listProjectBackend.entity.dynamic.GroupDatasetConfig;
+import com.lsb.listProjectBackend.entity.dynamic.GroupDatasetData;
+import com.lsb.listProjectBackend.entity.dynamic.GroupDatasetField;
+import com.lsb.listProjectBackend.entity.dynamic.GroupDatasetScrapy;
+import com.lsb.listProjectBackend.entity.dynamic.ReplaceValueMap;
 import com.lsb.listProjectBackend.mapper.DatasetDataMapper;
 import com.lsb.listProjectBackend.mapper.DatasetMapper;
 import com.lsb.listProjectBackend.mapper.GroupDatasetDataMapper;
-import com.lsb.listProjectBackend.repository.*;
+import com.lsb.listProjectBackend.repository.dynamic.DatasetDataRepository;
+import com.lsb.listProjectBackend.repository.dynamic.DatasetRepository;
+import com.lsb.listProjectBackend.repository.dynamic.GroupDatasetDataRepository;
+import com.lsb.listProjectBackend.repository.dynamic.GroupDatasetRepository;
+import com.lsb.listProjectBackend.repository.dynamic.ReplaceValueMapRepository;
 import com.lsb.listProjectBackend.service.*;
 import com.lsb.listProjectBackend.utils.Global;
 import com.lsb.listProjectBackend.utils.Utils;
@@ -21,6 +34,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @Slf4j
+@UseDynamic
 @Service
 public class DatasetServiceImpl implements DatasetService {
     @Autowired
@@ -136,8 +150,7 @@ public class DatasetServiceImpl implements DatasetService {
         }
         Pattern filingRegularPattern = Pattern.compile(datasetConfig.getFilingRegular());
         List<File> files = Arrays.stream(Objects.requireNonNull(
-                path.listFiles(file -> shouldIncludeConfigFile(file, datasetConfig))
-        )).toList();
+                path.listFiles(file -> shouldIncludeConfigFile(file, datasetConfig)))).toList();
         for (File file : files) {
             var fileName = file.getName();
             Matcher matcher = filingRegularPattern.matcher(fileName);
@@ -148,7 +161,8 @@ public class DatasetServiceImpl implements DatasetService {
         }
     }
 
-    private void doScrapy(String datasetName, DatasetConfig datasetConfig, Global.DatasetConfigType type) throws Exception {
+    private void doScrapy(String datasetName, DatasetConfig datasetConfig, Global.DatasetConfigType type)
+            throws Exception {
         // 群組名稱
         String groupName = datasetConfig.getGroupName();
         // 取得群組所有資料
@@ -217,15 +231,15 @@ public class DatasetServiceImpl implements DatasetService {
         if (groupDatasetOptional.isPresent() && scrapyConfigTO != null && !targetList.isEmpty()) {
             GroupDatasetConfig groupDatasetConfig = groupDatasetOptional.get().getConfig();
             List<GroupDatasetData> saveGroupDataset = new ArrayList<>();
-            //TODO: 前端可以進行設定時間參數
+            // TODO: 前端可以進行設定時間參數
             RateLimiter rateLimiter = RateLimiter.create(2.0);
             for (List<String> target : targetList) {
                 rateLimiter.acquire();
 
                 log.info("scrapy key is {}", target.getFirst());
-                Map<String, Object> scrapyResult = type == Global.DatasetConfigType.pagination ?
-                        scrapyService.doScrapyByUrl(target.getLast(), scrapyConfigTO.getData()) :
-                        scrapyService.doScrapyByJson(target, scrapyConfigTO.getData());
+                Map<String, Object> scrapyResult = type == Global.DatasetConfigType.pagination
+                        ? scrapyService.doScrapyByUrl(target.getLast(), scrapyConfigTO.getData())
+                        : scrapyService.doScrapyByJson(target, scrapyConfigTO.getData());
 
                 scrapyResult.put(groupDatasetConfig.getByKey(), target.getFirst());
                 if (type == Global.DatasetConfigType.pagination) {
@@ -241,7 +255,7 @@ public class DatasetServiceImpl implements DatasetService {
             groupDatasetDataList.addAll(groupDatasetDataMapper.toCopyEntityList(saveGroupDataset));
         }
 
-        //設定自定義資料
+        // 設定自定義資料
         if (type == Global.DatasetConfigType.file || type == Global.DatasetConfigType.folder) {
             setCustomDataForFiles(groupDatasetDataList, datasetConfig);
         } else if (type == Global.DatasetConfigType.text || type == Global.DatasetConfigType.pagination) {
@@ -270,10 +284,11 @@ public class DatasetServiceImpl implements DatasetService {
                                 case Global.DatasetFieldType.fileSize -> file.length() + "";
                                 case Global.DatasetFieldType.path -> file.getAbsolutePath();
                                 case Global.DatasetFieldType.fixedString ->
-                                        Utils.replaceValue(datasetField.getFixedString(), x.getJson());
+                                    Utils.replaceValue(datasetField.getFixedString(), x.getJson());
                             };
                             if (Utils.isNotBlank(datasetField.getReplaceRegular())) {
-                                value = value.replaceAll(datasetField.getReplaceRegular(), datasetField.getReplaceRegularTo());
+                                value = value.replaceAll(datasetField.getReplaceRegular(),
+                                        datasetField.getReplaceRegularTo());
                             }
                             x.getJson().put(datasetField.getKey(), value);
                         });
@@ -289,9 +304,10 @@ public class DatasetServiceImpl implements DatasetService {
             datasetConfig.getFieldList().forEach(datasetField -> {
                 var value = switch (datasetField.getType()) {
                     case Global.DatasetFieldType.fileName, Global.DatasetFieldType.path,
-                         Global.DatasetFieldType.fileSize -> "";
+                            Global.DatasetFieldType.fileSize ->
+                        "";
                     case Global.DatasetFieldType.fixedString ->
-                            Utils.replaceValue(datasetField.getFixedString(), x.getJson());
+                        Utils.replaceValue(datasetField.getFixedString(), x.getJson());
                 };
                 if (Utils.isNotBlank(datasetField.getReplaceRegular())) {
                     value = value.replaceAll(datasetField.getReplaceRegular(), datasetField.getReplaceRegularTo());
@@ -320,7 +336,8 @@ public class DatasetServiceImpl implements DatasetService {
                     String imageUrl = (String) groupDatasetData.getJson().get(datasetConfig.getImageByKey());
                     String fileName = groupDatasetData.getPrimeValue();
                     String referer = (String) groupDatasetData.getJson().get("__image_referer");
-                    imageService.downloadImageFromUrl(imageUrl, path, Utils.windowsFileNameReplace(fileName), new HashMap<>(), null, referer);
+                    imageService.downloadImageFromUrl(imageUrl, path, Utils.windowsFileNameReplace(fileName),
+                            new HashMap<>(), null, referer);
                 }
             }
         }
@@ -352,19 +369,20 @@ public class DatasetServiceImpl implements DatasetService {
     private List<File> getAllFile(DatasetConfig datasetConfig) {
         if (datasetConfig.getType() == Global.DatasetConfigType.file) {
             var path = new File(datasetConfig.getFilePath());
-            //取得目錄底下所有檔案
+            // 取得目錄底下所有檔案
             var allFile = new ArrayList<>(Arrays.stream(Objects.requireNonNull(path.listFiles(File::isFile)))
-                    .filter(file -> Utils.isBlank(datasetConfig.getFileExtension()) || Utils.checkFileExtension(file, datasetConfig.getFileExtension()))
+                    .filter(file -> Utils.isBlank(datasetConfig.getFileExtension())
+                            || Utils.checkFileExtension(file, datasetConfig.getFileExtension()))
                     .toList());
-            //有歸檔時需要檢索資料夾裡面的資料
+            // 有歸檔時需要檢索資料夾裡面的資料
             if (datasetConfig.isFiling()) {
-                //取得目錄底下的所有資料夾
+                // 取得目錄底下的所有資料夾
                 var folders = Arrays.stream(Objects.requireNonNull(path.listFiles(File::isDirectory))).toList();
                 for (var folder : folders) {
-                    //file是檔案,有限制副檔名時需要檢查副檔名是否相同
-                    var subFiles = folder.listFiles(file ->
-                            file.isFile() && (Utils.isBlank(datasetConfig.getFileExtension()) || Utils.checkFileExtension(file, datasetConfig.getFileExtension()))
-                    );
+                    // file是檔案,有限制副檔名時需要檢查副檔名是否相同
+                    var subFiles = folder
+                            .listFiles(file -> file.isFile() && (Utils.isBlank(datasetConfig.getFileExtension())
+                                    || Utils.checkFileExtension(file, datasetConfig.getFileExtension())));
                     if (subFiles == null) {
                         continue;
                     }
@@ -411,8 +429,7 @@ public class DatasetServiceImpl implements DatasetService {
             return;
         }
         var dataList = groupDatasetDataRepository.findByGroupName(groupName);
-        if (dataList.isEmpty()
-        ) {
+        if (dataList.isEmpty()) {
             return;
         }
         if (groupDataset.getConfig()
@@ -428,9 +445,8 @@ public class DatasetServiceImpl implements DatasetService {
             if (Utils.isBlank(mapName)) {
                 continue;
             }
-            var map = replaceValueMap.computeIfAbsent(mapName, key ->
-                    replaceValueMapRepository.findById(key).map(ReplaceValueMap::getMap).orElse(null)
-            );
+            var map = replaceValueMap.computeIfAbsent(mapName,
+                    key -> replaceValueMapRepository.findById(key).map(ReplaceValueMap::getMap).orElse(null));
             if (map == null || map.isEmpty()) {
                 continue;
             }
@@ -448,7 +464,9 @@ public class DatasetServiceImpl implements DatasetService {
                             var replacedList = list
                                     .stream()
                                     .map(Object::toString) // 確保元素轉為 String
-                                    .map(s -> map.containsKey(s) && Utils.isNotBlank(map.get(s).toString()) ? map.get(s).toString() : s)
+                                    .map(s -> map.containsKey(s) && Utils.isNotBlank(map.get(s).toString())
+                                            ? map.get(s).toString()
+                                            : s)
                                     .toList();
                             json.put(fieldKey, replacedList);
                         }

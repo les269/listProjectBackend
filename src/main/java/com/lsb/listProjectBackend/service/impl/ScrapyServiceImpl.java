@@ -1,30 +1,27 @@
 package com.lsb.listProjectBackend.service.impl;
 
-import com.lsb.listProjectBackend.domain.LsbException;
+import com.lsb.listProjectBackend.aop.UseDynamic;
 import com.lsb.listProjectBackend.domain.ScrapyConfigTO;
 import com.lsb.listProjectBackend.domain.ScrapyReqTO;
-import com.lsb.listProjectBackend.entity.*;
+import com.lsb.listProjectBackend.entity.dynamic.Cookie;
+import com.lsb.listProjectBackend.entity.dynamic.ScrapyConfig;
+import com.lsb.listProjectBackend.entity.dynamic.ScrapyData;
 import com.lsb.listProjectBackend.mapper.ScrapyConfigMapper;
-import com.lsb.listProjectBackend.repository.ReplaceValueMapRepository;
-import com.lsb.listProjectBackend.repository.ScrapyConfigRepository;
+import com.lsb.listProjectBackend.repository.dynamic.ScrapyConfigRepository;
 import com.lsb.listProjectBackend.service.ScrapyService;
 import com.lsb.listProjectBackend.utils.Global;
 import com.lsb.listProjectBackend.utils.Utils;
 import lombok.extern.slf4j.Slf4j;
-import org.jsoup.Connection;
-import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Slf4j
+@UseDynamic
 @Service
 public class ScrapyServiceImpl extends ScrapyBase implements ScrapyService {
     @Autowired
@@ -81,12 +78,12 @@ public class ScrapyServiceImpl extends ScrapyBase implements ScrapyService {
         String redirectUrl = "";
         try {
             for (ScrapyData data : scrapyDataList) {
-                Map<String, String> cookies = data.getCookie().stream().
-                        collect(Collectors.toMap(Cookie::getName, Cookie::getValue));
+                Map<String, String> cookies = data.getCookie().stream()
+                        .collect(Collectors.toMap(Cookie::getName, Cookie::getValue));
                 var handleJson = handlePreJson(data, json);
-                //當是轉址時要確保url不為空
+                // 當是轉址時要確保url不為空
                 if (Global.ScrapyPageType.redirect == data.getScrapyPageType() && Utils.isNotBlank(data.getUrl())) {
-                    //替換url的參數
+                    // 替換url的參數
                     String url = Utils.replaceValue(data.getUrl(), handleJson);
                     // 當有轉址了就用轉址來query
                     if (redirect && Utils.isNotBlank(redirectUrl)) {
@@ -99,13 +96,15 @@ public class ScrapyServiceImpl extends ScrapyBase implements ScrapyService {
                         redirectUrl = result.get("__redirect").toString();
                         result.remove("__redirect");
                     }
-                } else if (redirect && Utils.isNotBlank(redirectUrl) && Global.ScrapyPageType.scrapyData == data.getScrapyPageType()) {
+                } else if (redirect && Utils.isNotBlank(redirectUrl)
+                        && Global.ScrapyPageType.scrapyData == data.getScrapyPageType()) {
                     Document document = getConnection(redirectUrl)
                             .cookies(cookies).get();
                     useCssSelect(document.html(), data.getCssSelectList(), result);
                     redirect = false;
                     redirectUrl = "";
-                } else if (Global.ScrapyPageType.scrapyData == data.getScrapyPageType() && Utils.isNotBlank(data.getUrl())) {
+                } else if (Global.ScrapyPageType.scrapyData == data.getScrapyPageType()
+                        && Utils.isNotBlank(data.getUrl())) {
                     String url = Utils.replaceValue(data.getUrl(), handleJson);
                     Document document = getConnection(url)
                             .cookies(cookies).get();
@@ -138,8 +137,8 @@ public class ScrapyServiceImpl extends ScrapyBase implements ScrapyService {
                 redirect = false;
                 redirectUrl = "";
             }
-            Map<String, String> cookies = data.getCookie().stream().
-                    collect(Collectors.toMap(Cookie::getName, Cookie::getValue));
+            Map<String, String> cookies = data.getCookie().stream()
+                    .collect(Collectors.toMap(Cookie::getName, Cookie::getValue));
             if (Utils.isNotBlank(data.getUrl())) {
                 _url = Utils.replaceValue(data.getUrl(), List.of(url));
             }
@@ -161,11 +160,10 @@ public class ScrapyServiceImpl extends ScrapyBase implements ScrapyService {
         return result;
     }
 
-
-
     private List<String> handlePreJson(ScrapyData scrapyData, List<String> json) {
         if (Utils.isNotBlank(scrapyData.getReplaceRegular())) {
-            return json.stream().map(x -> x.replaceAll(scrapyData.getReplaceRegular(), scrapyData.getReplaceRegularTo())).toList();
+            return json.stream()
+                    .map(x -> x.replaceAll(scrapyData.getReplaceRegular(), scrapyData.getReplaceRegularTo())).toList();
         }
         return json;
     }

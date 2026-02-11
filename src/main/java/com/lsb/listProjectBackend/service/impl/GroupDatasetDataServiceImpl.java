@@ -1,13 +1,17 @@
 package com.lsb.listProjectBackend.service.impl;
 
+import com.lsb.listProjectBackend.aop.UseDynamic;
 import com.lsb.listProjectBackend.domain.GroupDatasetDataTO;
 import com.lsb.listProjectBackend.domain.GroupDatasetTO;
-import com.lsb.listProjectBackend.entity.GroupDatasetDataPK;
+import com.lsb.listProjectBackend.entity.dynamic.GroupDatasetDataPK;
 import com.lsb.listProjectBackend.mapper.GroupDatasetDataMapper;
-import com.lsb.listProjectBackend.repository.GroupDatasetDataRepository;
+import com.lsb.listProjectBackend.repository.dynamic.GroupDatasetDataRepository;
 import com.lsb.listProjectBackend.service.GroupDatasetDataService;
 import com.lsb.listProjectBackend.service.GroupDatasetService;
 import com.lsb.listProjectBackend.utils.Utils;
+
+import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -17,6 +21,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
+@Slf4j
+@UseDynamic
 @Service
 public class GroupDatasetDataServiceImpl implements GroupDatasetDataService {
     @Autowired
@@ -42,7 +48,8 @@ public class GroupDatasetDataServiceImpl implements GroupDatasetDataService {
 
     @Override
     public List<GroupDatasetDataTO> getAllGroupDatasetDataOnlyPrimeValue(String groupName) {
-        return groupDatasetDataMapper.toDomainList(groupDatasetDataRepository.getAllGroupDatasetDataOnlyPrimeValue(groupName));
+        return groupDatasetDataMapper
+                .toDomainList(groupDatasetDataRepository.getAllGroupDatasetDataOnlyPrimeValue(groupName));
     }
 
     public void updateGroupDatasetData(GroupDatasetDataTO req) {
@@ -68,7 +75,7 @@ public class GroupDatasetDataServiceImpl implements GroupDatasetDataService {
                 return path;
             } else {
                 var image = Arrays.stream(Objects.requireNonNull(
-                                new File(folder).listFiles(file -> file.getName().startsWith(primeValue + "."))))
+                        new File(folder).listFiles(file -> file.getName().startsWith(primeValue + "."))))
                         .findFirst();
                 if (image.isPresent()) {
                     Utils.deleteFile(image.get().getPath());

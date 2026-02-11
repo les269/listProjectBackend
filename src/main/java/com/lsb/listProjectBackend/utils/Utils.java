@@ -5,6 +5,8 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -26,7 +28,8 @@ public class Utils {
     }
 
     public static boolean isBlank(String... str) {
-        if (str == null) return true; // Return true if the entire array is null
+        if (str == null)
+            return true; // Return true if the entire array is null
         for (String s : str) {
             if (isBlank(s)) {
                 return true; // Return true if any string is null or blank
@@ -63,7 +66,7 @@ public class Utils {
         return path.substring(8);
     }
 
-    public static final Character[] INVALID_WINDOWS_SPECIFIC_CHARS = {'"', '*', ':', '<', '>', '?', '\\', '|', 0x7F};
+    public static final Character[] INVALID_WINDOWS_SPECIFIC_CHARS = { '"', '*', ':', '<', '>', '?', '\\', '|', 0x7F };
 
     public static boolean validateStringFilenameUsingRegex(String filename) {
         if (filename == null || filename.isEmpty() || filename.length() > 255) {
@@ -125,8 +128,7 @@ public class Utils {
     public static String replaceValue(String value, List<String> arr) {
         Map<String, Object> replaceMap = IntStream.range(0, arr.size()).boxed().collect(Collectors.toMap(
                 i -> i + "",
-                arr::get
-        ));
+                arr::get));
         return replaceValue(value, replaceMap);
     }
 
@@ -177,7 +179,7 @@ public class Utils {
     }
 
     public static String getFileNameWithoutExtension(File file) {
-        if(file.isDirectory()){
+        if (file.isDirectory()) {
             return file.getName();
         }
         String name = file.getName();
@@ -208,7 +210,7 @@ public class Utils {
 
     public static void deleteFile(String path) throws IOException {
         File file = new File(path);
-        //避免刪除smb檔案
+        // 避免刪除smb檔案
         if (file.exists() && !path.startsWith("\\\\")) {
             FileUtils.getInstance().moveToTrash(file);
         }
@@ -245,4 +247,21 @@ public class Utils {
         return fileName.replaceAll("[\\\\/:*?\"<>|]", "").replaceAll("\\.+$", "").trim();
     }
 
+    public static String getDefaultFilePath(String filename) {
+        String userHome = System.getProperty("user.home");
+        String appDataRoaming = userHome + File.separator + "AppData" + File.separator + "Roaming";
+        return Paths.get(appDataRoaming, "listProjectData", filename).toString();
+    }
+
+    public static Path getDefaultDirectoryPath() {
+        String userHome = System.getProperty("user.home");
+        String appDataRoaming = userHome + File.separator + "AppData" + File.separator + "Roaming";
+        return Paths.get(appDataRoaming, "listProjectData");
+    }
+
+    public static boolean isWindows() {
+        // 获取操作系统名称并转为小写，判断是否包含 win
+        String osName = System.getProperty("os.name").toLowerCase();
+        return osName.contains("win");
+    }
 }

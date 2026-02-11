@@ -1,21 +1,27 @@
 package com.lsb.listProjectBackend.service.impl;
 
+import com.lsb.listProjectBackend.aop.UseDynamic;
 import com.lsb.listProjectBackend.domain.ShareTagTO;
 import com.lsb.listProjectBackend.domain.ShareTagValueDeleteListTO;
 import com.lsb.listProjectBackend.domain.ShareTagValueTO;
-import com.lsb.listProjectBackend.entity.ShareTagValuePK;
+import com.lsb.listProjectBackend.entity.dynamic.ShareTagValuePK;
 import com.lsb.listProjectBackend.mapper.ShareTagMapper;
 import com.lsb.listProjectBackend.mapper.ShareTagValueMapper;
-import com.lsb.listProjectBackend.repository.ShareTagMapRepository;
-import com.lsb.listProjectBackend.repository.ShareTagRepository;
-import com.lsb.listProjectBackend.repository.ShareTagValueRepository;
+import com.lsb.listProjectBackend.repository.dynamic.ShareTagMapRepository;
+import com.lsb.listProjectBackend.repository.dynamic.ShareTagRepository;
+import com.lsb.listProjectBackend.repository.dynamic.ShareTagValueRepository;
 import com.lsb.listProjectBackend.service.ShareTagService;
+
+import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
 import java.util.List;
 
+@Slf4j
+@UseDynamic
 @Service
 public class ShareTagServiceImpl implements ShareTagService {
 

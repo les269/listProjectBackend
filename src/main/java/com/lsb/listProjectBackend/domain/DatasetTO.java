@@ -1,9 +1,10 @@
 package com.lsb.listProjectBackend.domain;
 
-import com.lsb.listProjectBackend.entity.DatasetConfig;
 import lombok.Data;
 
 import java.time.LocalDateTime;
+
+import com.lsb.listProjectBackend.entity.dynamic.DatasetConfig;
 
 @Data
 public class DatasetTO {

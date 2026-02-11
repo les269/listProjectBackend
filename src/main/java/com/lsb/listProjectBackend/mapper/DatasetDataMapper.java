@@ -1,7 +1,8 @@
 package com.lsb.listProjectBackend.mapper;
 
 import com.lsb.listProjectBackend.domain.DatasetDataTO;
-import com.lsb.listProjectBackend.entity.DatasetData;
+import com.lsb.listProjectBackend.entity.dynamic.DatasetData;
+
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
 
@@ -12,7 +13,10 @@ public interface DatasetDataMapper {
     DatasetDataMapper INSTANCE = Mappers.getMapper(DatasetDataMapper.class);
 
     DatasetData toEntity(DatasetDataTO to);
+
     List<DatasetData> toEntityList(List<DatasetDataTO> to);
+
     DatasetDataTO toDomain(DatasetData entity);
+
     List<DatasetDataTO> toDomainList(List<DatasetData> entity);
 }

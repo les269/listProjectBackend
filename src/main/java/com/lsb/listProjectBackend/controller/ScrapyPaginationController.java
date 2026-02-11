@@ -1,9 +1,7 @@
 package com.lsb.listProjectBackend.controller;
 
-import com.lsb.listProjectBackend.domain.ScrapyConfigTO;
 import com.lsb.listProjectBackend.domain.ScrapyPaginationTO;
 import com.lsb.listProjectBackend.domain.ScrapyPaginationTestTO;
-import com.lsb.listProjectBackend.domain.ScrapyTestTO;
 import com.lsb.listProjectBackend.service.ScrapyPaginationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;

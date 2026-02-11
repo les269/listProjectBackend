@@ -1,20 +1,26 @@
 package com.lsb.listProjectBackend.service.impl;
 
+import com.lsb.listProjectBackend.aop.UseDynamic;
 import com.lsb.listProjectBackend.domain.GroupDatasetTO;
-import com.lsb.listProjectBackend.entity.GroupDatasetApi;
-import com.lsb.listProjectBackend.entity.GroupDatasetData;
+import com.lsb.listProjectBackend.entity.dynamic.GroupDatasetApi;
+import com.lsb.listProjectBackend.entity.dynamic.GroupDatasetData;
 import com.lsb.listProjectBackend.mapper.GroupDatasetMapper;
-import com.lsb.listProjectBackend.repository.GroupDatasetDataRepository;
-import com.lsb.listProjectBackend.repository.GroupDatasetRepository;
+import com.lsb.listProjectBackend.repository.dynamic.GroupDatasetDataRepository;
+import com.lsb.listProjectBackend.repository.dynamic.GroupDatasetRepository;
 import com.lsb.listProjectBackend.service.ApiConfigService;
 import com.lsb.listProjectBackend.service.GroupDatasetService;
 import com.lsb.listProjectBackend.utils.Global;
+
+import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
 
+@Slf4j
+@UseDynamic
 @Service
 public class GroupDatasetServiceImpl implements GroupDatasetService {
     @Autowired
@@ -56,8 +62,7 @@ public class GroupDatasetServiceImpl implements GroupDatasetService {
                 var apiConfigList = apiConfigService.getByNameList(
                         config.getGroupDatasetApiList().stream()
                                 .map(GroupDatasetApi::getApiName)
-                                .toList()
-                );
+                                .toList());
                 for (var apiConfig : apiConfigList) {
                     try {
                         List<Map<String, Object>> apiResponse = apiConfigService.callApi(apiConfig);
@@ -74,7 +79,8 @@ public class GroupDatasetServiceImpl implements GroupDatasetService {
                             groupDatasetDataRepository.saveAll(saveList);
                         }
                     } catch (Exception e) {
-                        System.out.println("API call failed for config: " + apiConfig.getApiName() + " - " + e.getMessage());
+                        System.out.println(
+                                "API call failed for config: " + apiConfig.getApiName() + " - " + e.getMessage());
                     }
                 }
             }
