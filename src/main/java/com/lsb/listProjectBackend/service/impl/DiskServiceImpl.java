@@ -60,6 +60,7 @@ public class DiskServiceImpl implements DiskService {
                 d.setTotalSpace(f.getTotalSpace());
                 d.setFreeSpace(f.getFreeSpace());
                 d.setUsableSpace(f.getUsableSpace());
+                d.setUpdateDate(LocalDateTime.now());
             }
         }).toList();
 
