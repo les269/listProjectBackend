@@ -20,41 +20,41 @@ import com.lsb.listProjectBackend.utils.Utils;
 import jakarta.persistence.EntityManagerFactory;
 
 @EnableJpaRepositories(basePackages = {
-                "com.lsb.listProjectBackend.repository.local" }, entityManagerFactoryRef = "localEntityManagerFactory", transactionManagerRef = "localTransactionManager")
+        "com.lsb.listProjectBackend.repository.local"}, entityManagerFactoryRef = "localEntityManagerFactory", transactionManagerRef = "localTransactionManager")
 @Configuration
 public class LocalDataSourceConfig {
 
-        @Primary
-        @Bean(name = "localDataSource")
-        public DataSource localDataSource() {
-                // 確保資料庫已初始化（建立檔案與表格）
-                DatabaseInitializer.ensureLocalDatabaseInitialized();
+    @Primary
+    @Bean(name = "localDataSource")
+    public DataSource localDataSource() {
+        // 確保資料庫已初始化（建立檔案與表格）
+        DatabaseInitializer.ensureLocalDatabaseInitialized();
 
-                String dbPath = Utils.getDefaultFilePath(Global.LOCAL_SQLITE_FILE_NAME);
-                return DataSourceBuilder.create()
-                                .url("jdbc:sqlite:"
-                                                + dbPath)
-                                .driverClassName("org.sqlite.JDBC")
-                                .type(SQLiteDataSource.class)
-                                .build();
-        }
+        String dbPath = Utils.getDefaultFilePath(Global.LOCAL_SQLITE_FILE_NAME);
+        return DataSourceBuilder.create()
+                .url("jdbc:sqlite:"
+                        + dbPath)
+                .driverClassName("org.sqlite.JDBC")
+                .type(SQLiteDataSource.class)
+                .build();
+    }
 
-        @Primary
-        @Bean(name = "localEntityManagerFactory")
-        public LocalContainerEntityManagerFactoryBean localEntityManagerFactory(EntityManagerFactoryBuilder builder,
-                        @Qualifier("localDataSource") DataSource localDataSource) {
-                return builder
-                                .dataSource(
-                                                localDataSource)
-                                .packages("com.lsb.listProjectBackend.entity.local")
-                                .persistenceUnit("local")
-                                .build();
-        }
+    @Primary
+    @Bean(name = "localEntityManagerFactory")
+    public LocalContainerEntityManagerFactoryBean localEntityManagerFactory(EntityManagerFactoryBuilder builder,
+                                                                            @Qualifier("localDataSource") DataSource localDataSource) {
+        return builder
+                .dataSource(
+                        localDataSource)
+                .packages("com.lsb.listProjectBackend.entity.local")
+                .persistenceUnit("local")
+                .build();
+    }
 
-        @Primary
-        @Bean(name = "localTransactionManager")
-        PlatformTransactionManager localTransactionManager(
-                        @Qualifier("localEntityManagerFactory") EntityManagerFactory localEntityManagerFactory) {
-                return new JpaTransactionManager(localEntityManagerFactory);
-        }
+    @Primary
+    @Bean(name = "localTransactionManager")
+    PlatformTransactionManager localTransactionManager(
+            @Qualifier("localEntityManagerFactory") EntityManagerFactory localEntityManagerFactory) {
+        return new JpaTransactionManager(localEntityManagerFactory);
+    }
 }

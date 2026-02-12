@@ -31,3 +31,14 @@ create TABLE IF NOT EXISTS setting (
     created_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
+
+-- 新增 disk 資料表，用來儲存硬碟資訊
+CREATE TABLE IF NOT EXISTS disk (
+    disk TEXT PRIMARY KEY, -- 磁碟識別 (例如: C:, /dev/sda1)
+    total_space BIGINT NOT NULL DEFAULT 0, -- 總容量 (bytes)
+    free_space BIGINT NOT NULL DEFAULT 0,  -- 空閒空間 (bytes)
+    usable_space BIGINT NOT NULL DEFAULT 0, -- 可用空間 (bytes)
+    update_date DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP -- 最後更新時間
+);
+
+CREATE INDEX IF NOT EXISTS idx_disk_update_date ON disk(update_date);

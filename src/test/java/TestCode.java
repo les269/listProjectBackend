@@ -21,7 +21,8 @@ public class TestCode {
 
     @Test
     public void test3() throws IOException {
-        String s ="TV Series, 11 episodes";
-        System.out.println(s.replaceAll("([^\\s)]+)","https://anidb.net$1"));
+        File file =new File("Z:/");
+        System.out.println(file.getFreeSpace());
+        System.out.println(file.getUsableSpace());
     }
 }
