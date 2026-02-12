@@ -55,14 +55,13 @@ public class DiskServiceImpl implements DiskService {
     public void refresh() {
         List<Disk> all = diskRepository.findAll();
         List<Disk> updated = all.stream().peek(d -> {
-            File f = new File(d + ":" + File.separator);
+            File f = new File(d.getDisk() + ":" + File.separator);
             if (f.exists() && f.canRead()) {
                 d.setTotalSpace(f.getTotalSpace());
                 d.setFreeSpace(f.getFreeSpace());
                 d.setUsableSpace(f.getUsableSpace());
             }
-            d.setUpdateDate(LocalDateTime.now());
-        }).collect(Collectors.toList());
+        }).toList();
 
         diskRepository.saveAll(updated);
     }
