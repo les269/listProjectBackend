@@ -70,7 +70,6 @@ public class ThemeServiceImpl implements ThemeService {
         return themeHeaderRepository.existsById(header.getId());
     }
 
-    @UseDynamicTx
     public void updateTheme(@RequestBody ThemeHeaderTO theme) {
         ThemeHeader themeHeader = themeMapper.headerToEntity(theme);
         String headerId = themeHeader.getId();
@@ -81,7 +80,6 @@ public class ThemeServiceImpl implements ThemeService {
         syncShareTagMappings(headerId, themeHeader.getThemeTagList());
     }
 
-    @UseDynamicTx
     public void deleteTheme(ThemeHeaderTO headerTO) {
         ThemeHeader header = themeMapper.headerToEntity(headerTO);
         Optional<ThemeHeader> themeHeaderOptional = themeHeaderRepository.findById(header.getId());
@@ -92,7 +90,6 @@ public class ThemeServiceImpl implements ThemeService {
         }
     }
 
-    @UseDynamicTx
     public void copyTheme(CopyThemeRequest request) {
         ThemeHeader source = themeMapper.headerToEntity(request.getSource());
         ThemeHeader target = themeMapper.headerToEntity(request.getTarget());
