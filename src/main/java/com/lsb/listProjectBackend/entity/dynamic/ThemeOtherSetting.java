@@ -1,5 +1,6 @@
 package com.lsb.listProjectBackend.entity.dynamic;
 
+import com.lsb.listProjectBackend.utils.Global;
 import lombok.Data;
 
 import java.util.List;
@@ -12,4 +13,8 @@ public class ThemeOtherSetting {
     private List<ThemeTopCustom> themeTopCustomList;
     private String checkFileExist;
     private boolean themeVisible;
+    private boolean useQuickRefresh;
+    private String quickRefresh;
+    private Global.QuickRefreshType quickRefreshType;
+    private String useSpider;
 }

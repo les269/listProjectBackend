@@ -54,6 +54,10 @@ public class Global {
         year, month, day
     }
 
+    public enum QuickRefreshType {
+        params, url
+    }
+
     public static final String LOCAL_SQLITE_FILE_NAME = "local.sqlite";
     public static final String LOCAL_SQL_FILE_NAME = "local.sql";
     public static final String DYNAMIC_SQLITE_FILE_NAME = "dynamic.sqlite";

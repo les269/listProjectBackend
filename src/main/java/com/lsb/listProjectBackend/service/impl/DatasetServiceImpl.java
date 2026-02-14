@@ -3,15 +3,7 @@ package com.lsb.listProjectBackend.service.impl;
 import com.google.common.util.concurrent.RateLimiter;
 import com.lsb.listProjectBackend.aop.UseDynamic;
 import com.lsb.listProjectBackend.domain.*;
-import com.lsb.listProjectBackend.entity.dynamic.Dataset;
-import com.lsb.listProjectBackend.entity.dynamic.DatasetConfig;
-import com.lsb.listProjectBackend.entity.dynamic.DatasetData;
-import com.lsb.listProjectBackend.entity.dynamic.GroupDataset;
-import com.lsb.listProjectBackend.entity.dynamic.GroupDatasetConfig;
-import com.lsb.listProjectBackend.entity.dynamic.GroupDatasetData;
-import com.lsb.listProjectBackend.entity.dynamic.GroupDatasetField;
-import com.lsb.listProjectBackend.entity.dynamic.GroupDatasetScrapy;
-import com.lsb.listProjectBackend.entity.dynamic.ReplaceValueMap;
+import com.lsb.listProjectBackend.entity.dynamic.*;
 import com.lsb.listProjectBackend.mapper.DatasetDataMapper;
 import com.lsb.listProjectBackend.mapper.DatasetMapper;
 import com.lsb.listProjectBackend.mapper.GroupDatasetDataMapper;
@@ -131,6 +123,37 @@ public class DatasetServiceImpl implements DatasetService {
         doDownloadImage(groupName, datasetConfig);
         endTime = System.currentTimeMillis();
         System.out.println("doDownloadImage time: " + (endTime - startTime) + " ms");
+    }
+
+    @Override
+    public DatasetDataTO quickRefresh(DatasetQuickRefreshTO to) throws Exception {
+        Dataset dataset = datasetRepository.findById(to.getDatasetName()).orElse(null);
+        if (dataset == null) {
+            return null;
+        }
+        ScrapyReqTO scrapyReqTO = new ScrapyReqTO();
+        scrapyReqTO.setScrapyName(to.getScrapyName());
+        scrapyReqTO.setUrl(to.getUrl());
+        scrapyReqTO.setJson(to.getParams());
+
+        // 1.爬蟲獲取資料
+        Map<String, Object> json;
+        if (Global.QuickRefreshType.url.equals(to.getQuickRefreshType())) {
+            json = scrapyService.scrapyByUrl(scrapyReqTO);
+        } else {
+            json = scrapyService.scrapyByJson(scrapyReqTO);
+        }
+
+        // 2.根據primeKey跟group name去更新 group_dataset_data
+        GroupDatasetData groupDatasetData = new GroupDatasetData();
+        groupDatasetData.setGroupName(dataset.getConfig().getGroupName());
+        groupDatasetData.setPrimeValue(to.getPrimeKey());
+        groupDatasetData.setJson(json);
+        groupDatasetDataRepository.save(groupDatasetData);
+
+        // 3.刷新datasetData
+        refreshData(to.getDatasetName());
+        return getDatasetDataByName(to.getDatasetName());
     }
 
     private void doFiling(DatasetConfig datasetConfig) {
@@ -269,6 +292,7 @@ public class DatasetServiceImpl implements DatasetService {
         datasetDataRepository.save(datasetData);
     }
 
+
     private void setCustomDataForFiles(List<GroupDatasetData> groupDatasetDataList, DatasetConfig datasetConfig) {
         if (datasetConfig.getFieldList().isEmpty()) {
             return;
@@ -284,7 +308,7 @@ public class DatasetServiceImpl implements DatasetService {
                                 case Global.DatasetFieldType.fileSize -> file.length() + "";
                                 case Global.DatasetFieldType.path -> file.getAbsolutePath();
                                 case Global.DatasetFieldType.fixedString ->
-                                    Utils.replaceValue(datasetField.getFixedString(), x.getJson());
+                                        Utils.replaceValue(datasetField.getFixedString(), x.getJson());
                             };
                             if (Utils.isNotBlank(datasetField.getReplaceRegular())) {
                                 value = value.replaceAll(datasetField.getReplaceRegular(),
@@ -304,10 +328,9 @@ public class DatasetServiceImpl implements DatasetService {
             datasetConfig.getFieldList().forEach(datasetField -> {
                 var value = switch (datasetField.getType()) {
                     case Global.DatasetFieldType.fileName, Global.DatasetFieldType.path,
-                            Global.DatasetFieldType.fileSize ->
-                        "";
+                         Global.DatasetFieldType.fileSize -> "";
                     case Global.DatasetFieldType.fixedString ->
-                        Utils.replaceValue(datasetField.getFixedString(), x.getJson());
+                            Utils.replaceValue(datasetField.getFixedString(), x.getJson());
                 };
                 if (Utils.isNotBlank(datasetField.getReplaceRegular())) {
                     value = value.replaceAll(datasetField.getReplaceRegular(), datasetField.getReplaceRegularTo());

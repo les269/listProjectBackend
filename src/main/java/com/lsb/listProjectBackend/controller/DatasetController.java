@@ -1,6 +1,7 @@
 package com.lsb.listProjectBackend.controller;
 
 import com.lsb.listProjectBackend.domain.DatasetDataTO;
+import com.lsb.listProjectBackend.domain.DatasetQuickRefreshTO;
 import com.lsb.listProjectBackend.domain.DatasetTO;
 import com.lsb.listProjectBackend.service.DatasetService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,5 +61,10 @@ public class DatasetController {
     @PostMapping("/dataset/name-list/get-data")
     List<DatasetDataTO> getDatasetDataByNameList(@RequestBody List<String> nameList)  {
         return datasetService.getDatasetDataByNameList(nameList.stream().distinct().toList());
+    }
+
+    @PostMapping("/dataset/quick-refresh")
+    DatasetDataTO quickRefresh(@RequestBody DatasetQuickRefreshTO to) throws Exception {
+        return datasetService.quickRefresh(to);
     }
 }
