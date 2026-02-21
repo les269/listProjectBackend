@@ -7,6 +7,7 @@ import java.util.List;
 
 @Data
 public class DatasetQuickRefreshTO {
+    private String byKey;
     private String primeKey;
     private String scrapyName;
     private String datasetName;

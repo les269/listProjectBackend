@@ -12,7 +12,7 @@ public class ThemeTopCustom {
     private String byKey;
 
     private String label;
-    private String seq;
+    private int seq;
     private String openUrl;
     private ApiConfig apiConfig;
 }

@@ -4,6 +4,6 @@ import lombok.Data;
 
 @Data
 public class ThemeTag {
-    private String seq;
+    private int seq;
     private String shareTagId;
 }

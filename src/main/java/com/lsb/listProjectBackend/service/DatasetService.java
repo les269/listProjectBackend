@@ -5,6 +5,7 @@ import com.lsb.listProjectBackend.domain.DatasetQuickRefreshTO;
 import com.lsb.listProjectBackend.domain.DatasetTO;
 
 import java.util.List;
+import java.util.Map;
 
 public interface DatasetService {
     List<DatasetTO> getAllDataset();
@@ -15,5 +16,5 @@ public interface DatasetService {
     List<DatasetDataTO> getDatasetDataByNameList(List<String> nameList);
     boolean existDataset(String name);
     void refreshData(String name) throws Exception;
-    DatasetDataTO quickRefresh(DatasetQuickRefreshTO to) throws Exception;
+    Map<String,Object> quickRefresh(DatasetQuickRefreshTO to) throws Exception;
 }

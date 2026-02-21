@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @CrossOrigin("*")
 @RestController
@@ -64,7 +65,7 @@ public class DatasetController {
     }
 
     @PostMapping("/dataset/quick-refresh")
-    DatasetDataTO quickRefresh(@RequestBody DatasetQuickRefreshTO to) throws Exception {
+    Map<String,Object> quickRefresh(@RequestBody DatasetQuickRefreshTO to) throws Exception {
         return datasetService.quickRefresh(to);
     }
 }

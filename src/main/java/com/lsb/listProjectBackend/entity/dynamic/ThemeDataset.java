@@ -9,7 +9,7 @@ import java.util.List;
 public class ThemeDataset {
     private List<String> datasetList;
     private String label;
-    private String seq;
+    private int seq;
     @JsonProperty("isDefault")
     private boolean isDefault;
 

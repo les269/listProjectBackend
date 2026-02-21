@@ -126,7 +126,9 @@ public class DatasetServiceImpl implements DatasetService {
     }
 
     @Override
-    public DatasetDataTO quickRefresh(DatasetQuickRefreshTO to) throws Exception {
+    public Map<String, Object> quickRefresh(DatasetQuickRefreshTO to) throws Exception {
+        String primeKey = to.getPrimeKey();
+        String byKey = to.getByKey();
         Dataset dataset = datasetRepository.findById(to.getDatasetName()).orElse(null);
         if (dataset == null) {
             return null;
@@ -153,7 +155,11 @@ public class DatasetServiceImpl implements DatasetService {
 
         // 3.刷新datasetData
         refreshData(to.getDatasetName());
-        return getDatasetDataByName(to.getDatasetName());
+        return getDatasetDataByName(to.getDatasetName())
+                .getData().stream()
+                .filter(x -> primeKey.equals(x.get(byKey)))
+                .findFirst()
+                .orElse(new HashMap<>());
     }
 
     private void doFiling(DatasetConfig datasetConfig) {

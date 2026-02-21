@@ -14,7 +14,7 @@ public class ThemeCustom {
     private String byKey;
 
     private String label;
-    private String seq;
+    private int seq;
     private String openUrl;
     private String copyValue;
     private String buttonIconFill;

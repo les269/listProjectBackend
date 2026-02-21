@@ -12,7 +12,7 @@ import lombok.Data;
 public class ThemeLabel {
     @Enumerated(EnumType.STRING)
     private ThemeLabelType type;
-    private String seq;
+    private int seq;
     private String byKey;
     private String label;
     private String splitBy;
