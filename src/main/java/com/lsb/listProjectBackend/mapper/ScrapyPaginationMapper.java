@@ -1,8 +1,6 @@
 package com.lsb.listProjectBackend.mapper;
 
-import com.lsb.listProjectBackend.domain.ScrapyConfigTO;
 import com.lsb.listProjectBackend.domain.ScrapyPaginationTO;
-import com.lsb.listProjectBackend.entity.dynamic.ScrapyConfig;
 import com.lsb.listProjectBackend.entity.dynamic.ScrapyPagination;
 
 import org.mapstruct.Mapper;

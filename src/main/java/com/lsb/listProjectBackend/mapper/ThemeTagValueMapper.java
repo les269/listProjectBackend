@@ -1,8 +1,6 @@
 package com.lsb.listProjectBackend.mapper;
 
-import com.lsb.listProjectBackend.domain.ApiConfigTO;
 import com.lsb.listProjectBackend.domain.ThemeTagValueTO;
-import com.lsb.listProjectBackend.entity.dynamic.ApiConfig;
 import com.lsb.listProjectBackend.entity.dynamic.ThemeTagValue;
 
 import org.mapstruct.Mapper;

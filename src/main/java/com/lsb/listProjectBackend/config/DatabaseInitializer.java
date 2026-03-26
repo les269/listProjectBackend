@@ -1,12 +1,10 @@
 package com.lsb.listProjectBackend.config;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -14,7 +12,6 @@ import java.sql.Statement;
 import java.util.stream.Collectors;
 
 import com.lsb.listProjectBackend.utils.Utils;
-import org.hibernate.dialect.PostgreSQLDialect;
 import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.core.io.ClassPathResource;
 
@@ -115,7 +112,7 @@ public class DatabaseInitializer {
 
         // 連接到資料庫並執行 SQL（SQLite 會自動建立檔案）
         try (Connection connection = DriverManager.getConnection(jdbcUrl);
-             Statement statement = connection.createStatement()) {
+                Statement statement = connection.createStatement()) {
 
             String[] sqlStatements = sql.split(";");
             for (String sqlStatement : sqlStatements) {
@@ -151,7 +148,7 @@ public class DatabaseInitializer {
         }
 
         try (Connection connection = DriverManager.getConnection(jdbcUrl, props);
-             Statement statement = connection.createStatement()) {
+                Statement statement = connection.createStatement()) {
 
             String[] sqlStatements = sql.split(";");
             for (String sqlStatement : sqlStatements) {
@@ -186,7 +183,7 @@ public class DatabaseInitializer {
                 .type(SQLiteDataSource.class)
                 .build()
                 .getConnection();
-             Statement statement = connection.createStatement()) {
+                Statement statement = connection.createStatement()) {
 
             String[] sqlStatements = sql.split(";");
             for (String sqlStatement : sqlStatements) {

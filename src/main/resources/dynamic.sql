@@ -30,6 +30,23 @@ create TABLE IF NOT EXISTS theme_top_custom_value (
     PRIMARY KEY ( header_id, by_key)
 );
 
+create TABLE IF NOT EXISTS theme_item (
+    item_id TEXT NOT NULL,
+    type TEXT NOT NULL,
+    json TEXT NOT NULL,
+    description TEXT,
+    updated_time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY ( item_id, type)
+);
+
+create TABLE IF NOT EXISTS theme_item_map (
+    item_id TEXT NOT NULL,
+    header_id TEXT NOT NULL,
+    type TEXT NOT NULL,
+    updated_time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (header_id, type)
+);
+
 create TABLE IF NOT EXISTS share_tag (
     share_tag_id TEXT NOT NULL,
     share_tag_name TEXT NOT NULL,
@@ -123,4 +140,10 @@ create TABLE IF NOT EXISTS scrapy_pagination (
     created_time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (name)
+);
+
+create TABLE IF NOT EXISTS theme_hidden (
+    header_id TEXT NOT NULL,
+    updated_time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (header_id)
 );

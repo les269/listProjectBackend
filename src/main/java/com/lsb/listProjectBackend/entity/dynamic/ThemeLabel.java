@@ -37,4 +37,5 @@ public class ThemeLabel {
     @JsonProperty("autoComplete")
     private boolean autoComplete;
     private List<String> visibleDatasetNameList;
+    private boolean useVisibleDataset;
 }

@@ -56,7 +56,7 @@ public class ThemeController {
     }
 
     @PostMapping("/theme/custom/update")
-    void updateCustomValue(@RequestBody ThemeCustomValueTO customValueTO){
+    void updateCustomValue(@RequestBody ThemeCustomValueTO customValueTO) {
         themeService.updateCustomValue(customValueTO);
     }
 
@@ -76,12 +76,12 @@ public class ThemeController {
     }
 
     @GetMapping("/theme/top-custom/value")
-    Map<String, String> findTopCustomValue(@RequestParam("headerId") String headerId)  {
+    Map<String, String> findTopCustomValue(@RequestParam("headerId") String headerId) {
         return themeService.findTopCustomValue(headerId);
     }
 
     @PostMapping("/theme/top-custom/update")
-    void updateTopCustomValue(@RequestBody ThemeTopCustomValueTO topCustomValueTO){
+    void updateTopCustomValue(@RequestBody ThemeTopCustomValueTO topCustomValueTO) {
         themeService.updateTopCustomValue(topCustomValueTO);
     }
 

@@ -65,4 +65,8 @@ public class Global {
     public static final String CURRENT_DYNAMIC_DB_SETTING_NAME = "current_dynamic_database";
     public static final String DEFAULT_DYNAMIC_DB_KEY = "default";
     public static final String SQLITE_TYPE = "sqlite";
+
+    public enum ThemeItemType {
+        IMAGE, LABEL, DATASET, CUSTOM, TAG, OTHERSETTING, TOPCUSTOM
+    }
 }

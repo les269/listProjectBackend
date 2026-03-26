@@ -23,21 +23,28 @@ public class ThemeHeader implements Serializable {
     private Global.ThemeHeaderType type;
     private String title;
     private Long updateTime;
+
+    @Deprecated
     @Column(name = "theme_image")
     @Convert(converter = ThemeImageConverter.class)
     private ThemeImage themeImage;
+    @Deprecated
     @Column(name = "theme_label_list")
     @Convert(converter = ThemeLabelListConverter.class)
     private List<ThemeLabel> themeLabelList;
+    @Deprecated
     @Column(name = "theme_dataset_list")
     @Convert(converter = ThemeDatasetListConverter.class)
     private List<ThemeDataset> themeDatasetList;
+    @Deprecated
     @Column(name = "theme_custom_list")
     @Convert(converter = ThemeCustomListConverter.class)
     private List<ThemeCustom> themeCustomList;
+    @Deprecated
     @Column(name = "theme_tag_list")
     @Convert(converter = ThemeTagListConverter.class)
     private List<ThemeTag> themeTagList;
+    @Deprecated
     @Column(name = "theme_other_setting")
     @Convert(converter = ThemeOtherSettingConverter.class)
     private ThemeOtherSetting themeOtherSetting;

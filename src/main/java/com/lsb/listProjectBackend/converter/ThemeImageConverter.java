@@ -5,8 +5,6 @@ import com.lsb.listProjectBackend.entity.dynamic.ThemeImage;
 
 import jakarta.persistence.Converter;
 
-import java.lang.reflect.Type;
-
 @Converter
 public class ThemeImageConverter extends JsonAttributeConverter<ThemeImage> {
     @Override

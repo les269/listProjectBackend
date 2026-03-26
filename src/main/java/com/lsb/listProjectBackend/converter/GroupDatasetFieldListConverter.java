@@ -1,7 +1,6 @@
 package com.lsb.listProjectBackend.converter;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.lsb.listProjectBackend.entity.dynamic.DatasetField;
 import com.lsb.listProjectBackend.entity.dynamic.GroupDatasetField;
 
 import java.util.List;

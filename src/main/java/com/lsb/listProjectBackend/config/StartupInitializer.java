@@ -11,12 +11,11 @@ import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
 
 import com.lsb.listProjectBackend.entity.local.Setting;
+import com.lsb.listProjectBackend.mapper.DatabaseConfigMapper;
 import com.lsb.listProjectBackend.repository.local.SettingRepository;
 import com.lsb.listProjectBackend.utils.Global;
 
 import lombok.extern.slf4j.Slf4j;
-
-import static com.lsb.listProjectBackend.config.DatabaseInitializer.ensureDynamicDatabaseInitialized;
 
 /**
  * 應用程式啟動後的初始化。
@@ -31,6 +30,9 @@ public class StartupInitializer implements ApplicationListener<ApplicationReadyE
     private SettingRepository settingRepository;
     @Autowired
     private DatabaseConfigRepository databaseConfigRepository;
+    @Autowired
+    private DynamicDataSourceRefresher dynamicDataSourceRefresher;
+    private DatabaseConfigMapper databaseConfigMapper = DatabaseConfigMapper.INSTANCE;
 
     @Override
     public void onApplicationEvent(ApplicationReadyEvent event) {
@@ -42,7 +44,8 @@ public class StartupInitializer implements ApplicationListener<ApplicationReadyE
             setting.setEnabled(true);
             settingRepository.save(setting);
         }
-        Optional<DatabaseConfig> databaseConfigOptional = databaseConfigRepository.findById(Global.DEFAULT_DYNAMIC_DB_KEY);
+        Optional<DatabaseConfig> databaseConfigOptional = databaseConfigRepository
+                .findById(Global.DEFAULT_DYNAMIC_DB_KEY);
         if (databaseConfigOptional.isEmpty()) {
             DatabaseConfig databaseConfig = new DatabaseConfig();
             databaseConfig.setConfigId(Global.DEFAULT_DYNAMIC_DB_KEY);
@@ -60,6 +63,35 @@ public class StartupInitializer implements ApplicationListener<ApplicationReadyE
             databaseConfig.setUsername("");
             databaseConfig.setPassword("");
             databaseConfigRepository.save(databaseConfig);
+        }
+
+        initializeCurrentDynamicDatabase();
+    }
+
+    private void initializeCurrentDynamicDatabase() {
+        String currentDatabaseKey = settingRepository.findById(Global.CURRENT_DYNAMIC_DB_SETTING_NAME)
+                .map(Setting::getValue)
+                .filter(value -> value != null && !value.isBlank())
+                .orElse(Global.DEFAULT_DYNAMIC_DB_KEY);
+
+        Optional<DatabaseConfig> currentDatabaseConfig = databaseConfigRepository.findByConfigName(currentDatabaseKey);
+        if (currentDatabaseConfig.isEmpty()) {
+            currentDatabaseConfig = databaseConfigRepository.findById(currentDatabaseKey);
+        }
+
+        if (currentDatabaseConfig.isEmpty()) {
+            log.warn("找不到目前設定的 dynamic database: {}", currentDatabaseKey);
+            dynamicDataSourceRefresher.refresh();
+            return;
+        }
+
+        try {
+            DatabaseConfig databaseConfig = currentDatabaseConfig.get();
+            DatabaseInitializer.initializeDynamicDatabase(databaseConfigMapper.toDomain(databaseConfig));
+            dynamicDataSourceRefresher.refresh();
+            log.info("已初始化目前使用中的 dynamic database: {}", currentDatabaseKey);
+        } catch (RuntimeException e) {
+            log.error("初始化目前使用中的 dynamic database 失敗: {}", currentDatabaseKey, e);
         }
     }
 }
