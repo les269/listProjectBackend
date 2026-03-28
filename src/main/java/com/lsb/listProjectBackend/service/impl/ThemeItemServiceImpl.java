@@ -73,7 +73,11 @@ public class ThemeItemServiceImpl implements ThemeItemService {
     }
 
     public List<ThemeItemTO> getAllThemeItem(Global.ThemeItemType type) {
-        return themeItemMapper.toDomain(themeItemRepository.findAllSummaryByType(type.name()));
+        return themeItemMapper.toDomain(themeItemRepository.findAllByType(type.name()));
+    }
+
+    public List<ThemeItemMapTO> getAllThemeItemMapByType(Global.ThemeItemType type) {
+        return themeItemMapMapper.toDomain(themeItemMapRepository.findAllByType(type.name()));
     }
 
     public List<ThemeItemTO> getItemsByHeaderId(String headerId) {

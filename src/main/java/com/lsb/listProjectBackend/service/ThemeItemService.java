@@ -18,6 +18,8 @@ public interface ThemeItemService {
 
     List<ThemeItemTO> getAllThemeItem(Global.ThemeItemType type);
 
+    List<ThemeItemMapTO> getAllThemeItemMapByType(Global.ThemeItemType type);
+
     List<ThemeItemTO> getItemsByHeaderId(String headerId);
 
     void updateThemeItemMap(ThemeItemMapTO req);

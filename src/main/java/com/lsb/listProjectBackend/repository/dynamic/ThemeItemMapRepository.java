@@ -13,6 +13,9 @@ public interface ThemeItemMapRepository extends JpaRepository<ThemeItemMap, Them
     @Query(value = "SELECT COUNT(*) FROM theme_item_map WHERE item_id = :itemId AND type = :type", nativeQuery = true)
     int existsByItemIdAndType(@Param("itemId") String itemId, @Param("type") String type);
 
+    @Query(value = "SELECT * FROM theme_item_map WHERE type = :type", nativeQuery = true)
+    List<ThemeItemMap> findAllByType(@Param("type") String type);
+
     @Query(value = "SELECT * FROM theme_item_map WHERE header_id = :headerId", nativeQuery = true)
     List<ThemeItemMap> findAllByHeaderId(@Param("headerId") String headerId);
 }
