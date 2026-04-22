@@ -1,7 +1,7 @@
 package com.lsb.listProjectBackend.service.impl;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.ObjectMapper;
 import com.lsb.listProjectBackend.aop.UseDynamic;
 import com.lsb.listProjectBackend.domain.ApiConfigTO;
 import com.lsb.listProjectBackend.entity.dynamic.ApiConfig;
@@ -96,3 +96,4 @@ public class ApiConfigServiceImpl implements ApiConfigService {
         }
     }
 }
+

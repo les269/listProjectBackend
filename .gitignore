@@ -35,3 +35,4 @@ build/
 /listProjectDatabase.db
 
 .gradle
+.kotlin

@@ -1,14 +1,9 @@
 package com.lsb.listProjectBackend.converter;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.ObjectMapper;
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
-
-import java.io.IOException;
-
 
 @Converter
 public abstract class JsonAttributeConverter<T> implements AttributeConverter<T, String> {
@@ -20,9 +15,8 @@ public abstract class JsonAttributeConverter<T> implements AttributeConverter<T,
     @Override
     public String convertToDatabaseColumn(T attribute) {
         try {
-            objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
             return objectMapper.writeValueAsString(attribute);
-        } catch (JsonProcessingException e) {
+        } catch (Exception e) {
             return "";
         }
     }
@@ -33,12 +27,15 @@ public abstract class JsonAttributeConverter<T> implements AttributeConverter<T,
             return null;
         }
         try {
-            objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
             return objectMapper.readValue(s, getTypeClass());
-        } catch (IOException e) {
+        } catch (Exception e) {
             return null;
         }
     }
 
 
 }
+
+
+
+

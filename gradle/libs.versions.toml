@@ -10,14 +10,13 @@ org-jsoup-jsoup = "1.18.1"
 org-mapstruct-mapstruct = "1.5.5.Final"
 org-mapstruct-mapstruct-jdk8 = "1.5.5.Final"
 org-mapstruct-mapstruct-processor = "1.5.5.Final"
-org-postgresql-postgresql = "42.6.0"
+org-postgresql-postgresql = "42.7.10"
 org-projectlombok-lombok = "1.18.42"
 org-projectlombok-lombok-mapstruct-binding = "0.2.0"
-org-springframework-boot-spring-boot-starter-data-jpa = "3.5.9"
-org-springframework-boot-spring-boot-starter-jdbc = "3.5.9"
-org-springframework-boot-spring-boot-starter-test = "3.5.9"
-org-springframework-boot-spring-boot-starter-web = "3.5.9"
-org-springframework-spring-expression = "6.2.15"
+org-springframework-boot-spring-boot-starter-data-jpa = "4.0.5"
+org-springframework-boot-spring-boot-starter-jdbc = "4.0.5"
+org-springframework-boot-spring-boot-starter-test = "4.0.5"
+org-springframework-boot-spring-boot-starter-web = "4.0.5"
 org-xerial-sqlite-jdbc = "3.51.1.0"
 
 [libraries]
@@ -36,5 +35,5 @@ org-springframework-boot-spring-boot-starter-data-jpa = { module = "org.springfr
 org-springframework-boot-spring-boot-starter-jdbc = { module = "org.springframework.boot:spring-boot-starter-jdbc", version.ref = "org-springframework-boot-spring-boot-starter-jdbc" }
 org-springframework-boot-spring-boot-starter-test = { module = "org.springframework.boot:spring-boot-starter-test", version.ref = "org-springframework-boot-spring-boot-starter-test" }
 org-springframework-boot-spring-boot-starter-web = { module = "org.springframework.boot:spring-boot-starter-web", version.ref = "org-springframework-boot-spring-boot-starter-web" }
-org-springframework-spring-expression = { module = "org.springframework:spring-expression", version.ref = "org-springframework-spring-expression" }
+org-springframework-spring-expression = { module = "org.springframework:spring-expression" }
 org-xerial-sqlite-jdbc = { module = "org.xerial:sqlite-jdbc", version.ref = "org-xerial-sqlite-jdbc" }

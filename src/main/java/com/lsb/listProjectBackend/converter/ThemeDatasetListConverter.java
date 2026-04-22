@@ -1,6 +1,6 @@
 package com.lsb.listProjectBackend.converter;
 
-import com.fasterxml.jackson.core.type.TypeReference;
+import tools.jackson.core.type.TypeReference;
 import com.lsb.listProjectBackend.entity.dynamic.ThemeDataset;
 
 import jakarta.persistence.Converter;
@@ -16,3 +16,4 @@ public class ThemeDatasetListConverter extends JsonAttributeConverter<List<Theme
         };
     }
 }
+

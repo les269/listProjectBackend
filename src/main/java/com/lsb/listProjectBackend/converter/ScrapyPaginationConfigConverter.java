@@ -1,6 +1,6 @@
 package com.lsb.listProjectBackend.converter;
 
-import com.fasterxml.jackson.core.type.TypeReference;
+import tools.jackson.core.type.TypeReference;
 import com.lsb.listProjectBackend.entity.dynamic.ScrapyPaginationConfig;
 
 public class ScrapyPaginationConfigConverter extends JsonAttributeConverter<ScrapyPaginationConfig> {
@@ -10,3 +10,4 @@ public class ScrapyPaginationConfigConverter extends JsonAttributeConverter<Scra
         };
     }
 }
+

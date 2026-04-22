@@ -4,7 +4,7 @@ import javax.sql.DataSource;
 
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.jdbc.DataSourceBuilder;
-import org.springframework.boot.orm.jpa.EntityManagerFactoryBuilder;
+import org.springframework.boot.jpa.EntityManagerFactoryBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
@@ -27,7 +27,7 @@ public class LocalDataSourceConfig {
     @Primary
     @Bean(name = "localDataSource")
     public DataSource localDataSource() {
-        // 確保資料庫已初始化（建立檔案與表格）
+        // 蝣箔?鞈?摨怠歇????撱箇?瑼??”?潘?
         DatabaseInitializer.ensureLocalDatabaseInitialized();
 
         String dbPath = Utils.getDefaultFilePath(Global.LOCAL_SQLITE_FILE_NAME);
@@ -58,3 +58,4 @@ public class LocalDataSourceConfig {
         return new JpaTransactionManager(localEntityManagerFactory);
     }
 }
+

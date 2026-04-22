@@ -5,8 +5,8 @@ import java.util.List;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
 import com.lsb.listProjectBackend.domain.ThemeItemTO;
 import com.lsb.listProjectBackend.entity.dynamic.ThemeItem;
 
@@ -29,14 +29,15 @@ public interface ThemeItemMapper {
                     ? null
                     : new ObjectMapper().readTree(jsonString);
         } catch (Exception e) {
-            // 處理解析失敗，視需求回傳 null 或空物件
+            // ??閫??憭望?嚗??瘙???null ?征?拐辣
             return null;
         }
     }
 
-    // 自定義：JsonNode 轉 String (存回資料庫)
+    // ?芸?蝢抬?JsonNode 頧?String (摮?鞈?摨?
     default String mapToString(JsonNode node) {
         return (node == null) ? null : node.toString();
     }
 
 }
+

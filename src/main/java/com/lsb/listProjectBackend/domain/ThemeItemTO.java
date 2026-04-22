@@ -2,7 +2,7 @@ package com.lsb.listProjectBackend.domain;
 
 import java.time.LocalDateTime;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.databind.JsonNode;
 import com.lsb.listProjectBackend.utils.Global;
 
 import lombok.Data;
@@ -15,3 +15,4 @@ public class ThemeItemTO {
     private LocalDateTime updatedTime;
     private JsonNode json;
 }
+

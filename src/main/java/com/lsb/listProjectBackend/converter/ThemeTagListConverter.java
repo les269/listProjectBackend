@@ -1,6 +1,6 @@
 package com.lsb.listProjectBackend.converter;
 
-import com.fasterxml.jackson.core.type.TypeReference;
+import tools.jackson.core.type.TypeReference;
 import com.lsb.listProjectBackend.entity.dynamic.ThemeTag;
 
 import java.util.List;
@@ -12,3 +12,4 @@ public class ThemeTagListConverter extends JsonAttributeConverter<List<ThemeTag>
         };
     }
 }
+
