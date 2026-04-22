@@ -30,6 +30,7 @@ public class ScrapyBase {
     public void useCssSelect(String htmlString, List<CssSelect> select, Map<String, Object> result) {
         try {
             Document doc = Jsoup.parse(htmlString);
+
             for (CssSelect cssSelect : select.stream().sorted((a, b) -> a.getSeq() > b.getSeq() ? 1 : -1).toList()) {
                 var value = Utils.replaceValue(cssSelect.getValue(), result);
                 List<String> textList = doc.select(value)

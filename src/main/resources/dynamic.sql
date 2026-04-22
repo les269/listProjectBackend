@@ -147,3 +147,47 @@ create TABLE IF NOT EXISTS theme_hidden (
     updated_time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (header_id)
 );
+
+create TABLE IF NOT EXISTS cookie_list (
+    cookie_id TEXT NOT NULL,
+    list TEXT NOT NULL,
+    description TEXT,
+    updated_time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (cookie_id)
+);
+
+create TABLE IF NOT EXISTS cookie_list_map (
+    ref_id TEXT NOT NULL,
+    type TEXT NOT NULL,
+    cookie_id TEXT NOT NULL,
+    updated_time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (ref_id, type)
+);
+
+create TABLE IF NOT EXISTS spider_config (
+    spider_id TEXT NOT NULL,
+    description TEXT NOT NULL,
+    prime_key_size INTEGER NOT NULL,
+    test_data TEXT NOT NULL,
+    is_url_based INTEGER NOT NULL DEFAULT 0,
+    updated_time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (spider_id)
+);
+
+create TABLE IF NOT EXISTS spider_mapping (
+    spider_id TEXT NOT NULL,
+    execution_order INTEGER NOT NULL,
+    spider_item_id TEXT NOT NULL,
+    updated_time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (spider_id, execution_order)
+);
+
+CREATE INDEX IF NOT EXISTS idx_spider_mapping_spider_item_id ON spider_mapping(spider_item_id);
+
+create TABLE IF NOT EXISTS spider_item (
+    spider_item_id TEXT NOT NULL,
+    description TEXT NOT NULL,
+    item_setting TEXT NOT NULL,
+    updated_time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (spider_item_id)
+);

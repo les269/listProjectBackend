@@ -1,5 +1,6 @@
 package com.lsb.listProjectBackend.utils;
 
+import com.jayway.jsonpath.JsonPath;
 import com.sun.jna.platform.FileUtils;
 import lombok.extern.slf4j.Slf4j;
 
@@ -142,8 +143,35 @@ public class Utils {
             Object replacement = resolveKeyPath(key, obj);
             String replacementStr = (replacement != null) ? replacement.toString() : matcher.group(0);
             // 如果找到值就替换，未找到则保留原样
-            log.info(replacement.toString());
             matcher.appendReplacement(result, Matcher.quoteReplacement(replacementStr));
+        }
+        matcher.appendTail(result);
+        return result.toString();
+    }
+
+    public static String replaceValueByJsonPath(String value, Map<String, Object> obj) {
+        if (isBlank(value) || obj == null) {
+            return value;
+        }
+
+        Pattern pattern = Pattern.compile("\\{\\{(.*?)}}");
+        Matcher matcher = pattern.matcher(value);
+
+        StringBuilder result = new StringBuilder();
+        while (matcher.find()) {
+            String jsonPath = matcher.group(1).trim();
+            if (!jsonPath.startsWith("$")) {
+                matcher.appendReplacement(result, Matcher.quoteReplacement(matcher.group(0)));
+                continue;
+            }
+
+            try {
+                Object replacement = JsonPath.read(obj, jsonPath);
+                String replacementStr = replacement != null ? replacement.toString() : matcher.group(0);
+                matcher.appendReplacement(result, Matcher.quoteReplacement(replacementStr));
+            } catch (Exception e) {
+                matcher.appendReplacement(result, Matcher.quoteReplacement(matcher.group(0)));
+            }
         }
         matcher.appendTail(result);
         return result.toString();

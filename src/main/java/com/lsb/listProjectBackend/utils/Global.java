@@ -69,4 +69,39 @@ public class Global {
     public enum ThemeItemType {
         IMAGE, LABEL, DATASET, CUSTOM, TAG, OTHERSETTING, TOPCUSTOM
     }
+
+    public enum CookieListMapType {
+        SPIDER, API
+    }
+
+    public enum SpiderUrlType {
+        BY_PARAMS, BY_PRIME_KEY
+    }
+
+    public enum ExtractionRuleMode {
+        SELECT, JSON_PATH
+    }
+
+    public enum ExtractionStepCondition {
+        ALWAYS,
+        IF_KEY_EMPTY,
+        IF_KEY_NOT_EMPTY,
+        CONTAINS,
+        NOT_CONTAINS,
+        EQUALS,
+        NOT_EQUALS,
+        MATCHES,
+        NOT_MATCHES
+    }
+
+    public enum ValuePipelineType {
+        EXTRACT_ATTR,
+        EXTRACT_OWN_TEXT,
+        REPLACE_REGULAR,
+        SPLIT_TEXT,
+        CONVERT_TO_ARRAY,
+        FIRST_VALUE,
+        COMBINE_TO_STRING,
+        USE_REPLACE_VALUE_MAP
+    }
 }
