@@ -26,9 +26,6 @@ dependencies {
     implementation(libs.com.google.guava.guava)
     implementation(libs.com.jayway.jsonpath.json.path)
 
-    implementation("org.jetbrains.kotlin:kotlin-stdlib")
-    implementation("org.jetbrains.kotlin:kotlin-reflect")
-
     compileOnly(libs.org.projectlombok.lombok)
     
     annotationProcessor(libs.org.projectlombok.lombok)
@@ -64,13 +61,6 @@ tasks.named("build") {
 
 tasks.withType<Test> {
     useJUnitPlatform()
-}
-
-tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
-    compilerOptions {
-        jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_21)
-        freeCompilerArgs.add("-Xjsr305=strict")
-    }
 }
 
 tasks.withType<JavaCompile>() {
