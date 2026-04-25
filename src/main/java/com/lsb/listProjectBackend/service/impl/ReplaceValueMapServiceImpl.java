@@ -46,4 +46,12 @@ public class ReplaceValueMapServiceImpl implements ReplaceValueMapService {
     public void deleteByName(String name) {
         replaceValueMapRepository.deleteById(name);
     }
+
+    @Override
+    public List<ReplaceValueMapTO> getAllByNameList(List<String> nameList) {
+        if (nameList == null || nameList.isEmpty()) {
+            return List.of();
+        }
+        return mapper.toDomainList(replaceValueMapRepository.findAllById(nameList));
+    }
 }

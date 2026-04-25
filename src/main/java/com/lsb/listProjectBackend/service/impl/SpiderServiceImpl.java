@@ -1,27 +1,29 @@
 package com.lsb.listProjectBackend.service.impl;
 
+import com.jayway.jsonpath.DocumentContext;
 import com.jayway.jsonpath.JsonPath;
 import com.lsb.listProjectBackend.aop.UseDynamic;
 import com.lsb.listProjectBackend.domain.CookieListTO;
 import com.lsb.listProjectBackend.domain.LsbException;
+import com.lsb.listProjectBackend.domain.ReplaceValueMapTO;
 import com.lsb.listProjectBackend.domain.SpiderConfigTO;
 import com.lsb.listProjectBackend.domain.SpiderItemTO;
-import com.lsb.listProjectBackend.domain.SpiderMappingTO;
 import com.lsb.listProjectBackend.entity.dynamic.ExtractionRule;
 import com.lsb.listProjectBackend.entity.dynamic.SpiderItemSetting;
 import com.lsb.listProjectBackend.entity.dynamic.ValuePipeline;
 import com.lsb.listProjectBackend.service.CookieListService;
+import com.lsb.listProjectBackend.service.ReplaceValueMapService;
 import com.lsb.listProjectBackend.service.SpiderConfigService;
 import com.lsb.listProjectBackend.service.SpiderItemService;
-import com.lsb.listProjectBackend.service.SpiderMappingService;
 import com.lsb.listProjectBackend.service.SpiderService;
 import com.lsb.listProjectBackend.utils.Global;
+import com.lsb.listProjectBackend.utils.JsonUtils;
 import com.lsb.listProjectBackend.utils.Utils;
+import com.lsb.listProjectBackend.utils.Global.ExtractionStepCondition;
 import com.lsb.listProjectBackend.utils.Global.SpiderUrlType;
 
 import lombok.extern.slf4j.Slf4j;
 
-import org.checkerframework.checker.units.qual.A;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -31,13 +33,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Predicate;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 @Slf4j
 @UseDynamic
@@ -53,8 +53,11 @@ public class SpiderServiceImpl implements SpiderService {
     @Autowired
     private CookieListService cookieListService;
 
+    @Autowired
+    private ReplaceValueMapService replaceValueMapService;
+
     @Override
-    public Map<String, Object> executeByUrl(String spiderId, String url) throws Exception {
+    public String executeByUrl(String spiderId, String url) throws Exception {
         SpiderConfigTO config = spiderConfigService.getById(spiderId);
         if (config == null) {
             throw new LsbException("該爬蟲配置不存在: " + spiderId);
@@ -65,7 +68,7 @@ public class SpiderServiceImpl implements SpiderService {
     }
 
     @Override
-    public Map<String, Object> executeByPrimeKeyList(String spiderId, List<String> primeKeyList) throws Exception {
+    public String executeByPrimeKeyList(String spiderId, List<String> primeKeyList) throws Exception {
         SpiderConfigTO config = spiderConfigService.getById(spiderId);
         if (config == null) {
             throw new LsbException("該爬蟲配置不存在: " + spiderId);
@@ -78,9 +81,9 @@ public class SpiderServiceImpl implements SpiderService {
         return runSpiderItemByPrimeKeyList(itemList, primeKeyList);
     }
 
-    private Map<String, Object> runSpiderItemByUrl(List<SpiderItemTO> itemList, String url)
+    private String runSpiderItemByUrl(List<SpiderItemTO> itemList, String url)
             throws Exception {
-        Map<String, Object> result = new HashMap<>();
+        DocumentContext result = JsonPath.parse("{}");
         List<String> spiderItemIdsForCookieRef = itemList.stream().filter(
                 x -> x.getItemSetting().isUseCookie()).map(SpiderItemTO::getSpiderItemId).distinct().toList();
         Map<String, CookieListTO> cookieMap = cookieListService.getMapByRefIdsAndType(spiderItemIdsForCookieRef,
@@ -101,7 +104,7 @@ public class SpiderServiceImpl implements SpiderService {
                 currentUrl = url;
                 firstConnection = false;
             } else {
-                currentUrl = Utils.replaceValueByJsonPath(setting.getUrl(), result);
+                currentUrl = JsonUtils.replaceValueByJsonPath(setting.getUrl(), result.json());
             }
             Map<String, String> cookie = null;
             if (setting.isUseCookie() && cookieMap.containsKey(item.getSpiderItemId())) {
@@ -117,21 +120,47 @@ public class SpiderServiceImpl implements SpiderService {
 
             useExtraction(connection, setting, result);
         }
-        return result;
+        return result.json();
     }
 
-    private Map<String, Object> runSpiderItemByPrimeKeyList(List<SpiderItemTO> itemList, List<String> primeKeyList)
+    private String runSpiderItemByPrimeKeyList(List<SpiderItemTO> itemList, List<String> primeKeyList)
             throws Exception {
-        Map<String, Object> result = new HashMap<>();
+        DocumentContext result = JsonPath.parse("{}");
+
         List<String> spiderItemIdsForCookieRef = itemList.stream().filter(
                 x -> x.getItemSetting().isUseCookie()).map(SpiderItemTO::getSpiderItemId).distinct().toList();
         Map<String, CookieListTO> cookieMap = cookieListService.getMapByRefIdsAndType(spiderItemIdsForCookieRef,
                 Global.CookieListMapType.SPIDER);
+        for (SpiderItemTO item : itemList) {
+            String currentUrl = "";
+            SpiderItemSetting setting = item.getItemSetting();
+            // 判斷是否為第一次連線且設定為使用URL時要跳過的參數SkipWhenUsingUrl
+            if (SpiderUrlType.BY_PRIME_KEY.equals(setting.getUrlType())) {
+                currentUrl = JsonUtils.replaceValueByJsonPath(setting.getUrl(), primeKeyList);
+            } else if (SpiderUrlType.BY_PARAMS.equals(setting.getUrlType())) {
+                currentUrl = JsonUtils.replaceValueByJsonPath(setting.getUrl(), result.json());
+            }
+            if (Utils.isBlank(currentUrl)) {
+                continue;
+            }
+            Map<String, String> cookie = null;
+            if (setting.isUseCookie() && cookieMap.containsKey(item.getSpiderItemId())) {
+                CookieListTO cookieList = cookieMap.get(item.getSpiderItemId());
+                if (cookieList != null) {
+                    cookie = cookieList.getCookieMap();
+                }
+            }
+            Connection connection = getConnection(currentUrl);
+            if (cookie != null) {
+                connection.cookies(cookie);
+            }
 
-        return result;
+            useExtraction(connection, setting, result);
+        }
+        return result.json();
     }
 
-    public void useExtraction(Connection connection, SpiderItemSetting setting, Map<String, Object> result)
+    public void useExtraction(Connection connection, SpiderItemSetting setting, DocumentContext result)
             throws IOException {
         switch (setting.getMode()) {
             case Global.ExtractionRuleMode.SELECT:
@@ -148,12 +177,183 @@ public class SpiderServiceImpl implements SpiderService {
         }
     }
 
-    public void useCssSelect(String html, List<ExtractionRule> select, Map<String, Object> result) {
-
+    public void useCssSelect(String html, List<ExtractionRule> extractionRules, DocumentContext result) {
+        try {
+            Document doc = Jsoup.parse(html);
+            List<ReplaceValueMapTO> allReplaceValueMapList = fetchReplaceValueMaps(extractionRules);
+            for (ExtractionRule extractionRule : sortedRules(extractionRules)) {
+                if (!checkCondition(extractionRule, result)) {
+                    continue;
+                }
+                Elements elements = doc.select(extractionRule.getSelector());
+                Object extractedValue = null;
+                for (final var pipeLine : enabledPipelines(extractionRule)) {
+                    extractedValue = applyPipeline(pipeLine, extractedValue, result, allReplaceValueMapList, elements);
+                }
+                JsonUtils.putValue(result, extractionRule.getKey(), extractedValue);
+            }
+        } catch (Exception e) {
+            log.error("css select error:", e);
+            throw new LsbException(e.getMessage());
+        }
     }
 
-    public void useJsonPath(String json, List<ExtractionRule> jsonPathList, Map<String, Object> result) {
+    public void useJsonPath(String json, List<ExtractionRule> extractionRules, DocumentContext result) {
+        List<ReplaceValueMapTO> allReplaceValueMapList = fetchReplaceValueMaps(extractionRules);
+        for (ExtractionRule extractionRule : sortedRules(extractionRules)) {
+            if (!checkCondition(extractionRule, result)) {
+                continue;
+            }
+            Object extractedValue = JsonPath.read(json, extractionRule.getJsonPath());
+            for (final var pipeLine : enabledPipelines(extractionRule)) {
+                extractedValue = applyPipeline(pipeLine, extractedValue, result, allReplaceValueMapList, null);
+            }
+            JsonUtils.putValue(result, extractionRule.getKey(), extractedValue);
+        }
+    }
 
+    private List<ReplaceValueMapTO> fetchReplaceValueMaps(List<ExtractionRule> extractionRules) {
+        List<String> names = extractionRules.stream()
+                .flatMap(rule -> rule.getPipelines().stream())
+                .filter(x -> x.isEnabled()
+                        && Global.ValuePipelineType.USE_REPLACE_VALUE_MAP.equals(x.getType()))
+                .map(x -> x.getUseReplaceValueMap())
+                .filter(Utils::isNotBlank)
+                .distinct()
+                .toList();
+        return replaceValueMapService.getAllByNameList(names);
+    }
+
+    private List<ExtractionRule> sortedRules(List<ExtractionRule> extractionRules) {
+        return extractionRules.stream()
+                .sorted((a, b) -> a.getSeq() > b.getSeq() ? 1 : -1)
+                .toList();
+    }
+
+    private List<ValuePipeline> enabledPipelines(ExtractionRule extractionRule) {
+        return extractionRule.getPipelines().stream()
+                .filter(x -> x.isEnabled())
+                .sorted((a, b) -> a.getSeq() > b.getSeq() ? 1 : -1)
+                .toList();
+    }
+
+    private Object applyPipeline(ValuePipeline pipeLine, Object extractedValue, DocumentContext result,
+            List<ReplaceValueMapTO> allReplaceValueMapList, Elements elements) {
+        final var type = pipeLine.getType();
+        switch (type) {
+            case EXTRACT_ATTR:
+                var attributeName = pipeLine.getAttributeName();
+                if (elements != null && !elements.isEmpty() && Utils.isNotBlank(attributeName)) {
+                    extractedValue = elements.stream().map(x -> x.attr(attributeName)).toList();
+                }
+                break;
+            case EXTRACT_OWN_TEXT:
+                if (elements != null && !elements.isEmpty()) {
+                    extractedValue = elements.stream().map(Element::ownText).toList();
+                }
+                break;
+            case COMBINE_TO_STRING:
+                var combineToString = pipeLine.getCombineToString();
+                if (extractedValue instanceof List && Utils.isNotBlank(combineToString)) {
+                    extractedValue = JsonUtils.replaceValueByJsonPath(combineToString, extractedValue);
+                }
+                break;
+            case COMBINE_BY_KEY:
+                var combineByKey = pipeLine.getCombineByKey();
+                if (Utils.isNotBlank(combineByKey)) {
+                    extractedValue = JsonUtils.replaceValueByJsonPath(combineByKey, result.json());
+                }
+                break;
+            case CONVERT_TO_ARRAY:
+                extractedValue = List.of(extractedValue);
+                break;
+            case FIRST_VALUE:
+                if (extractedValue instanceof List) {
+                    var list = (List<?>) extractedValue;
+                    extractedValue = list.isEmpty() ? "" : list.get(0);
+                }
+                break;
+            case REPLACE_REGULAR:
+                var pattern = pipeLine.getPattern();
+                var replacement = pipeLine.getReplacement();
+                if (Utils.isNotBlank(pattern) && Utils.isNotBlank(replacement)) {
+                    if (extractedValue instanceof List) {
+                        extractedValue = ((List<?>) extractedValue).stream()
+                                .map(x -> String.valueOf(x).replaceAll(pattern, replacement))
+                                .toList();
+                    } else {
+                        extractedValue = String.valueOf(extractedValue).replaceAll(pattern, replacement);
+                    }
+                }
+                break;
+            case SPLIT_TEXT:
+                var separator = pipeLine.getSeparator();
+                if (Utils.isNotBlank(separator)) {
+                    if (extractedValue instanceof List) {
+                        extractedValue = ((List<?>) extractedValue).stream()
+                                .flatMap(x -> Arrays.stream(String.valueOf(x).split(separator)))
+                                .map(String::trim)
+                                .filter(Utils::isNotBlank)
+                                .toList();
+                    } else {
+                        extractedValue = Arrays.stream(String.valueOf(extractedValue).split(separator))
+                                .map(String::trim)
+                                .filter(Utils::isNotBlank)
+                                .toList();
+                    }
+                }
+                break;
+            case USE_REPLACE_VALUE_MAP:
+                var replaceValueMapName = pipeLine.getUseReplaceValueMap();
+                if (Utils.isNotBlank(replaceValueMapName)) {
+                    ReplaceValueMapTO map = allReplaceValueMapList.stream()
+                            .filter(x -> replaceValueMapName.equals(x.getName())).findFirst().orElse(null);
+                    if (map != null) {
+                        if (extractedValue instanceof List) {
+                            extractedValue = ((List<?>) extractedValue).stream().map(x -> {
+                                String xStr = String.valueOf(x);
+                                return map.getMap().getOrDefault(xStr, xStr);
+                            }).toList();
+                        } else {
+                            String xStr = String.valueOf(extractedValue);
+                            extractedValue = map.getMap().getOrDefault(xStr, xStr);
+                        }
+                    }
+                }
+                break;
+        }
+        return extractedValue;
+    }
+
+    private boolean checkCondition(ExtractionRule extractionRule, DocumentContext result) {
+        final var condition = extractionRule.getCondition();
+        if (condition == ExtractionStepCondition.ALWAYS) {
+            return true;
+        }
+        final var conditionValue = extractionRule.getConditionValue();
+        final var value = result.read(extractionRule.getConditionKey());
+        final var isList = value instanceof List;
+        return switch (condition) {
+            case ALWAYS -> true;
+            case IF_KEY_EMPTY -> value == null
+                    || (isList ? ((List<?>) value).isEmpty() : Utils.isBlank(String.valueOf(value)));
+            case IF_KEY_NOT_EMPTY -> value != null
+                    && (isList ? !((List<?>) value).isEmpty() : Utils.isNotBlank(String.valueOf(value)));
+            case CONTAINS -> value != null && matchAny(value, isList, s -> s.contains(conditionValue));
+            case NOT_CONTAINS -> value == null || !matchAny(value, isList, s -> s.contains(conditionValue));
+            case EQUALS -> value != null && matchAny(value, isList, s -> s.equals(conditionValue));
+            case NOT_EQUALS -> value == null || !matchAny(value, isList, s -> s.equals(conditionValue));
+            case MATCHES -> value != null && matchAny(value, isList, s -> Pattern.matches(conditionValue, s));
+            case NOT_MATCHES -> value == null || !matchAny(value, isList, s -> Pattern.matches(conditionValue, s));
+            default -> true;
+        };
+    }
+
+    private boolean matchAny(Object value, boolean isList, Predicate<String> predicate) {
+        if (isList) {
+            return ((List<?>) value).stream().anyMatch(x -> predicate.test(String.valueOf(x)));
+        }
+        return predicate.test(String.valueOf(value));
     }
 
     protected Connection getConnection(String url) {

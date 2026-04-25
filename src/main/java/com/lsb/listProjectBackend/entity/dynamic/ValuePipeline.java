@@ -15,4 +15,7 @@ public class ValuePipeline {
     private String pattern;
     private String replacement;
     private String separator;
+    private String combineToString;
+    private String combineByKey;
+    private String useReplaceValueMap;
 }

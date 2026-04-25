@@ -22,12 +22,12 @@ public class SpiderController {
     private SpiderService spiderService;
 
     @PostMapping("/spider/use-url")
-    public Map<String, Object> executeByUrl(@RequestBody SpiderReqTO req) throws Exception {
+    public String executeByUrl(@RequestBody SpiderReqTO req) throws Exception {
         return spiderService.executeByUrl(req.getSpiderId(), req.getUrl());
     }
 
     @PostMapping("/spider/use-prime-key")
-    public Map<String, Object> executeByPrimeKeyList(@RequestBody SpiderReqTO req) throws Exception {
+    public String executeByPrimeKeyList(@RequestBody SpiderReqTO req) throws Exception {
         return spiderService.executeByPrimeKeyList(req.getSpiderId(), req.getPrimeKeyList());
     }
 }

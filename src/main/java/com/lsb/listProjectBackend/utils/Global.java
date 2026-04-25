@@ -102,6 +102,7 @@ public class Global {
         CONVERT_TO_ARRAY,
         FIRST_VALUE,
         COMBINE_TO_STRING,
+        COMBINE_BY_KEY,
         USE_REPLACE_VALUE_MAP
     }
 }

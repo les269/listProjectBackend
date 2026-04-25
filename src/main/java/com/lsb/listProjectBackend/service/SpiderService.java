@@ -15,7 +15,7 @@ public interface SpiderService {
      * @param url      輸入 URL
      * @return 爬蟲結果
      */
-    Map<String, Object> executeByUrl(String spiderId, String url) throws Exception;
+    String executeByUrl(String spiderId, String url) throws Exception;
 
     /**
      * 執行爬蟲流程 - 基於主鍵陣列
@@ -24,6 +24,6 @@ public interface SpiderService {
      * @param primeKeyList 主鍵陣列
      * @return 爬蟲結果
      */
-    Map<String, Object> executeByPrimeKeyList(String spiderId, List<String> primeKeyList) throws Exception;
+    String executeByPrimeKeyList(String spiderId, List<String> primeKeyList) throws Exception;
 
 }

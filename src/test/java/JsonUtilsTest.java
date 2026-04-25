@@ -16,7 +16,7 @@ public class JsonUtilsTest {
     public void safePut_shouldCreateNestedObjectPath() {
         DocumentContext ctx = JsonPath.parse("{}");
 
-        JsonUtils.safePut(ctx, "$.config.request.url", "https://example.com");
+        JsonUtils.putValue(ctx, "$.config.request.url", "https://example.com");
 
         assertEquals("https://example.com", ctx.read("$.config.request.url", String.class));
     }
@@ -25,7 +25,7 @@ public class JsonUtilsTest {
     public void safePut_shouldWriteArrayObjectPath() {
         DocumentContext ctx = JsonPath.parse("{}");
 
-        JsonUtils.safePut(ctx, "$.items[0].name", "alpha");
+        JsonUtils.putValue(ctx, "$.items[0].name", "alpha");
 
         assertEquals("alpha", ctx.read("$.items[0].name", String.class));
     }
@@ -34,7 +34,7 @@ public class JsonUtilsTest {
     public void safePut_shouldSupportNestedArrays() {
         DocumentContext ctx = JsonPath.parse("{}");
 
-        JsonUtils.safePut(ctx, "$.matrix[1][2]", 99);
+        JsonUtils.putValue(ctx, "$.matrix[1][2]", 99);
 
         assertEquals(99, ctx.read("$.matrix[1][2]", Integer.class));
     }
@@ -43,8 +43,8 @@ public class JsonUtilsTest {
     public void safePut_shouldPreserveExistingObjectAndArrayContent() {
         DocumentContext ctx = JsonPath.parse("{\"existing\":{\"name\":\"keep\"},\"items\":[{\"id\":1}]}");
 
-        JsonUtils.safePut(ctx, "$.existing.version", "v1");
-        JsonUtils.safePut(ctx, "$.items[1].id", 2);
+        JsonUtils.putValue(ctx, "$.existing.version", "v1");
+        JsonUtils.putValue(ctx, "$.items[1].id", 2);
 
         assertEquals("keep", ctx.read("$.existing.name", String.class));
         assertEquals("v1", ctx.read("$.existing.version", String.class));
@@ -65,7 +65,7 @@ public class JsonUtilsTest {
         root.put("user", user);
 
         String template = "name={{$.user.name}}, age={{$.user.age}}";
-        String result = Utils.replaceValueByJsonPath(template, root);
+        String result = JsonUtils.replaceValueByJsonPath(template, root);
 
         assertEquals("name=Tom, age=18", result);
     }
@@ -76,7 +76,7 @@ public class JsonUtilsTest {
         root.put("name", "Tom");
 
         String template = "hello {{name}}";
-        String result = Utils.replaceValueByJsonPath(template, root);
+        String result = JsonUtils.replaceValueByJsonPath(template, root);
 
         assertEquals("hello {{name}}", result);
     }
@@ -90,8 +90,42 @@ public class JsonUtilsTest {
         root.put("user", user);
 
         String template = "hello {{$.user.missing}}";
-        String result = Utils.replaceValueByJsonPath(template, root);
+        String result = JsonUtils.replaceValueByJsonPath(template, root);
 
         assertEquals("hello {{$.user.missing}}", result);
+    }
+
+    @Test
+    public void replaceValueByJsonPath_shouldReplaceWhenRootIsList() {
+        List<Map<String, Object>> list = List.of(
+                Map.of("name", "Alice"),
+                Map.of("name", "Bob"));
+
+        String template = "first={{$[0].name}}, second={{$[1].name}}";
+        String result = JsonUtils.replaceValueByJsonPath(template, list);
+
+        assertEquals("first=Alice, second=Bob", result);
+    }
+
+    @Test
+    public void replaceValueByJsonPath_shouldReplaceNestedFieldInList() {
+        List<Map<String, Object>> list = List.of(
+                Map.of("user", Map.of("name", "Charlie", "age", 30)));
+
+        String template = "name={{$[0].user.name}}, age={{$[0].user.age}}";
+        String result = JsonUtils.replaceValueByJsonPath(template, list);
+
+        assertEquals("name=Charlie, age=30", result);
+    }
+
+    @Test
+    public void replaceValueByJsonPath_shouldKeepOriginalWhenListIndexOutOfBound() {
+        List<Map<String, Object>> list = List.of(
+                Map.of("name", "Alice"));
+
+        String template = "hello {{$[5].name}}";
+        String result = JsonUtils.replaceValueByJsonPath(template, list);
+
+        assertEquals("hello {{$[5].name}}", result);
     }
 }
