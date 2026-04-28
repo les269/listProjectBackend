@@ -74,7 +74,7 @@ public class ScrapyBase {
             }
         } catch (Exception e) {
             log.error("An error occurred", e);
-            throw new LsbException(e.getMessage());
+            throw new LsbException(e.getMessage(), e);
         }
     }
 

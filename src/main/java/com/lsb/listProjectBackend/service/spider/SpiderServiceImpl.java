@@ -8,14 +8,12 @@ import com.lsb.listProjectBackend.domain.common.LsbException;
 import com.lsb.listProjectBackend.domain.common.ReplaceValueMapTO;
 import com.lsb.listProjectBackend.domain.spider.SpiderConfigTO;
 import com.lsb.listProjectBackend.domain.spider.SpiderItemTO;
+import com.lsb.listProjectBackend.domain.spider.SpiderTestTO;
 import com.lsb.listProjectBackend.entity.dynamic.spider.ExtractionRule;
 import com.lsb.listProjectBackend.entity.dynamic.spider.SpiderItemSetting;
 import com.lsb.listProjectBackend.entity.dynamic.spider.ValuePipeline;
 import com.lsb.listProjectBackend.service.common.CookieListService;
 import com.lsb.listProjectBackend.service.common.ReplaceValueMapService;
-import com.lsb.listProjectBackend.service.spider.SpiderConfigService;
-import com.lsb.listProjectBackend.service.spider.SpiderItemService;
-import com.lsb.listProjectBackend.service.spider.SpiderService;
 import com.lsb.listProjectBackend.utils.Global;
 import com.lsb.listProjectBackend.utils.JsonUtils;
 import com.lsb.listProjectBackend.utils.Utils;
@@ -60,7 +58,7 @@ public class SpiderServiceImpl implements SpiderService {
     public String executeByUrl(String spiderId, String url) throws Exception {
         SpiderConfigTO config = spiderConfigService.getById(spiderId);
         if (config == null) {
-            throw new LsbException("該爬蟲配置不存在: " + spiderId);
+            throw new LsbException("該爬蟲配置不存在: " + spiderId, org.springframework.http.HttpStatus.NOT_FOUND);
         }
         List<SpiderItemTO> itemList = spiderItemService.getBySpiderId(spiderId);
 
@@ -71,7 +69,7 @@ public class SpiderServiceImpl implements SpiderService {
     public String executeByPrimeKeyList(String spiderId, List<String> primeKeyList) throws Exception {
         SpiderConfigTO config = spiderConfigService.getById(spiderId);
         if (config == null) {
-            throw new LsbException("該爬蟲配置不存在: " + spiderId);
+            throw new LsbException("該爬蟲配置不存在: " + spiderId, org.springframework.http.HttpStatus.NOT_FOUND);
         }
         if (Boolean.TRUE.equals(config.getIsUrlBased())) {
             throw new LsbException("該爬蟲是無法使用主鍵進行爬蟲的: " + spiderId);
@@ -79,6 +77,30 @@ public class SpiderServiceImpl implements SpiderService {
         List<SpiderItemTO> itemList = spiderItemService.getBySpiderId(spiderId);
 
         return runSpiderItemByPrimeKeyList(itemList, primeKeyList);
+    }
+
+    @Override
+    public String previewExtraction(SpiderItemSetting setting) {
+        DocumentContext result = JsonPath.parse("{}");
+        var mode = setting.getMode();
+        switch (mode) {
+            case SELECT -> useCssSelect(setting.getTestData().getHtml(), setting.getExtractionRuleList(), result);
+            case JSON_PATH -> useJsonPath(setting.getTestData().getJson(), setting.getExtractionRuleList(), result);
+            default -> throw new LsbException("未知的抽取模式: " + mode);
+        }
+        return result.json();
+    }
+
+    @Override
+    public String previewByUrl(SpiderTestTO req) throws Exception {
+        String url = req.getSpiderConfig().getTestData().getUrl();
+        return runSpiderItemByUrl(req.getSpiderItems(), url);
+    }
+
+    @Override
+    public String previewByPrimeKey(SpiderTestTO req) throws Exception {
+        List<String> primeKeyList = req.getSpiderConfig().getTestData().getPrimeKeyList();
+        return runSpiderItemByPrimeKeyList(req.getSpiderItems(), primeKeyList);
     }
 
     private String runSpiderItemByUrl(List<SpiderItemTO> itemList, String url)
@@ -194,7 +216,7 @@ public class SpiderServiceImpl implements SpiderService {
             }
         } catch (Exception e) {
             log.error("css select error:", e);
-            throw new LsbException(e.getMessage());
+            throw new LsbException(e.getMessage(), e);
         }
     }
 

@@ -6,7 +6,7 @@ import java.util.List;
 
 @Data
 public class SpiderConfigTestData {
-    private List<String> pkArray;
+    private List<String> primeKeyList;
     private String url;
     private String resultJson;
 }

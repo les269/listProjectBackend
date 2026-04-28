@@ -5,6 +5,8 @@ import com.lsb.listProjectBackend.domain.file.FileRequest;
 import com.lsb.listProjectBackend.domain.common.LsbException;
 import com.lsb.listProjectBackend.utils.Utils;
 import com.sun.jna.platform.FileUtils;
+
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.File;
@@ -29,7 +31,7 @@ public class FileController {
             FileUtils.getInstance().moveToTrash(file);
             return !file.exists();
         } else {
-            throw new LsbException("File does not exist");
+            throw new LsbException("檔案不存在", HttpStatus.NOT_FOUND);
         }
     }
 

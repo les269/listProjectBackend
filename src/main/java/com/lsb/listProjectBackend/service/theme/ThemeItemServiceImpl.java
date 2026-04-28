@@ -43,7 +43,8 @@ public class ThemeItemServiceImpl implements ThemeItemService {
 
         ThemeItemPK sourcePk = new ThemeItemPK(req.getSourceItemId(), req.getType());
         ThemeItem source = themeItemRepository.findById(sourcePk)
-                .orElseThrow(() -> new LsbException("找不到來源 ThemeItem: " + req.getSourceItemId()));
+                .orElseThrow(() -> new LsbException("找不到來源 ThemeItem: " + req.getSourceItemId(),
+                        org.springframework.http.HttpStatus.NOT_FOUND));
 
         ThemeItemPK targetPk = new ThemeItemPK(req.getTargetItemId(), req.getType());
         if (themeItemRepository.existsById(targetPk)) {

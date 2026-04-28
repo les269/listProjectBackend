@@ -1,16 +1,15 @@
 package com.lsb.listProjectBackend.service.spider;
 
-import com.lsb.listProjectBackend.domain.spider.SpiderConfigTO;
-import com.lsb.listProjectBackend.domain.spider.SpiderItemTO;
-
 import java.util.List;
-import java.util.Map;
+
+import com.lsb.listProjectBackend.domain.spider.SpiderTestTO;
+import com.lsb.listProjectBackend.entity.dynamic.spider.SpiderItemSetting;
 
 public interface SpiderService {
 
     /**
      * 執行爬蟲流程 - 基於 URL
-     * 
+     *
      * @param spiderId 爬蟲配置 ID
      * @param url      輸入 URL
      * @return 爬蟲結果
@@ -19,11 +18,34 @@ public interface SpiderService {
 
     /**
      * 執行爬蟲流程 - 基於主鍵陣列
-     * 
+     *
      * @param spiderId     爬蟲配置 ID
      * @param primeKeyList 主鍵陣列
      * @return 爬蟲結果
      */
     String executeByPrimeKeyList(String spiderId, List<String> primeKeyList) throws Exception;
 
+    /**
+     * 預覽抽取結果（單一設定，不連線）
+     *
+     * @param setting 抽取設定
+     * @return 預覽結果
+     */
+    String previewExtraction(SpiderItemSetting setting);
+
+    /**
+     * 使用測試資料的 URL 預覽完整爬蟲流程
+     *
+     * @param req 測試資料（含 spiderConfig.testData.url 與 spiderItems）
+     * @return 爬蟲結果
+     */
+    String previewByUrl(SpiderTestTO req) throws Exception;
+
+    /**
+     * 使用測試資料的主鍵陣列預覽完整爬蟲流程
+     *
+     * @param req 測試資料（含 spiderConfig.testData.pkArray 與 spiderItems）
+     * @return 爬蟲結果
+     */
+    String previewByPrimeKey(SpiderTestTO req) throws Exception;
 }

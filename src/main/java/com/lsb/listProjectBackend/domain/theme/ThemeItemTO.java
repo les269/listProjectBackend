@@ -15,4 +15,3 @@ public class ThemeItemTO {
     private LocalDateTime updatedTime;
     private JsonNode json;
 }
-

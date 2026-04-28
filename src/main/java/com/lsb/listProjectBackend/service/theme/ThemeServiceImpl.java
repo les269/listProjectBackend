@@ -93,7 +93,7 @@ public class ThemeServiceImpl implements ThemeService {
             themeHeaderRepository.deleteById(header.getId());
             themeItemService.deleteThemeItemMapByHeaderId(header.getId());
         } else {
-            throw new LsbException("主題不存在無法刪除");
+            throw new LsbException("主題不存在無法刪除", org.springframework.http.HttpStatus.NOT_FOUND);
         }
     }
 
@@ -111,7 +111,7 @@ public class ThemeServiceImpl implements ThemeService {
             ThemeHeaderTO sourceTheme = themeMapper.headerToDomain(sourceOptional.get());
             syncShareTagMappings(headerId, sourceTheme.getThemeTagList());
         } else {
-            throw new LsbException("主題不存在無法複製");
+            throw new LsbException("主題不存在無法複製", org.springframework.http.HttpStatus.NOT_FOUND);
         }
     }
 
