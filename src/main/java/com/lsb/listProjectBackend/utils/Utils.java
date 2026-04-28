@@ -15,123 +15,65 @@ import java.util.stream.IntStream;
 
 @Slf4j
 public class Utils {
-    public static boolean isNull(Object o) {
-        return o == null;
-    }
 
-    public static boolean notNull(Object o) {
-        return !isNull(o);
-    }
-
+    /** 判斷字串是否為 null 或空白（含只有空白字元的情況）。 */
     public static boolean isBlank(String str) {
         return null == str || str.trim().isEmpty();
     }
 
+    /**
+     * 判斷多個字串中是否有任一為 null 或空白。
+     * <p>
+     * 只要其中一個為空白即回傳 {@code true}。
+     * </p>
+     */
     public static boolean isBlank(String... str) {
         if (str == null)
-            return true; // Return true if the entire array is null
+            return true;
         for (String s : str) {
-            if (isBlank(s)) {
-                return true; // Return true if any string is null or blank
-            }
+            if (isBlank(s))
+                return true;
         }
         return false;
     }
 
+    /** 判斷字串是否不為 null 且不為空白。 */
     public static boolean isNotBlank(String str) {
         return !isBlank(str);
     }
 
-    public static boolean isNotBlank(String... str) {
-        return !isBlank(str);
+    /** 判斷集合是否為 null 或不含任何元素。 */
+    public static boolean isEmpty(Collection<?> collection) {
+        return collection == null || collection.isEmpty();
     }
 
-    public static String replaceBlank(String oldStr) {
-        return isNotBlank(oldStr) ? oldStr : "";
-    }
 
-    public static String replaceBlank(String oldStr, String newStr) {
-        return isNotBlank(oldStr) ? oldStr : newStr;
-    }
-
-    public static boolean objIsEmpty(Object object) {
-        return object == null;
-    }
-
-    public static boolean isEmpty(Collection collection) {
-        return collection == null || collection.size() == 0;
-    }
-
-    public static String filePathConvert(String path) {
-        return path.substring(8);
-    }
-
-    public static final Character[] INVALID_WINDOWS_SPECIFIC_CHARS = { '"', '*', ':', '<', '>', '?', '\\', '|', 0x7F };
-
-    public static boolean validateStringFilenameUsingRegex(String filename) {
-        if (filename == null || filename.isEmpty() || filename.length() > 255) {
-            return false;
-        }
-        return Arrays.stream(INVALID_WINDOWS_SPECIFIC_CHARS)
-                .noneMatch(ch -> filename.contains(ch.toString()));
-    }
-
-    public static String getListOne(List<String> list) {
-        if (list == null || list.isEmpty()) {
-            return "";
-        }
-        return list.get(0);
-    }
-
-    public static String joinStringList(List<String>... list) {
-        String str = "";
-        List<String> s = new ArrayList<>();
-
-        for (List<String> ss : list) {
-            if (ss != null) {
-                s.addAll(ss);
-            }
-        }
-        s = s.stream().distinct().sorted().collect(Collectors.toList());
-        for (String ss : s) {
-            str = str + ss + ",";
-        }
-        if (str.length() > 0) {
-            str = str.substring(0, str.length() - 1);
-        }
-        return str;
-    }
-
-    public static boolean containsCaseInsensitive(String strToCompare, List<String> list) {
-        for (String str : list) {
-            if (str.equalsIgnoreCase(strToCompare)) {
-                return (true);
-            }
-        }
-        return (false);
-    }
-
-    public static String matchStr(Pattern pattern, String s) {
-        Matcher m = pattern.matcher(s);
-        m.find();
-        try {
-            return m.group();
-        } catch (Exception e) {
-            return s;
-        }
-    }
-
-    public static String getFileName(String name) {
-        return name.substring(0, name.indexOf("."));
-    }
-
+    /**
+     * 將字串中的 {@code ${0}}、{@code ${1}} 等索引佔位符替換為 List 對應位置的值。
+     * <p>
+     * 若索引不存在則保留原始佔位符。
+     * </p>
+     *
+     * @param value 含 {@code ${index}} 佔位符的模板字串
+     * @param arr   替換來源清單
+     * @return 替換後的字串
+     */
     public static String replaceValue(String value, List<String> arr) {
-        Map<String, Object> replaceMap = IntStream.range(0, arr.size()).boxed().collect(Collectors.toMap(
-                i -> i + "",
-                arr::get));
+        Map<String, Object> replaceMap = IntStream.range(0, arr.size()).boxed()
+                .collect(Collectors.toMap(i -> i + "", arr::get));
         return replaceValue(value, replaceMap);
     }
 
+    /**
+     * 將字串中的 {@code ${key}} 或 {@code ${key.subKey[0]}} 佔位符替換為 Map 對應路徑的值。
+     * <p>
+     * 若路徑不存在或解析失敗則保留原始佔位符。
+     * </p>
+     *
+     * @param value 含 {@code ${...}} 佔位符的模板字串
+     * @param obj   作為資料來源的 Map
+     * @return 替換後的字串
+     */
     public static String replaceValue(String value, Map<String, Object> obj) {
         Pattern pattern = Pattern.compile("\\$\\{(.*?)}");
         Matcher matcher = pattern.matcher(value);
@@ -141,13 +83,19 @@ public class Utils {
             String key = matcher.group(1).trim();
             Object replacement = resolveKeyPath(key, obj);
             String replacementStr = (replacement != null) ? replacement.toString() : matcher.group(0);
-            // 如果找到值就替换，未找到则保留原样
             matcher.appendReplacement(result, Matcher.quoteReplacement(replacementStr));
         }
         matcher.appendTail(result);
         return result.toString();
     }
 
+    /**
+     * 依照 {@code key.subKey[index]} 格式逐層解析 Map／List 路徑。
+     *
+     * @param keyPath 點分隔或陣列標記的路徑字串
+     * @param obj     根 Map
+     * @return 路徑對應的值；路徑不存在時回傳 {@code null}
+     */
     @SuppressWarnings("unchecked")
     private static Object resolveKeyPath(String keyPath, Map<String, Object> obj) {
         String[] keys = keyPath.split("[.\\[\\]]+");
@@ -159,15 +107,15 @@ public class Utils {
             } else if (current instanceof List && isNumeric(key)) {
                 current = ((List<Object>) current).get(Integer.parseInt(key));
             } else {
-                return null; // 如果路径解析失败，则返回 null
-            }
-            if (current == null) {
                 return null;
             }
+            if (current == null)
+                return null;
         }
         return current;
     }
 
+    /** 判斷字串是否可解析為整數。 */
     private static boolean isNumeric(String str) {
         try {
             Integer.parseInt(str);
@@ -177,6 +125,12 @@ public class Utils {
         }
     }
 
+    /**
+     * 取得 {@link File} 不含副檔名的名稱；若為目錄則直接回傳目錄名稱。
+     *
+     * @param file 目標檔案或目錄
+     * @return 不含副檔名的名稱字串
+     */
     public static String getFileNameWithoutExtension(File file) {
         if (file.isDirectory()) {
             return file.getName();
@@ -186,81 +140,118 @@ public class Utils {
         return (lastDotIndex == -1) ? name : name.substring(0, lastDotIndex);
     }
 
+    /**
+     * 檢查檔案是否符合指定的副檔名清單（大小寫不敏感）。
+     *
+     * @param file      目標檔案
+     * @param extension 以逗號分隔的副檔名字串，例如 {@code "jpg,png,gif"}
+     * @return 符合其中一個副檔名時回傳 {@code true}
+     */
     public static boolean checkFileExtension(File file, String extension) {
         if (isBlank(extension)) {
             return false;
         }
-        var extList = Arrays.stream(extension.split(","))
-                .toList()
-                .stream()
+        List<String> extList = Arrays.stream(extension.split(","))
                 .map(x -> x.trim().toLowerCase())
                 .filter(Utils::isNotBlank)
                 .toList();
         if (file.isFile()) {
             String fileName = file.getName().toLowerCase();
-            for (String ext : extList) {
-                if (fileName.endsWith("." + ext)) {
-                    return true;
-                }
-            }
+            return extList.stream().anyMatch(ext -> fileName.endsWith("." + ext));
         }
         return false;
     }
 
+    /**
+     * 將檔案移至資源回收筒以刪除。
+     * <p>
+     * SMB 網路路徑（{@code \\} 開頭）會略過，不進行刪除。
+     * </p>
+     *
+     * @param path 要刪除的檔案絕對路徑
+     * @throws IOException 移動失敗時拋出
+     */
     public static void deleteFile(String path) throws IOException {
         File file = new File(path);
-        // 避免刪除smb檔案
         if (file.exists() && !path.startsWith("\\\\")) {
             FileUtils.getInstance().moveToTrash(file);
         }
     }
 
+    /**
+     * 將多行文字解析為二維 List。
+     * <p>
+     * 處理規則：
+     * <ul>
+     * <li>以換行符（{@code \r\n} 或 {@code \n}）分割為多行</li>
+     * <li>每行再以 {@code split} 分隔符切割，並去除前後空白</li>
+     * <li>空行或全空白的 token 自動略過</li>
+     * </ul>
+     *
+     * @param text  原始多行文字
+     * @param split 每行的欄位分隔符（傳入正規表示式字串）
+     * @return 解析後的二維字串 List
+     */
     public static List<List<String>> textToList(String text, String split) {
         List<List<String>> result = new ArrayList<>();
         if (isBlank(text)) {
             return result;
         }
-        // 按照換行符分割文字 (\r\n 支援 Windows 換行符)
         String[] lines = text.split("\\r?\\n");
-
         for (String line : lines) {
-            if (isBlank(line)) {
+            if (isBlank(line))
                 continue;
-            }
-            // 按逗號分割每一行，並轉換為 List<String>
             List<String> lineItems = Arrays.stream(line.split(split))
                     .map(String::trim)
                     .filter(Utils::isNotBlank)
                     .toList();
-            if (lineItems.isEmpty()) {
-                continue;
+            if (!lineItems.isEmpty()) {
+                result.add(lineItems);
             }
-            result.add(lineItems);
         }
-
         return result;
     }
 
+    /**
+     * 移除 Windows 檔案名稱中的非法字元，並去除結尾的點與多餘空白。
+     * <p>
+     * 非法字元包含：{@code \ / : * ? " < > |}
+     * </p>
+     *
+     * @param fileName 原始檔案名稱
+     * @return 清理後的檔案名稱
+     */
     public static String windowsFileNameReplace(String fileName) {
-        // 替換非法字符為下劃線或其他符號
         return fileName.replaceAll("[\\\\/:*?\"<>|]", "").replaceAll("\\.+$", "").trim();
     }
 
+    /**
+     * 取得應用程式預設資料目錄下指定檔案的完整路徑。
+     * <p>
+     * 預設目錄為 {@code %APPDATA%\listProjectData}。
+     * </p>
+     *
+     * @param filename 檔案名稱
+     * @return 完整絕對路徑字串
+     */
     public static String getDefaultFilePath(String filename) {
         String userHome = System.getProperty("user.home");
         String appDataRoaming = userHome + File.separator + "AppData" + File.separator + "Roaming";
         return Paths.get(appDataRoaming, "listProjectData", filename).toString();
     }
 
+    /**
+     * 取得應用程式預設資料目錄的 {@link Path}。
+     * <p>
+     * 路徑為 {@code %APPDATA%\listProjectData}。
+     * </p>
+     *
+     * @return 預設資料目錄路徑
+     */
     public static Path getDefaultDirectoryPath() {
         String userHome = System.getProperty("user.home");
         String appDataRoaming = userHome + File.separator + "AppData" + File.separator + "Roaming";
         return Paths.get(appDataRoaming, "listProjectData");
     }
 
-    public static boolean isWindows() {
-        // 获取操作系统名称并转为小写，判断是否包含 win
-        String osName = System.getProperty("os.name").toLowerCase();
-        return osName.contains("win");
-    }
 }

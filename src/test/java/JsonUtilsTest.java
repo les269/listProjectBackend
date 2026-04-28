@@ -128,4 +128,37 @@ public class JsonUtilsTest {
 
         assertEquals("hello {{$[5].name}}", result);
     }
+
+    @Test
+    public void replaceValueByJsonPath_shouldReturnNullWhenValueIsNull() {
+        String result = JsonUtils.replaceValueByJsonPath(null, Map.of("name", "Tom"));
+        assertEquals(null, result);
+    }
+
+    @Test
+    public void replaceValueByJsonPath_shouldReturnEmptyWhenValueIsEmpty() {
+        String result = JsonUtils.replaceValueByJsonPath("", Map.of("name", "Tom"));
+        assertEquals("", result);
+    }
+
+    @Test
+    public void replaceValueByJsonPath_shouldReturnOriginalWhenObjIsNull() {
+        String result = JsonUtils.replaceValueByJsonPath("hello {{$.name}}", null);
+        assertEquals("hello {{$.name}}", result);
+    }
+
+    @Test
+    public void replaceValueByJsonPath_shouldReturnOriginalWhenNoPlaceholder() {
+        String result = JsonUtils.replaceValueByJsonPath("no placeholder here", Map.of("name", "Tom"));
+        assertEquals("no placeholder here", result);
+    }
+
+    @Test
+    public void replaceValueByJsonPath_shouldKeepPlaceholderWhenValueIsNull() {
+        Map<String, Object> root = new HashMap<>();
+        root.put("key", null);
+
+        String result = JsonUtils.replaceValueByJsonPath("val={{$.key}}", root);
+        assertEquals("val={{$.key}}", result);
+    }
 }

@@ -11,6 +11,18 @@ import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.PathNotFoundException;
 
 public class JsonUtils {
+
+    /**
+     * 從 DocumentContext 讀取指定路徑的值。
+     * <p>
+     * 路徑可省略 {@code $} 前綴，例如 {@code "user.name"} 或 {@code "$.user.name"} 均可。
+     * </p>
+     *
+     * @param ctx      JsonPath 的 DocumentContext
+     * @param fullPath JsonPath 路徑，支援 dot-notation 與 bracket-notation
+     * @return 路徑對應的值
+     * @throws IllegalArgumentException 路徑不存在時拋出
+     */
     public static Object getValue(DocumentContext ctx, String fullPath) {
         try {
             return ctx.read(ensurePrefix(fullPath));
@@ -19,6 +31,28 @@ public class JsonUtils {
         }
     }
 
+    /**
+     * 將值寫入 DocumentContext 的指定路徑，若中間節點不存在會自動建立。
+     * <p>
+     * 規則：
+     * <ul>
+     * <li>下一個 token 為 key → 自動補 {@code {}}</li>
+     * <li>下一個 token 為 index → 自動補 {@code []}</li>
+     * <li>陣列索引超出範圍時，自動以 {@code null} 填充至所需長度</li>
+     * </ul>
+     * 範例：
+     * 
+     * <pre>
+     * JsonUtils.putValue(ctx, "$.config.request.url", "https://example.com");
+     * JsonUtils.putValue(ctx, "$.items[0].name", "alpha");
+     * JsonUtils.putValue(ctx, "$.matrix[1][2]", 99);
+     * </pre>
+     *
+     * @param ctx      JsonPath 的 DocumentContext
+     * @param fullPath 目標路徑，支援 dot-notation 與 bracket-notation
+     * @param value    要寫入的值
+     * @throws IllegalArgumentException 路徑為空時拋出
+     */
     public static void putValue(DocumentContext ctx, String fullPath, Object value) {
         List<PathToken> tokens = tokenize(ensurePrefix(fullPath));
         if (tokens.isEmpty()) {
@@ -36,6 +70,28 @@ public class JsonUtils {
         putValue(ctx, currentPath, last, value);
     }
 
+    /**
+     * 將字串中的 {@code {{$.path}}} 佔位符替換為 {@code obj} 對應路徑的值。
+     * <p>
+     * 規則：
+     * <ul>
+     * <li>佔位符內容不以 {@code $} 開頭 → 保留原始佔位符不替換</li>
+     * <li>路徑不存在或解析例外 → 保留原始佔位符</li>
+     * <li>解析結果為 {@code null} → 保留原始佔位符</li>
+     * <li>{@code value} 為 null／空白，或 {@code obj} 為 null → 直接回傳 {@code value}</li>
+     * </ul>
+     * 範例：
+     * 
+     * <pre>
+     * Map root = Map.of("user", Map.of("name", "Tom"));
+     * JsonUtils.replaceValueByJsonPath("hello {{$.user.name}}", root); // → "hello Tom"
+     * JsonUtils.replaceValueByJsonPath("hello {{name}}", root); // → "hello {{name}}"
+     * </pre>
+     *
+     * @param value 包含 {@code {{...}}} 佔位符的模板字串
+     * @param obj   作為資料來源的物件（Map、List 或任何可供 JsonPath 解析的物件）
+     * @return 替換後的字串；若 {@code value} 為 null 則回傳 null
+     */
     public static String replaceValueByJsonPath(String value, Object obj) {
         if (Utils.isBlank(value) || obj == null) {
             return value;
@@ -187,9 +243,14 @@ public class JsonUtils {
 
     /**
      * 補全 JsonPath 前綴：
-     * - 已有 $ 開頭 → 原樣回傳
-     * - [ 開頭（bracket-notation）→ 補 $
-     * - 其他（dot-notation 裸 key）→ 補 $.
+     * <ul>
+     * <li>已有 {@code $} 開頭 → 原樣回傳</li>
+     * <li>{@code [} 開頭（bracket-notation）→ 補 {@code $}</li>
+     * <li>其他（dot-notation 裸 key）→ 補 {@code $.}</li>
+     * </ul>
+     *
+     * @param fullPath 原始路徑字串
+     * @return 補全前綴後的路徑；null 或空白時原樣回傳
      */
     public static String ensurePrefix(String fullPath) {
         if (fullPath == null || fullPath.isBlank()) {
