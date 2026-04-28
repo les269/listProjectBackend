@@ -1,4 +1,4 @@
-﻿package com.lsb.listProjectBackend.repository.local.common;
+package com.lsb.listProjectBackend.repository.local.common;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import com.lsb.listProjectBackend.entity.local.Setting;

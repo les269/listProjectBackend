@@ -1,4 +1,4 @@
-﻿package com.lsb.listProjectBackend.mapper.scrapy;
+package com.lsb.listProjectBackend.mapper.scrapy;
 
 import com.lsb.listProjectBackend.domain.scrapy.ScrapyPaginationTO;
 import com.lsb.listProjectBackend.entity.dynamic.scrapy.ScrapyPagination;

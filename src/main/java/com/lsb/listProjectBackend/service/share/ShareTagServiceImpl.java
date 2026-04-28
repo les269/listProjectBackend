@@ -1,4 +1,4 @@
-﻿package com.lsb.listProjectBackend.service.share;
+package com.lsb.listProjectBackend.service.share;
 
 import com.lsb.listProjectBackend.aop.UseDynamic;
 import com.lsb.listProjectBackend.domain.share.ShareTagTO;

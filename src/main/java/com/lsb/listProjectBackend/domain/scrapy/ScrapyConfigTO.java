@@ -1,4 +1,4 @@
-﻿package com.lsb.listProjectBackend.domain.scrapy;
+package com.lsb.listProjectBackend.domain.scrapy;
 
 import lombok.Data;
 

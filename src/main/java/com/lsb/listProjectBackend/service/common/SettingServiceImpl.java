@@ -1,4 +1,4 @@
-﻿package com.lsb.listProjectBackend.service.common;
+package com.lsb.listProjectBackend.service.common;
 
 import com.lsb.listProjectBackend.config.DatabaseInitializer;
 import com.lsb.listProjectBackend.config.datasource.DynamicDataSourceRefresher;

@@ -1,4 +1,4 @@
-﻿package com.lsb.listProjectBackend.converter.spider;
+package com.lsb.listProjectBackend.converter.spider;
 import com.lsb.listProjectBackend.converter.common.JsonAttributeConverter;
 
 import tools.jackson.core.type.TypeReference;

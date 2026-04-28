@@ -1,4 +1,4 @@
-﻿package com.lsb.listProjectBackend.entity.dynamic.dataset;
+package com.lsb.listProjectBackend.entity.dynamic.dataset;
 
 import com.lsb.listProjectBackend.converter.common.MapObjectListConverter;
 import jakarta.persistence.*;

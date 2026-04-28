@@ -1,4 +1,4 @@
-﻿package com.lsb.listProjectBackend.controller.scrapy;
+package com.lsb.listProjectBackend.controller.scrapy;
 
 import com.lsb.listProjectBackend.domain.scrapy.*;
 import com.lsb.listProjectBackend.service.scrapy.ScrapyService;

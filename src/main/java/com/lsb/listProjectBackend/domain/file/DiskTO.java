@@ -1,4 +1,4 @@
-﻿package com.lsb.listProjectBackend.domain.file;
+package com.lsb.listProjectBackend.domain.file;
 
 import lombok.Data;
 

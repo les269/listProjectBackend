@@ -1,4 +1,4 @@
-﻿package com.lsb.listProjectBackend.entity.dynamic.theme;
+package com.lsb.listProjectBackend.entity.dynamic.theme;
 
 import com.lsb.listProjectBackend.converter.theme.*;
 import com.lsb.listProjectBackend.utils.Global;

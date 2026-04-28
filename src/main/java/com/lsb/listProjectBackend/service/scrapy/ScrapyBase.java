@@ -1,4 +1,4 @@
-﻿package com.lsb.listProjectBackend.service.scrapy;
+package com.lsb.listProjectBackend.service.scrapy;
 
 import com.lsb.listProjectBackend.aop.UseDynamic;
 import com.lsb.listProjectBackend.domain.common.LsbException;

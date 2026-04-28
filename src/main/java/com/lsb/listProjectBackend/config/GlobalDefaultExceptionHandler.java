@@ -1,4 +1,4 @@
-﻿package com.lsb.listProjectBackend.config;
+package com.lsb.listProjectBackend.config;
 
 import com.lsb.listProjectBackend.domain.common.LsbException;
 import org.springframework.http.ResponseEntity;

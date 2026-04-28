@@ -1,4 +1,4 @@
-﻿package com.lsb.listProjectBackend.service.spider;
+package com.lsb.listProjectBackend.service.spider;
 
 import com.jayway.jsonpath.DocumentContext;
 import com.jayway.jsonpath.JsonPath;

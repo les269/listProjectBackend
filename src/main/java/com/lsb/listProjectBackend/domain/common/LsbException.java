@@ -1,4 +1,4 @@
-﻿package com.lsb.listProjectBackend.domain.common;
+package com.lsb.listProjectBackend.domain.common;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

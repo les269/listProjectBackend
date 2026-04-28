@@ -1,4 +1,4 @@
-﻿package com.lsb.listProjectBackend.converter.common;
+package com.lsb.listProjectBackend.converter.common;
 
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.ObjectMapper;

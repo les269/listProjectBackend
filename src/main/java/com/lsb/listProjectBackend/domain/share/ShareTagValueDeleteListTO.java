@@ -1,4 +1,4 @@
-﻿package com.lsb.listProjectBackend.domain.share;
+package com.lsb.listProjectBackend.domain.share;
 
 import lombok.Data;
 

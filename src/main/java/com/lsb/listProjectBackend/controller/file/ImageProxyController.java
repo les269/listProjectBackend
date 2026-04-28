@@ -1,4 +1,4 @@
-﻿package com.lsb.listProjectBackend.controller.file;
+package com.lsb.listProjectBackend.controller.file;
 
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;

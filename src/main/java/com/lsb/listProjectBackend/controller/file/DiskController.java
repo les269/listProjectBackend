@@ -1,4 +1,4 @@
-﻿package com.lsb.listProjectBackend.controller.file;
+package com.lsb.listProjectBackend.controller.file;
 
 import com.lsb.listProjectBackend.domain.file.DiskTO;
 import com.lsb.listProjectBackend.service.file.DiskService;

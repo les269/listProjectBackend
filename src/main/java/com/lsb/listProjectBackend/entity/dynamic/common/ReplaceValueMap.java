@@ -1,4 +1,4 @@
-﻿package com.lsb.listProjectBackend.entity.dynamic.common;
+package com.lsb.listProjectBackend.entity.dynamic.common;
 
 import com.lsb.listProjectBackend.converter.common.MapObjectConverter;
 import jakarta.persistence.*;

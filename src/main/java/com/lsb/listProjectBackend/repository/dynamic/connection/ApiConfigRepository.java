@@ -1,4 +1,4 @@
-﻿package com.lsb.listProjectBackend.repository.dynamic.connection;
+package com.lsb.listProjectBackend.repository.dynamic.connection;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 

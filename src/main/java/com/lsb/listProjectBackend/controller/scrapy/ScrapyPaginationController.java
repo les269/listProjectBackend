@@ -1,4 +1,4 @@
-﻿package com.lsb.listProjectBackend.controller.scrapy;
+package com.lsb.listProjectBackend.controller.scrapy;
 
 import com.lsb.listProjectBackend.domain.scrapy.ScrapyPaginationTO;
 import com.lsb.listProjectBackend.domain.scrapy.ScrapyPaginationTestTO;

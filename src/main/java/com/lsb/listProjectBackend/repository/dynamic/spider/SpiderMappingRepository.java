@@ -1,4 +1,4 @@
-﻿package com.lsb.listProjectBackend.repository.dynamic.spider;
+package com.lsb.listProjectBackend.repository.dynamic.spider;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;

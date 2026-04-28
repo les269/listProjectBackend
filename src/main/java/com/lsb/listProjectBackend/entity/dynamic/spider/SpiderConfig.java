@@ -1,4 +1,4 @@
-﻿package com.lsb.listProjectBackend.entity.dynamic.spider;
+package com.lsb.listProjectBackend.entity.dynamic.spider;
 
 import com.lsb.listProjectBackend.converter.spider.SpiderConfigTestDataConverter;
 import jakarta.persistence.Column;

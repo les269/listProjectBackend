@@ -1,4 +1,4 @@
-﻿package com.lsb.listProjectBackend.controller.common;
+package com.lsb.listProjectBackend.controller.common;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

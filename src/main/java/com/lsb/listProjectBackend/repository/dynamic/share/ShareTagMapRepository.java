@@ -1,4 +1,4 @@
-﻿package com.lsb.listProjectBackend.repository.dynamic.share;
+package com.lsb.listProjectBackend.repository.dynamic.share;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;

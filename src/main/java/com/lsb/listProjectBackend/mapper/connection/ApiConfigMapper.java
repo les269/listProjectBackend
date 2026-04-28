@@ -1,4 +1,4 @@
-﻿package com.lsb.listProjectBackend.mapper.connection;
+package com.lsb.listProjectBackend.mapper.connection;
 
 import com.lsb.listProjectBackend.domain.connection.ApiConfigTO;
 import com.lsb.listProjectBackend.entity.dynamic.common.ApiConfig;

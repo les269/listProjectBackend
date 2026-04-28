@@ -1,4 +1,4 @@
-﻿package com.lsb.listProjectBackend.service.connection;
+package com.lsb.listProjectBackend.service.connection;
 
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.ObjectMapper;

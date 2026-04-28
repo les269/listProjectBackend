@@ -1,4 +1,4 @@
-﻿package com.lsb.listProjectBackend.controller.common;
+package com.lsb.listProjectBackend.controller.common;
 
 import com.lsb.listProjectBackend.domain.common.CookieListMapTO;
 import com.lsb.listProjectBackend.service.common.CookieListMapService;

@@ -1,4 +1,4 @@
-﻿package com.lsb.listProjectBackend.service.spider;
+package com.lsb.listProjectBackend.service.spider;
 
 import com.lsb.listProjectBackend.domain.spider.SpiderConfigTO;
 import com.lsb.listProjectBackend.domain.spider.SpiderItemTO;

@@ -1,4 +1,4 @@
-﻿package com.lsb.listProjectBackend.controller.common;
+package com.lsb.listProjectBackend.controller.common;
 
 import com.lsb.listProjectBackend.domain.common.SettingTO;
 import com.lsb.listProjectBackend.service.common.SettingService;

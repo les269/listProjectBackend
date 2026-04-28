@@ -1,4 +1,4 @@
-﻿package com.lsb.listProjectBackend.entity.dynamic.scrapy;
+package com.lsb.listProjectBackend.entity.dynamic.scrapy;
 
 import com.lsb.listProjectBackend.converter.scrapy.ScrapyDataListConverter;
 import jakarta.persistence.*;

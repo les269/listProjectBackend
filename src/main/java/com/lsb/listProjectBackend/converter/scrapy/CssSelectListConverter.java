@@ -1,4 +1,4 @@
-﻿package com.lsb.listProjectBackend.converter.scrapy;
+package com.lsb.listProjectBackend.converter.scrapy;
 import com.lsb.listProjectBackend.converter.common.JsonAttributeConverter;
 
 import tools.jackson.core.type.TypeReference;

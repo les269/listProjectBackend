@@ -1,4 +1,4 @@
-﻿package com.lsb.listProjectBackend.domain.spider;
+package com.lsb.listProjectBackend.domain.spider;
 
 import lombok.Data;
 

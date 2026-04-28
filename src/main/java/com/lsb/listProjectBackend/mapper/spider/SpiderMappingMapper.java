@@ -1,4 +1,4 @@
-﻿package com.lsb.listProjectBackend.mapper.spider;
+package com.lsb.listProjectBackend.mapper.spider;
 
 import com.lsb.listProjectBackend.domain.spider.SpiderMappingTO;
 import com.lsb.listProjectBackend.entity.dynamic.spider.SpiderMapping;

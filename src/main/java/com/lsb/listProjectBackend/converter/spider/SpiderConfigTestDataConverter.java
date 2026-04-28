@@ -1,4 +1,4 @@
-﻿package com.lsb.listProjectBackend.converter.spider;
+package com.lsb.listProjectBackend.converter.spider;
 import com.lsb.listProjectBackend.converter.common.JsonAttributeConverter;
 
 import com.lsb.listProjectBackend.entity.dynamic.spider.SpiderConfigTestData;

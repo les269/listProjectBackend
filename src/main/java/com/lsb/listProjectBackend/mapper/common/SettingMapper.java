@@ -1,4 +1,4 @@
-﻿package com.lsb.listProjectBackend.mapper.common;
+package com.lsb.listProjectBackend.mapper.common;
 
 import com.lsb.listProjectBackend.domain.common.SettingTO;
 import com.lsb.listProjectBackend.entity.local.Setting;

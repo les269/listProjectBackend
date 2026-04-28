@@ -1,4 +1,4 @@
-﻿package com.lsb.listProjectBackend.mapper.common;
+package com.lsb.listProjectBackend.mapper.common;
 
 import com.lsb.listProjectBackend.domain.common.CookieListTO;
 import com.lsb.listProjectBackend.entity.dynamic.common.CookieList;
