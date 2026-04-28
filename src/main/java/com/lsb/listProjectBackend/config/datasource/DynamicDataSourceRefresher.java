@@ -69,13 +69,12 @@ public class DynamicDataSourceRefresher {
         targets.put(Global.DEFAULT_DYNAMIC_DB_KEY, defaultDynamicDataSource);
 
         for (DatabaseConfig cfg : enabledConfigs) {
-            if (cfg.getConfigName() == null || cfg.getConfigName().isBlank()) {
-                continue; // config_name 是 routing key，空白無法使用
+            if (cfg.getConfigId() == null || cfg.getConfigId().isBlank()) {
+                continue; // configId 是 routing key，空白無法使用
             }
             if (cfg.getJdbcUrl() == null || cfg.getJdbcUrl().isBlank()) {
                 continue; // 沒有 JDBC URL 無法建立連線
             }
-            String key = cfg.getConfigName();
             DataSourceBuilder<?> builder = DataSourceBuilder.create()
                     .url(cfg.getJdbcUrl())
                     .driverClassName(cfg.getDriverClassName());
@@ -89,7 +88,7 @@ public class DynamicDataSourceRefresher {
                 // SQLite 不需要帳密，但需要明確指定 DataSource 型態
                 builder.type(SQLiteDataSource.class);
             }
-            targets.put(key, builder.build());
+            targets.put(cfg.getConfigId(), builder.build());
         }
 
         // 一次性替換所有 targets，並重設 default（找不到 key 時使用）
