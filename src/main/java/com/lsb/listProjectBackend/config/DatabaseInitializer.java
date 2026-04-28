@@ -1,4 +1,4 @@
-package com.lsb.listProjectBackend.config;
+﻿package com.lsb.listProjectBackend.config;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -15,7 +15,7 @@ import com.lsb.listProjectBackend.utils.Utils;
 import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.core.io.ClassPathResource;
 
-import com.lsb.listProjectBackend.domain.DatabaseConfigTO;
+import com.lsb.listProjectBackend.domain.connection.DatabaseConfigTO;
 import com.lsb.listProjectBackend.utils.Global;
 
 import lombok.extern.slf4j.Slf4j;

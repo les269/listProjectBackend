@@ -1,0 +1,41 @@
+﻿package com.lsb.listProjectBackend.controller.connection;
+
+import com.lsb.listProjectBackend.domain.connection.ApiConfigTO;
+import com.lsb.listProjectBackend.service.connection.ApiConfigService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@CrossOrigin("*")
+@RestController
+@RequestMapping("api")
+public class ApiConfigController {
+    @Autowired
+    private ApiConfigService apiConfigService;
+
+    @GetMapping("/api-config/all")
+    public List<ApiConfigTO> getAll(){
+        return this.apiConfigService.getAll();
+    }
+
+    @PostMapping("/api-config/all/name")
+    public List<ApiConfigTO> getListByName(@RequestBody List<String> nameList){
+        return this.apiConfigService.getListById(nameList);
+    }
+
+    @GetMapping("/api-config/name")
+    public ApiConfigTO getByName(@RequestParam("name") String name){
+        return this.apiConfigService.getByName(name);
+    }
+
+    @PostMapping("/api-config/update")
+    public void update(@RequestBody ApiConfigTO apiConfigTO){
+        this.apiConfigService.update(apiConfigTO);
+    }
+
+    @PostMapping("/api-config/delete")
+    public void delete(@RequestBody ApiConfigTO apiConfigTO){
+        this.apiConfigService.delete(apiConfigTO);
+    }
+}

@@ -1,0 +1,15 @@
+﻿package com.lsb.listProjectBackend.domain.dataset;
+
+import lombok.Data;
+
+import java.time.LocalDateTime;
+
+import com.lsb.listProjectBackend.entity.dynamic.dataset.GroupDatasetConfig;
+
+@Data
+public class GroupDatasetTO {
+    private String groupName;
+    private GroupDatasetConfig config;
+    private LocalDateTime createdTime;
+    private LocalDateTime updatedTime;
+}

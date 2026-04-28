@@ -1,6 +1,6 @@
-package com.lsb.listProjectBackend.config;
+﻿package com.lsb.listProjectBackend.config;
 
-import com.lsb.listProjectBackend.domain.LsbException;
+import com.lsb.listProjectBackend.domain.common.LsbException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;

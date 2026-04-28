@@ -1,9 +1,10 @@
-package com.lsb.listProjectBackend.config;
+﻿package com.lsb.listProjectBackend.config;
 
 import java.util.Optional;
 
+import com.lsb.listProjectBackend.config.datasource.DynamicDataSourceRefresher;
 import com.lsb.listProjectBackend.entity.local.DatabaseConfig;
-import com.lsb.listProjectBackend.repository.local.DatabaseConfigRepository;
+import com.lsb.listProjectBackend.repository.local.connection.DatabaseConfigRepository;
 import com.lsb.listProjectBackend.utils.Utils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
@@ -11,8 +12,8 @@ import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
 
 import com.lsb.listProjectBackend.entity.local.Setting;
-import com.lsb.listProjectBackend.mapper.DatabaseConfigMapper;
-import com.lsb.listProjectBackend.repository.local.SettingRepository;
+import com.lsb.listProjectBackend.mapper.connection.DatabaseConfigMapper;
+import com.lsb.listProjectBackend.repository.local.common.SettingRepository;
 import com.lsb.listProjectBackend.utils.Global;
 
 import lombok.extern.slf4j.Slf4j;
