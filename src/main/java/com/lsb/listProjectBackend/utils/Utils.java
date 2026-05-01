@@ -1,5 +1,6 @@
 package com.lsb.listProjectBackend.utils;
 
+import com.lsb.listProjectBackend.entity.dynamic.common.Cookie;
 import com.sun.jna.platform.FileUtils;
 import lombok.extern.slf4j.Slf4j;
 
@@ -295,5 +296,15 @@ public class Utils {
             // 3. 如果 format 格式錯誤（不合法的 Pattern），回傳空字串
             return "";
         }
+    }
+    public static Map<String, String> getCookieMap(List<Cookie> list) {
+        if (list == null) {
+            return Map.of();
+        }
+        return list.stream().collect(Collectors.toMap(
+                Cookie::getName,
+                Cookie::getValue,
+                (existingValue, newValue) -> newValue // 遇到重複時，繼續用新的值
+        ));
     }
 }

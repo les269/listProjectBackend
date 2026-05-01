@@ -25,6 +25,7 @@ dependencies {
     implementation(libs.net.java.dev.jna.jna.platform)
     implementation(libs.com.google.guava.guava)
     implementation(libs.com.jayway.jsonpath.json.path)
+    implementation("org.eclipse:yasson:3.0.4")
 
     compileOnly(libs.org.projectlombok.lombok)
     

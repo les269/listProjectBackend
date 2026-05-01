@@ -1,12 +1,13 @@
 package com.lsb.listProjectBackend.entity.dynamic.dataset;
 
-import com.lsb.listProjectBackend.converter.common.MapObjectConverter;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.hibernate.type.SqlTypes;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -30,7 +31,7 @@ public class GroupDatasetData implements Serializable {
     @Column(name = "prime_value")
     private String primeValue;
 
-    @Convert(converter = MapObjectConverter.class)
+    @JdbcTypeCode(SqlTypes.JSON)
     private Map<String, Object> json;
 
     @CreationTimestamp

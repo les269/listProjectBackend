@@ -1,11 +1,6 @@
 package com.lsb.listProjectBackend.entity.dynamic.spider;
 
-import com.lsb.listProjectBackend.converter.spider.CopySpecifiedValueToConfigConverter;
-import com.lsb.listProjectBackend.converter.spider.DeleteConfigConverter;
-import com.lsb.listProjectBackend.converter.spider.InsertConfigConverter;
-import com.lsb.listProjectBackend.converter.spider.MoveCharConfigConverter;
 import com.lsb.listProjectBackend.utils.Global;
-import jakarta.persistence.Convert;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import lombok.Data;
@@ -37,14 +32,10 @@ public class ValuePipeline {
     private CurrentTimeFormatOption currentTimeFormatOption;
     @Enumerated(EnumType.STRING)
     private Global.ChineseConvertType chineseConvertType;
-    @Convert(converter = InsertConfigConverter.class)
     private InsertConfig insertConfig;
-    @Convert(converter = CopySpecifiedValueToConfigConverter.class)
     private CopySpecifiedValueToConfig copySpecifiedValueToConfig;
-    @Convert(converter = DeleteConfigConverter.class)
     private DeleteConfig deleteConfig;
     private List<String> deletePaths;
-    @Convert(converter = MoveCharConfigConverter.class)
     private MoveCharConfig moveCharConfig;
     private String joinArraySeparator;
 

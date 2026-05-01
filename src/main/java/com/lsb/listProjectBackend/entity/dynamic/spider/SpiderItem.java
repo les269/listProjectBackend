@@ -1,13 +1,13 @@
 package com.lsb.listProjectBackend.entity.dynamic.spider;
 
-import com.lsb.listProjectBackend.converter.spider.SpiderItemSettingConverter;
 import jakarta.persistence.Column;
-import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.Data;
+import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.hibernate.type.SqlTypes;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -28,7 +28,7 @@ public class SpiderItem implements Serializable {
     private String description;
 
     @Column(name = "item_setting", nullable = false)
-    @Convert(converter = SpiderItemSettingConverter.class)
+    @JdbcTypeCode(SqlTypes.JSON)
     private SpiderItemSetting itemSetting;
 
     @UpdateTimestamp

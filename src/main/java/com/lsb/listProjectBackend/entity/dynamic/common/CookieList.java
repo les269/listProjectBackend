@@ -1,13 +1,14 @@
 package com.lsb.listProjectBackend.entity.dynamic.common;
 
-import com.lsb.listProjectBackend.converter.common.CookieListConverter;
 import jakarta.persistence.Column;
-import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.Data;
+
+import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.hibernate.type.SqlTypes;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -26,7 +27,7 @@ public class CookieList implements Serializable {
     private String cookieId;
 
     @Column(name = "list", nullable = false)
-    @Convert(converter = CookieListConverter.class)
+    @JdbcTypeCode(SqlTypes.JSON)
     private List<Cookie> list;
 
     @Column(name = "description")

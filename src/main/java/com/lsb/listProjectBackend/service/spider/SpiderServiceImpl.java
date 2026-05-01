@@ -134,7 +134,7 @@ public class SpiderServiceImpl implements SpiderService {
             if (setting.isUseCookie() && cookieMap.containsKey(item.getSpiderItemId())) {
                 CookieListTO cookieList = cookieMap.get(item.getSpiderItemId());
                 if (cookieList != null) {
-                    cookie = cookieList.getCookieMap();
+                    cookie = Utils.getCookieMap(cookieList.getList());
                 }
             }
             Connection connection = getConnection(currentUrl);
@@ -171,7 +171,7 @@ public class SpiderServiceImpl implements SpiderService {
             if (setting.isUseCookie() && cookieMap.containsKey(item.getSpiderItemId())) {
                 CookieListTO cookieList = cookieMap.get(item.getSpiderItemId());
                 if (cookieList != null) {
-                    cookie = cookieList.getCookieMap();
+                    cookie = Utils.getCookieMap(cookieList.getList());
                 }
             }
             Connection connection = getConnection(currentUrl);

@@ -1,8 +1,6 @@
 package com.lsb.listProjectBackend.entity.dynamic.dataset;
 
-import com.lsb.listProjectBackend.converter.dataset.DatasetFieldListConverter;
 import com.lsb.listProjectBackend.utils.Global;
-import jakarta.persistence.Convert;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import lombok.Data;
@@ -19,7 +17,6 @@ public class DatasetConfig {
     private String folderPath;
     private boolean filing;
     private String filingRegular;
-    @Convert(converter = DatasetFieldListConverter.class)
     private List<DatasetField> fieldList;
     private boolean autoImageDownload;
     private String imageByKey;

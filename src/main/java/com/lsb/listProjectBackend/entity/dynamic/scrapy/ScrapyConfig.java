@@ -1,10 +1,11 @@
 package com.lsb.listProjectBackend.entity.dynamic.scrapy;
 
-import com.lsb.listProjectBackend.converter.scrapy.ScrapyDataListConverter;
 import jakarta.persistence.*;
 import lombok.Data;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.hibernate.type.SqlTypes;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -24,7 +25,7 @@ public class ScrapyConfig implements Serializable {
     private Integer paramSize;
 
     @Column(nullable = false)
-    @Convert(converter = ScrapyDataListConverter.class)
+    @JdbcTypeCode(SqlTypes.JSON)
     private List<ScrapyData> data;
 
     @CreationTimestamp

@@ -1,10 +1,11 @@
 package com.lsb.listProjectBackend.entity.dynamic.dataset;
 
-import com.lsb.listProjectBackend.converter.dataset.DatasetConfigConverter;
 import jakarta.persistence.*;
 import lombok.Data;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.hibernate.type.SqlTypes;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -20,7 +21,8 @@ public class Dataset implements Serializable {
     @Id
     private String name;
 
-    @Convert(converter = DatasetConfigConverter.class)
+    @Column(nullable = false)
+    @JdbcTypeCode(SqlTypes.JSON)
     private DatasetConfig config;
 
     @CreationTimestamp

@@ -1,9 +1,12 @@
 package com.lsb.listProjectBackend.entity.dynamic.theme;
+
 import jakarta.persistence.*;
 import lombok.Data;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
+
 import java.util.List;
+
 @Data
 @Entity
 @Table(name = "theme_tag_value")
@@ -14,7 +17,9 @@ public class ThemeTagValue {
     private String headerId;
     @Id
     private String tag;
+
     @Column(name = "value_list")
     @JdbcTypeCode(SqlTypes.JSON)
     private List<String> valueList;
 }
+

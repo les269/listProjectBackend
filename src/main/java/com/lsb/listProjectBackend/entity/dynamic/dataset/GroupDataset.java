@@ -1,10 +1,11 @@
 package com.lsb.listProjectBackend.entity.dynamic.dataset;
 
-import com.lsb.listProjectBackend.converter.dataset.GroupDatasetConfigConverter;
 import jakarta.persistence.*;
 import lombok.Data;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.hibernate.type.SqlTypes;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -21,7 +22,8 @@ public class GroupDataset implements Serializable {
     @Column(name = "group_name")
     private String groupName;
 
-    @Convert(converter = GroupDatasetConfigConverter.class)
+    @Column(nullable = false)
+    @JdbcTypeCode(SqlTypes.JSON)
     private GroupDatasetConfig config;
 
     @CreationTimestamp

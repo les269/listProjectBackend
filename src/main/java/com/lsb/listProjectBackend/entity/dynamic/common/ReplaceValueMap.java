@@ -1,10 +1,11 @@
 package com.lsb.listProjectBackend.entity.dynamic.common;
 
-import com.lsb.listProjectBackend.converter.common.MapObjectConverter;
 import jakarta.persistence.*;
 import lombok.Data;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.hibernate.type.SqlTypes;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -21,7 +22,7 @@ public class ReplaceValueMap implements Serializable {
     @Id
     private String name;
 
-    @Convert(converter = MapObjectConverter.class)
+    @JdbcTypeCode(SqlTypes.JSON)
     private Map<String, Object> map;
 
     @CreationTimestamp

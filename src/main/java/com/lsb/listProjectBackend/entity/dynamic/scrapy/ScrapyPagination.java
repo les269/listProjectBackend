@@ -1,10 +1,11 @@
 package com.lsb.listProjectBackend.entity.dynamic.scrapy;
 
-import com.lsb.listProjectBackend.converter.scrapy.ScrapyPaginationConfigConverter;
 import jakarta.persistence.*;
 import lombok.Data;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.hibernate.type.SqlTypes;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -20,7 +21,8 @@ public class ScrapyPagination implements Serializable {
     @Id
     private String name;
 
-    @Convert(converter = ScrapyPaginationConfigConverter.class)
+    @Column(nullable = false)
+    @JdbcTypeCode(SqlTypes.JSON)
     private ScrapyPaginationConfig config;
 
     @CreationTimestamp

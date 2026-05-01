@@ -1,9 +1,10 @@
 package com.lsb.listProjectBackend.entity.dynamic.theme;
 
-import com.lsb.listProjectBackend.converter.theme.*;
 import com.lsb.listProjectBackend.utils.Global;
 import jakarta.persistence.*;
 import lombok.Data;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -26,27 +27,27 @@ public class ThemeHeader implements Serializable {
 
     @Deprecated
     @Column(name = "theme_image")
-    @Convert(converter = ThemeImageConverter.class)
+    @JdbcTypeCode(SqlTypes.JSON)
     private ThemeImage themeImage;
     @Deprecated
     @Column(name = "theme_label_list")
-    @Convert(converter = ThemeLabelListConverter.class)
+    @JdbcTypeCode(SqlTypes.JSON)
     private List<ThemeLabel> themeLabelList;
     @Deprecated
     @Column(name = "theme_dataset_list")
-    @Convert(converter = ThemeDatasetListConverter.class)
+    @JdbcTypeCode(SqlTypes.JSON)
     private List<ThemeDataset> themeDatasetList;
     @Deprecated
     @Column(name = "theme_custom_list")
-    @Convert(converter = ThemeCustomListConverter.class)
+    @JdbcTypeCode(SqlTypes.JSON)
     private List<ThemeCustom> themeCustomList;
     @Deprecated
     @Column(name = "theme_tag_list")
-    @Convert(converter = ThemeTagListConverter.class)
+    @JdbcTypeCode(SqlTypes.JSON)
     private List<ThemeTag> themeTagList;
     @Deprecated
     @Column(name = "theme_other_setting")
-    @Convert(converter = ThemeOtherSettingConverter.class)
+    @JdbcTypeCode(SqlTypes.JSON)
     private ThemeOtherSetting themeOtherSetting;
     private Integer seq;
 

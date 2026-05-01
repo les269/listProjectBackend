@@ -15,4 +15,5 @@ public class SettingTO {
     private boolean enabled;
 
     private LocalDateTime updatedTime;
+    private LocalDateTime createdTime;
 }

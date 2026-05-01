@@ -16,14 +16,4 @@ public class CookieListTO {
     private String description;
     private LocalDateTime updatedTime;
 
-    public Map<String, String> getCookieMap() {
-        if (list == null) {
-            return Map.of();
-        }
-        return list.stream().collect(Collectors.toMap(
-                Cookie::getName,
-                Cookie::getValue,
-                (existingValue, newValue) -> newValue // 遇到重複時，繼續用新的值
-        ));
-    }
 }

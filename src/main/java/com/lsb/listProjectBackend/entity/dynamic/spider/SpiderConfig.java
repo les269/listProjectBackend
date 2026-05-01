@@ -1,13 +1,13 @@
 package com.lsb.listProjectBackend.entity.dynamic.spider;
 
-import com.lsb.listProjectBackend.converter.spider.SpiderConfigTestDataConverter;
 import jakarta.persistence.Column;
-import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.Data;
+import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.hibernate.type.SqlTypes;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -31,7 +31,7 @@ public class SpiderConfig implements Serializable {
     private Integer primeKeySize;
 
     @Column(name = "test_data", nullable = false)
-    @Convert(converter = SpiderConfigTestDataConverter.class)
+    @JdbcTypeCode(SqlTypes.JSON)
     private SpiderConfigTestData testData;
 
     @Column(name = "is_url_based", nullable = false)

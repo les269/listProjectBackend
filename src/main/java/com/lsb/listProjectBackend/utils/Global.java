@@ -11,6 +11,7 @@ public class Global {
     public static final String LOCAL_SQL_FILE_NAME = "local.sql";
     public static final String DYNAMIC_SQLITE_FILE_NAME = "dynamic.sqlite";
     public static final String DYNAMIC_SQL_FILE_NAME = "dynamic.sql";
+    public static final String DYNAMIC_POSTGRESQL_SQL_FILE_NAME = "dynamic-postgresql.sql";
     public static final String CURRENT_DYNAMIC_DB_SETTING_NAME = "current_dynamic_database";
     public static final String DEFAULT_DYNAMIC_DB_KEY = "default";
     public static final String SQLITE_TYPE = "sqlite";

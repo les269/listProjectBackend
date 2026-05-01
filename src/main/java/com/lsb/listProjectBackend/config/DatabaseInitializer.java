@@ -119,12 +119,12 @@ public class DatabaseInitializer {
         log.info("已成功執行 dynamic.sql 建立 SQLite 資料庫表格");
     }
 
-    /** 對 PostgreSQL 資料庫執行 dynamic.sql，建立所需表格。帳密為空時不帶入 Properties。 */
+    /** 對 PostgreSQL 資料庫執行 dynamic-postgresql.sql，建立所需表格。帳密為空時不帶入 Properties。 */
     private static void initializePostgresqlDatabase(
             String jdbcUrl,
             String username,
             String password) throws SQLException, IOException {
-        String sql = loadSql(Global.DYNAMIC_SQL_FILE_NAME);
+        String sql = loadSql(Global.DYNAMIC_POSTGRESQL_SQL_FILE_NAME);
         Properties props = new Properties();
         if (Utils.isNotBlank(username)) {
             props.setProperty("user", username);
@@ -135,7 +135,7 @@ public class DatabaseInitializer {
         try (Connection connection = DriverManager.getConnection(jdbcUrl, props)) {
             executeSqlStatements(connection, sql);
         }
-        log.info("已成功執行 dynamic.sql 建立 PostgreSQL 資料庫表格");
+        log.info("已成功執行 dynamic-postgresql.sql 建立 PostgreSQL 資料庫表格");
     }
 
     /**
