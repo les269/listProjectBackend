@@ -84,8 +84,8 @@ public class ScrapyPaginationServiceImpl extends ScrapyBase implements ScrapyPag
                     redirectUrl = (String) result.get("__next_page");
                 }
 
-                List<String> keys = (List<String>) result.computeIfAbsent("__item_key", k -> new ArrayList<>());
-                List<String> urls = (List<String>) result.computeIfAbsent("__item_url", k -> new ArrayList<>());
+                List<String> keys = getOrCreateStringList(result, "__item_key");
+                List<String> urls = getOrCreateStringList(result, "__item_url");
                 var keyRedirectUrlMap = new HashMap<String, String>();
                 for (int i = 0; i < keys.size(); i++) {
                     keyRedirectUrlMap.put(keys.get(i), urls.get(i));
@@ -123,5 +123,17 @@ public class ScrapyPaginationServiceImpl extends ScrapyBase implements ScrapyPag
             case year -> localDate.plusYears(config.getUpdateInterval());
         };
         return !localDatePlus.isAfter(LocalDate.now());
+    }
+
+    private List<String> getOrCreateStringList(Map<String, Object> result, String key) {
+        Object value = result.computeIfAbsent(key, k -> new ArrayList<String>());
+        if (value instanceof List<?> rawList) {
+            List<String> stringList = rawList.stream()
+                    .map(String::valueOf)
+                    .collect(Collectors.toCollection(ArrayList::new));
+            result.put(key, stringList);
+            return stringList;
+        }
+        throw new IllegalStateException("Expected List for key: " + key);
     }
 }

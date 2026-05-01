@@ -1,11 +1,13 @@
 package com.lsb.listProjectBackend.entity.dynamic.spider;
 
-import com.lsb.listProjectBackend.utils.Global;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import lombok.Data;
 
 import java.util.List;
+
+import com.lsb.listProjectBackend.utils.Global;
+
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 
 @Data
 public class ExtractionRule {
@@ -15,7 +17,6 @@ public class ExtractionRule {
     private String jsonPath;
     private List<ValuePipeline> pipelines;
     @Enumerated(EnumType.STRING)
-    private Global.ExtractionStepCondition condition;
-    private String conditionKey;
-    private String conditionValue;
+    private Global.ExtractionStepCondition conditionType;
+    private ExtractionCondition conditionValue;
 }

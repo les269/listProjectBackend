@@ -2,6 +2,7 @@ package com.lsb.listProjectBackend.service.spider;
 
 import com.jayway.jsonpath.DocumentContext;
 import com.jayway.jsonpath.JsonPath;
+import com.jayway.jsonpath.PathNotFoundException;
 import com.lsb.listProjectBackend.aop.UseDynamic;
 import com.lsb.listProjectBackend.domain.common.CookieListTO;
 import com.lsb.listProjectBackend.domain.common.LsbException;
@@ -34,8 +35,10 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
 
 @Slf4j
 @UseDynamic
@@ -88,7 +91,7 @@ public class SpiderServiceImpl implements SpiderService {
             case JSON_PATH -> useJsonPath(setting.getTestData().getJson(), setting.getExtractionRuleList(), result);
             default -> throw new LsbException("未知的抽取模式: " + mode);
         }
-        return result.json();
+        return result.jsonString();
     }
 
     @Override
@@ -103,11 +106,10 @@ public class SpiderServiceImpl implements SpiderService {
         return runSpiderItemByPrimeKeyList(req.getSpiderItems(), primeKeyList);
     }
 
-    private String runSpiderItemByUrl(List<SpiderItemTO> itemList, String url)
-            throws Exception {
+    private String runSpiderItemByUrl(List<SpiderItemTO> itemList, String url) throws Exception {
         DocumentContext result = JsonPath.parse("{}");
-        List<String> spiderItemIdsForCookieRef = itemList.stream().filter(
-                x -> x.getItemSetting().isUseCookie()).map(SpiderItemTO::getSpiderItemId).distinct().toList();
+        List<String> spiderItemIdsForCookieRef = itemList.stream().filter(x -> x.getItemSetting().isUseCookie())
+                .map(SpiderItemTO::getSpiderItemId).distinct().toList();
         Map<String, CookieListTO> cookieMap = cookieListService.getMapByRefIdsAndType(spiderItemIdsForCookieRef,
                 Global.CookieListMapType.SPIDER);
         boolean firstConnection = true;
@@ -142,15 +144,15 @@ public class SpiderServiceImpl implements SpiderService {
 
             useExtraction(connection, setting, result);
         }
-        return result.json();
+        return result.read("$");
     }
 
     private String runSpiderItemByPrimeKeyList(List<SpiderItemTO> itemList, List<String> primeKeyList)
             throws Exception {
         DocumentContext result = JsonPath.parse("{}");
 
-        List<String> spiderItemIdsForCookieRef = itemList.stream().filter(
-                x -> x.getItemSetting().isUseCookie()).map(SpiderItemTO::getSpiderItemId).distinct().toList();
+        List<String> spiderItemIdsForCookieRef = itemList.stream().filter(x -> x.getItemSetting().isUseCookie())
+                .map(SpiderItemTO::getSpiderItemId).distinct().toList();
         Map<String, CookieListTO> cookieMap = cookieListService.getMapByRefIdsAndType(spiderItemIdsForCookieRef,
                 Global.CookieListMapType.SPIDER);
         for (SpiderItemTO item : itemList) {
@@ -179,7 +181,7 @@ public class SpiderServiceImpl implements SpiderService {
 
             useExtraction(connection, setting, result);
         }
-        return result.json();
+        return result.read("$");
     }
 
     public void useExtraction(Connection connection, SpiderItemSetting setting, DocumentContext result)
@@ -190,9 +192,7 @@ public class SpiderServiceImpl implements SpiderService {
                 useCssSelect(doc.html(), setting.getExtractionRuleList(), result);
                 break;
             case Global.ExtractionRuleMode.JSON_PATH:
-                String jsonText = connection
-                        .ignoreContentType(true)
-                        .execute() // 執行請求
+                String jsonText = connection.ignoreContentType(true).execute() // 執行請求
                         .body();
                 useJsonPath(jsonText, setting.getExtractionRuleList(), result);
                 break;
@@ -207,12 +207,18 @@ public class SpiderServiceImpl implements SpiderService {
                 if (!checkCondition(extractionRule, result)) {
                     continue;
                 }
-                Elements elements = doc.select(extractionRule.getSelector());
+                Elements elements = Utils.isNotBlank(extractionRule.getSelector())
+                        ? doc.select(extractionRule.getSelector())
+                        : null;
                 Object extractedValue = null;
-                for (final var pipeLine : enabledPipelines(extractionRule)) {
+                var pipelines = enabledPipelines(extractionRule);
+                for (final var pipeLine : pipelines) {
                     extractedValue = applyPipeline(pipeLine, extractedValue, result, allReplaceValueMapList, elements);
                 }
-                JsonUtils.putValue(result, extractionRule.getKey(), extractedValue);
+                if (elements != null && pipelines.isEmpty()) {
+                    extractedValue = elements.stream().map(Element::text).toList();
+                }
+                JsonUtils.putValue(result, extractionRule.getKey(), normalizeExtractedValue(extractedValue));
             }
         } catch (Exception e) {
             log.error("css select error:", e);
@@ -227,51 +233,73 @@ public class SpiderServiceImpl implements SpiderService {
                 continue;
             }
             Object extractedValue = JsonPath.read(json, extractionRule.getJsonPath());
+            log.info("extracted value before pipeline: {}", extractedValue);
             for (final var pipeLine : enabledPipelines(extractionRule)) {
                 extractedValue = applyPipeline(pipeLine, extractedValue, result, allReplaceValueMapList, null);
             }
-            JsonUtils.putValue(result, extractionRule.getKey(), extractedValue);
+            JsonUtils.putValue(result, extractionRule.getKey(), normalizeExtractedValue(extractedValue));
         }
     }
 
+    private Object normalizeExtractedValue(Object extractedValue) {
+        if (extractedValue instanceof List) {
+            return ((List<?>) extractedValue).stream().filter(Objects::nonNull)
+                    .map(item -> (item instanceof String) ? ((String) item).trim() : item).filter(item -> {
+                        if (item instanceof String) {
+                            return Utils.isNotBlank((String) item);
+                        }
+                        return true;
+                    }).distinct().toList();
+        }
+        if (extractedValue instanceof String) {
+            return ((String) extractedValue).trim();
+        }
+        return extractedValue;
+    }
+
     private List<ReplaceValueMapTO> fetchReplaceValueMaps(List<ExtractionRule> extractionRules) {
-        List<String> names = extractionRules.stream()
-                .flatMap(rule -> rule.getPipelines().stream())
-                .filter(x -> x.isEnabled()
-                        && Global.ValuePipelineType.USE_REPLACE_VALUE_MAP.equals(x.getType()))
-                .map(x -> x.getUseReplaceValueMap())
-                .filter(Utils::isNotBlank)
-                .distinct()
-                .toList();
+        List<String> names = extractionRules.stream().flatMap(rule -> rule.getPipelines().stream())
+                .filter(x -> x.isEnabled() && Global.ValuePipelineType.USE_REPLACE_VALUE_MAP.equals(x.getType()))
+                .map(ValuePipeline::getUseReplaceValueMap).filter(Utils::isNotBlank).distinct().toList();
         return replaceValueMapService.getAllByNameList(names);
     }
 
     private List<ExtractionRule> sortedRules(List<ExtractionRule> extractionRules) {
-        return extractionRules.stream()
-                .sorted((a, b) -> a.getSeq() > b.getSeq() ? 1 : -1)
-                .toList();
+        return extractionRules.stream().sorted((a, b) -> a.getSeq() > b.getSeq() ? 1 : -1).toList();
     }
 
     private List<ValuePipeline> enabledPipelines(ExtractionRule extractionRule) {
-        return extractionRule.getPipelines().stream()
-                .filter(x -> x.isEnabled())
-                .sorted((a, b) -> a.getSeq() > b.getSeq() ? 1 : -1)
-                .toList();
+        return extractionRule.getPipelines().stream().filter(ValuePipeline::isEnabled)
+                .sorted((a, b) -> a.getSeq() > b.getSeq() ? 1 : -1).toList();
     }
 
     private Object applyPipeline(ValuePipeline pipeLine, Object extractedValue, DocumentContext result,
-            List<ReplaceValueMapTO> allReplaceValueMapList, Elements elements) {
-        final var type = pipeLine.getType();
-        switch (type) {
+                                 List<ReplaceValueMapTO> allReplaceValueMapList, Elements elements) {
+        switch (pipeLine.getType()) {
+            case FIXED_VALUE:
+                extractedValue = Utils.isBlank(pipeLine.getFixedValue()) ? "" : pipeLine.getFixedValue();
+                break;
+            case FIXED_JSON_VALUE:
+                var json = pipeLine.getFixedJsonValue();
+                if (Utils.isNotBlank(json)) {
+                    try {
+                        extractedValue = JsonPath.parse(json).json();
+                    } catch (Exception e) {
+                        extractedValue = json;
+                    }
+                }
+                break;
             case EXTRACT_ATTR:
                 var attributeName = pipeLine.getAttributeName();
                 if (elements != null && !elements.isEmpty() && Utils.isNotBlank(attributeName)) {
-                    extractedValue = elements.stream().map(x -> x.attr(attributeName)).toList();
+                    extractedValue = elements.stream().map(x -> x.attr(attributeName)).filter(Utils::isNotBlank)
+                            .map(String::trim).distinct().toList();
                 }
                 break;
             case EXTRACT_OWN_TEXT:
                 if (elements != null && !elements.isEmpty()) {
-                    extractedValue = elements.stream().map(Element::ownText).toList();
+                    extractedValue = elements.stream().map(Element::ownText).filter(Utils::isNotBlank).map(String::trim)
+                            .distinct().toList();
                 }
                 break;
             case COMBINE_TO_STRING:
@@ -280,7 +308,7 @@ public class SpiderServiceImpl implements SpiderService {
                     extractedValue = JsonUtils.replaceValueByJsonPath(combineToString, extractedValue);
                 }
                 break;
-            case COMBINE_BY_KEY:
+            case COMBINE_BY_KEY:// 合併字串根據當前擁有的鍵值資料
                 var combineByKey = pipeLine.getCombineByKey();
                 if (Utils.isNotBlank(combineByKey)) {
                     extractedValue = JsonUtils.replaceValueByJsonPath(combineByKey, result.json());
@@ -290,21 +318,42 @@ public class SpiderServiceImpl implements SpiderService {
                 extractedValue = List.of(extractedValue);
                 break;
             case FIRST_VALUE:
-                if (extractedValue instanceof List) {
-                    var list = (List<?>) extractedValue;
-                    extractedValue = list.isEmpty() ? "" : list.get(0);
+                if (extractedValue == null && elements != null && !elements.isEmpty()) {
+                    extractedValue = elements.first().text();
+                }
+                if (extractedValue instanceof List<?> list) {
+                    extractedValue = list.isEmpty() ? "" : list.getFirst();
+                }
+                break;
+            case LAST_VALUE:
+                if (extractedValue == null && elements != null && !elements.isEmpty()) {
+                    extractedValue = elements.last().text();
+                }
+                if (extractedValue instanceof List<?> list) {
+                    extractedValue = list.isEmpty() ? "" : list.getLast();
                 }
                 break;
             case REPLACE_REGULAR:
                 var pattern = pipeLine.getPattern();
-                var replacement = pipeLine.getReplacement();
-                if (Utils.isNotBlank(pattern) && Utils.isNotBlank(replacement)) {
+                var replacement = Utils.isBlank(pipeLine.getReplacement()) ? "" : pipeLine.getReplacement();
+                if (Utils.isNotBlank(pattern)) {
+                    if (extractedValue == null && elements != null && !elements.isEmpty()) {
+                        extractedValue = normalizeExtractedValue(elements.stream().map(Element::text).toList());
+                    }
                     if (extractedValue instanceof List) {
-                        extractedValue = ((List<?>) extractedValue).stream()
-                                .map(x -> String.valueOf(x).replaceAll(pattern, replacement))
+                        extractedValue = ((List<?>) extractedValue)
+                                .stream()
+                                .map(x -> {
+                                    if (x instanceof String) {
+                                        return ((String) x).replaceAll(pattern, replacement);
+                                    }
+                                    return x;
+                                })
                                 .toList();
                     } else {
-                        extractedValue = String.valueOf(extractedValue).replaceAll(pattern, replacement);
+                        if (extractedValue instanceof String) {
+                            extractedValue = String.valueOf(extractedValue).replaceAll(pattern, replacement);
+                        }
                     }
                 }
                 break;
@@ -313,15 +362,11 @@ public class SpiderServiceImpl implements SpiderService {
                 if (Utils.isNotBlank(separator)) {
                     if (extractedValue instanceof List) {
                         extractedValue = ((List<?>) extractedValue).stream()
-                                .flatMap(x -> Arrays.stream(String.valueOf(x).split(separator)))
-                                .map(String::trim)
-                                .filter(Utils::isNotBlank)
-                                .toList();
+                                .flatMap(x -> Arrays.stream(String.valueOf(x).split(separator))).map(String::trim)
+                                .filter(Utils::isNotBlank).toList();
                     } else {
                         extractedValue = Arrays.stream(String.valueOf(extractedValue).split(separator))
-                                .map(String::trim)
-                                .filter(Utils::isNotBlank)
-                                .toList();
+                                .map(String::trim).filter(Utils::isNotBlank).toList();
                     }
                 }
                 break;
@@ -343,45 +388,159 @@ public class SpiderServiceImpl implements SpiderService {
                     }
                 }
                 break;
+            case MERGE_MULTI_OBJ_TO_ARRAY:
+                var mergeMultiObjKeys = pipeLine.getMergeMultiObjKeys();
+                if (mergeMultiObjKeys != null && !mergeMultiObjKeys.isEmpty()) {
+                    var arr = JsonPath.parse("[]");
+                    mergeMultiObjKeys.stream()
+                            .map(JsonUtils::ensurePrefix)
+                            .map(key -> safeRead(result, key))
+                            .filter(Objects::nonNull)
+                            .forEach(value -> {
+                                arr.add("$", value);
+                            });
+                    extractedValue = arr.json();
+                }
+                break;
+            case MERGE_MULTI_ARRAY_TO_ARRAY:
+                var mergeMultiArrayKeys = pipeLine.getMergeMultiArrayKeys();
+                var arr = JsonPath.parse("[]");
+                mergeMultiArrayKeys.stream()
+                        .map(JsonUtils::ensurePrefix)
+                        .map(key -> safeRead(result, key))
+                        .forEach(value -> {
+                            if (Objects.nonNull(value) && value instanceof List) {
+                                ((List<?>) value).forEach(item -> arr.add("$", item));
+                            }
+                        });
+                extractedValue = arr.json();
+                break;
+            case CONVERT_TO_CASE:
+                var convertToCaseType = pipeLine.getConvertToCaseType();
+                if (extractedValue instanceof List) {
+                    extractedValue = ((List<?>) extractedValue).stream().map(x -> converterCase(x, convertToCaseType)).toList();
+                } else {
+                    extractedValue = converterCase(extractedValue, convertToCaseType);
+                }
+                break;
+            case CURRENT_TIME:
+                var option = pipeLine.getCurrentTimeFormatOption();
+                if (Utils.isNotBlank(option.getFormat()) && option.getTimezones() != null) {
+                    extractedValue = Utils.getCurrentTimeString(option.getFormat(), option.getTimezones());
+                } else {
+                    extractedValue = "";
+                }
+                break;
+            case CHINESE_CONVERT:
+
+                break;
+            case INSERT:
+                break;
+            case COPY_SPECIFIED_VALUE_TO:
+                break;
+            case DELETE:
+                break;
+            case DELETE_PATHS:
+                break;
+            case MOVE_CHAR:
+                break;
+            case JOIN_ARRAY:
+                break;
         }
         return extractedValue;
     }
 
     private boolean checkCondition(ExtractionRule extractionRule, DocumentContext result) {
-        final var condition = extractionRule.getCondition();
-        if (condition == ExtractionStepCondition.ALWAYS) {
-            return true;
-        }
-        final var conditionValue = extractionRule.getConditionValue();
-        final var value = result.read(extractionRule.getConditionKey());
-        final var isList = value instanceof List;
-        return switch (condition) {
-            case ALWAYS -> true;
-            case IF_KEY_EMPTY -> value == null
-                    || (isList ? ((List<?>) value).isEmpty() : Utils.isBlank(String.valueOf(value)));
-            case IF_KEY_NOT_EMPTY -> value != null
-                    && (isList ? !((List<?>) value).isEmpty() : Utils.isNotBlank(String.valueOf(value)));
-            case CONTAINS -> value != null && matchAny(value, isList, s -> s.contains(conditionValue));
-            case NOT_CONTAINS -> value == null || !matchAny(value, isList, s -> s.contains(conditionValue));
-            case EQUALS -> value != null && matchAny(value, isList, s -> s.equals(conditionValue));
-            case NOT_EQUALS -> value == null || !matchAny(value, isList, s -> s.equals(conditionValue));
-            case MATCHES -> value != null && matchAny(value, isList, s -> Pattern.matches(conditionValue, s));
-            case NOT_MATCHES -> value == null || !matchAny(value, isList, s -> Pattern.matches(conditionValue, s));
+        final var c = extractionRule.getConditionValue();
+        final var conditionValue = c.getValue();
+        final var value = safeRead(result, c.getKey());
+        final var ignoreCase = c.isIgnoreCase();
+        return switch (extractionRule.getConditionType()) {
+            case IF_KEY_EMPTY -> isEffectivelyEmpty(value);
+            case IF_KEY_NOT_EMPTY -> !isEffectivelyEmpty(value);
+            case CONTAINS -> isContains(value, conditionValue, ignoreCase);
+            case NOT_CONTAINS -> !isContains(value, conditionValue, ignoreCase);
+            case EQUALS -> isEquals(value, conditionValue, ignoreCase);
+            case NOT_EQUALS -> !isEquals(value, conditionValue, ignoreCase);
+            case MATCHES -> matchAny(value, s -> Pattern.matches(conditionValue, s));
+            case NOT_MATCHES -> !matchAny(value, s -> Pattern.matches(conditionValue, s));
             default -> true;
         };
     }
 
-    private boolean matchAny(Object value, boolean isList, Predicate<String> predicate) {
-        if (isList) {
+    private Object safeRead(DocumentContext result, String key) {
+        if (Utils.isBlank(key)) {
+            return null;
+        }
+        try {
+            return result.read(key);
+        } catch (PathNotFoundException e) {
+            return null;
+        }
+    }
+
+    private boolean isContains(Object value, String conditionValue, boolean ignoreCase) {
+        if (value instanceof List) {
+            if (ignoreCase) {
+                return ((List<?>) value).stream().anyMatch(x -> String.valueOf(x).equalsIgnoreCase(conditionValue));
+            }
+            return ((List<?>) value).contains(conditionValue);
+        }
+        if (value instanceof String) {
+            if (ignoreCase) {
+                return String.valueOf(value).toLowerCase().contains(conditionValue.toLowerCase());
+            }
+            return String.valueOf(value).contains(conditionValue);
+        }
+        return false;
+    }
+
+    private boolean isEquals(Object value, String conditionValue, boolean ignoreCase) {
+        if (value instanceof List) {
+            if (ignoreCase) {
+                return ((List<?>) value).stream().anyMatch(x -> String.valueOf(x).equalsIgnoreCase(conditionValue));
+            }
+            return JsonPath.parse(value).jsonString().equals(conditionValue);
+        }
+        if (value instanceof String) {
+            if (ignoreCase) {
+                return String.valueOf(value).equalsIgnoreCase(conditionValue);
+            }
+            return String.valueOf(value).equals(conditionValue);
+        }
+        return false;
+    }
+
+    private boolean isEffectivelyEmpty(Object value) {
+        if (value == null)
+            return true;
+        return value instanceof List ? ((List<?>) value).isEmpty() : Utils.isBlank(String.valueOf(value));
+    }
+
+    private boolean matchAny(Object value, Predicate<String> predicate) {
+        if (value instanceof List) {
             return ((List<?>) value).stream().anyMatch(x -> predicate.test(String.valueOf(x)));
         }
-        return predicate.test(String.valueOf(value));
+        if (value instanceof String) {
+            return predicate.test(String.valueOf(value));
+        }
+        return false;
     }
 
     protected Connection getConnection(String url) {
-        return Jsoup.connect(url)
-                .header("Accept-Language", "zh-TW,zh;q=0.9,en-US;q=0.8,en;q=0.7,zh-CN;q=0.6,ja;q=0.5")
-                .header("Accept", "*/*")
-                .header("Content-Type", "text/html; charset=UTF-8");
+        return Jsoup.connect(url).header("Accept-Language", "zh-TW,zh;q=0.9,en-US;q=0.8,en;q=0.7,zh-CN;q=0.6,ja;q=0.5")
+                .header("Accept", "*/*").header("Content-Type", "text/html; charset=UTF-8");
+    }
+
+    private Object converterCase(Object value, Global.ConvertToCaseType convertToCaseType) {
+        if (value instanceof String str) {
+            value = switch (convertToCaseType) {
+                case UPPER -> str.toUpperCase();
+                case LOWER -> str.toLowerCase();
+                case FIRST_UPPER -> Utils.capitalizeFirstLetter(str);
+                case FIND_FIRST_UPPER -> Utils.capitalizeFirstLetterByFirstUpper(str);
+            };
+        }
+        return value;
     }
 }

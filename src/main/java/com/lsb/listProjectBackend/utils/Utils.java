@@ -7,6 +7,11 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -16,7 +21,9 @@ import java.util.stream.IntStream;
 @Slf4j
 public class Utils {
 
-    /** 判斷字串是否為 null 或空白（含只有空白字元的情況）。 */
+    /**
+     * 判斷字串是否為 null 或空白（含只有空白字元的情況）。
+     */
     public static boolean isBlank(String str) {
         return null == str || str.trim().isEmpty();
     }
@@ -37,12 +44,16 @@ public class Utils {
         return false;
     }
 
-    /** 判斷字串是否不為 null 且不為空白。 */
+    /**
+     * 判斷字串是否不為 null 且不為空白。
+     */
     public static boolean isNotBlank(String str) {
         return !isBlank(str);
     }
 
-    /** 判斷集合是否為 null 或不含任何元素。 */
+    /**
+     * 判斷集合是否為 null 或不含任何元素。
+     */
     public static boolean isEmpty(Collection<?> collection) {
         return collection == null || collection.isEmpty();
     }
@@ -115,7 +126,9 @@ public class Utils {
         return current;
     }
 
-    /** 判斷字串是否可解析為整數。 */
+    /**
+     * 判斷字串是否可解析為整數。
+     */
     private static boolean isNumeric(String str) {
         try {
             Integer.parseInt(str);
@@ -254,4 +267,33 @@ public class Utils {
         return Paths.get(appDataRoaming, "listProjectData");
     }
 
+    public static String capitalizeFirstLetter(String str) {
+        if (isBlank(str)) {
+            return str;
+        }
+        return str.substring(0, 1).toUpperCase() + str.substring(1);
+    }
+
+    public static String capitalizeFirstLetterByFirstUpper(String str) {
+        if (isBlank(str)) {
+            return str;
+        }
+        return Pattern.compile("[a-zA-Z]").matcher(str).replaceFirst(m -> m.group().toUpperCase());
+    }
+
+    public static String getCurrentTimeString(String format,Global.Timezones timezones) {
+        ZonedDateTime nowZoned = ZonedDateTime.now(timezones.toZoneId());
+        // 1. 如果 format 為空，回傳預設的 ISO 格式字串
+        if (isBlank(format)) {
+            return nowZoned.toString();
+        }
+        try {
+            // 2. 嘗試建立格式化器
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern(format);
+            return nowZoned.format(formatter);
+        } catch (IllegalArgumentException e) {
+            // 3. 如果 format 格式錯誤（不合法的 Pattern），回傳空字串
+            return "";
+        }
+    }
 }

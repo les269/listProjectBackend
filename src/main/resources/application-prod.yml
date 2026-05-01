@@ -1,0 +1,17 @@
+spring:
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: none
+    database-platform: org.hibernate.community.dialect.SQLiteDialect
+  datasource:
+    url: jdbc:sqlite:C:/code/CI-CD/tempdata/listProjectDatabase.db
+    driver-class-name: org.sqlite.JDBC
+  sql:
+    init:
+      mode: always
+  profiles:
+    active: '@spring.profiles.active@'
+server:
+  servlet:
+    context-path: /list-project-backend

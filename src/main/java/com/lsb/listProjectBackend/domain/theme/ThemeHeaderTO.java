@@ -13,6 +13,7 @@ import java.util.List;
 
 @Data
 public class ThemeHeaderTO {
+    private String headerId;
     private String name;
     private String version;
     private String title;
@@ -24,4 +25,5 @@ public class ThemeHeaderTO {
     private List<ThemeTag> themeTagList;
     private ThemeOtherSetting themeOtherSetting;
     private Integer seq;
+    private Long updateTime;
 }

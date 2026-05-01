@@ -103,10 +103,7 @@ public class JsonUtils {
         StringBuilder result = new StringBuilder();
         while (matcher.find()) {
             String jsonPath = matcher.group(1).trim();
-            if (!jsonPath.startsWith("$")) {
-                matcher.appendReplacement(result, Matcher.quoteReplacement(matcher.group(0)));
-                continue;
-            }
+            jsonPath = ensurePrefix(jsonPath);
 
             try {
                 Object replacement = JsonPath.read(obj, jsonPath);

@@ -3,6 +3,8 @@ import com.jayway.jsonpath.JsonPath;
 import com.lsb.listProjectBackend.utils.JsonUtils;
 import com.lsb.listProjectBackend.utils.Utils;
 import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.List;
@@ -11,6 +13,8 @@ import java.util.Map;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class JsonUtilsTest {
+
+    private static final Logger log = LoggerFactory.getLogger(JsonUtilsTest.class);
 
     @Test
     public void safePut_shouldCreateNestedObjectPath() {
@@ -160,5 +164,17 @@ public class JsonUtilsTest {
 
         String result = JsonUtils.replaceValueByJsonPath("val={{$.key}}", root);
         assertEquals("val={{$.key}}", result);
+    }
+
+    @Test
+    public void replaceValueByJsonPath_shouldHandleMultiplePlaceholders() {
+        var arr = JsonPath.parse("[]");
+        arr.add("$", Map.of("name", "Dave"));
+        arr.add("$", "test");
+        arr.add("$", List.of(1, 2, 3));
+        arr.add("$", 123);
+        arr.add("$", true);
+        arr.json();
+        log.info("arr={}", arr.jsonString());
     }
 }
