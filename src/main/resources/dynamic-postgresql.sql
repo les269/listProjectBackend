@@ -99,8 +99,8 @@ create TABLE IF NOT EXISTS group_dataset_data (
     PRIMARY KEY (group_name, prime_value)
 );
 
-CREATE INDEX IF NOT EXISTS  idx_group_name ON group_dataset_data(group_name);
-CREATE INDEX IF NOT EXISTS  idx_prime_value ON group_dataset_data(prime_value);
+create index IF NOT EXISTS  idx_group_name ON group_dataset_data(group_name);
+create index IF NOT EXISTS  idx_prime_value ON group_dataset_data(prime_value);
 
 create TABLE IF NOT EXISTS group_dataset (
     group_name TEXT NOT NULL,
@@ -182,7 +182,7 @@ create TABLE IF NOT EXISTS spider_mapping (
     PRIMARY KEY (spider_id, execution_order)
 );
 
-CREATE INDEX IF NOT EXISTS idx_spider_mapping_spider_item_id ON spider_mapping(spider_item_id);
+create index IF NOT EXISTS idx_spider_mapping_spider_item_id ON spider_mapping(spider_item_id);
 
 create TABLE IF NOT EXISTS spider_item (
     spider_item_id TEXT NOT NULL,

@@ -6,7 +6,7 @@ spring:
     properties:
       hibernate:
         type:
-          json_format_mapper: jsonb
+          "[json_format_mapper]": jsonb
     database-platform: org.hibernate.community.dialect.SQLiteDialect
   datasource:
     url: jdbc:sqlite:C:/code/CI-CD/tempdata/listProjectDatabase.db
@@ -14,8 +14,14 @@ spring:
   sql:
     init:
       mode: always
-  profiles:
-    active: '@spring.profiles.active@'
+  threads:
+    virtual:
+      enabled: true
+  output:
+    ansi:
+      enabled: always
+
 server:
   servlet:
     context-path: /list-project-backend
+  port: 8080
