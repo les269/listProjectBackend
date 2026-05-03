@@ -5,14 +5,14 @@ import com.lsb.listProjectBackend.domain.share.ShareTagValueTO;
 import com.lsb.listProjectBackend.entity.dynamic.share.ShareTag;
 import com.lsb.listProjectBackend.entity.dynamic.share.ShareTagValue;
 
+import com.lsb.listProjectBackend.mapper.SpringAndIgnoreUnmappedMapperConfig;
+
 import org.mapstruct.Mapper;
-import org.mapstruct.factory.Mappers;
 
 import java.util.List;
 
-@Mapper
+@Mapper(config = SpringAndIgnoreUnmappedMapperConfig.class)
 public interface ShareTagMapper {
-    ShareTagMapper INSTANCE = Mappers.getMapper(ShareTagMapper.class);
 
     ShareTag toEntity(ShareTagTO to);
 

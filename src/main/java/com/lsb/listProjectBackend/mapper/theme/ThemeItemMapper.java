@@ -2,17 +2,17 @@ package com.lsb.listProjectBackend.mapper.theme;
 
 import java.util.List;
 
+import com.lsb.listProjectBackend.mapper.SpringAndIgnoreUnmappedMapperConfig;
+
 import org.mapstruct.Mapper;
-import org.mapstruct.factory.Mappers;
 
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 import com.lsb.listProjectBackend.domain.theme.ThemeItemTO;
 import com.lsb.listProjectBackend.entity.dynamic.theme.ThemeItem;
 
-@Mapper
+@Mapper(config = SpringAndIgnoreUnmappedMapperConfig.class)
 public interface ThemeItemMapper {
-    ThemeItemMapper INSTANCE = Mappers.getMapper(ThemeItemMapper.class);
 
     ThemeItem toEntity(ThemeItemTO to);
 

@@ -5,6 +5,7 @@ import com.lsb.listProjectBackend.domain.scrapy.ScrapyPaginationTO;
 import com.lsb.listProjectBackend.domain.scrapy.ScrapyPaginationTestTO;
 import com.lsb.listProjectBackend.entity.dynamic.common.Cookie;
 import com.lsb.listProjectBackend.mapper.scrapy.ScrapyPaginationMapper;
+import com.lsb.listProjectBackend.repository.dynamic.common.ReplaceValueMapRepository;
 import com.lsb.listProjectBackend.repository.dynamic.scrapy.ScrapyPaginationRepository;
 import com.lsb.listProjectBackend.service.scrapy.ScrapyPaginationService;
 import com.lsb.listProjectBackend.utils.Utils;
@@ -12,7 +13,6 @@ import com.lsb.listProjectBackend.utils.Utils;
 import lombok.extern.slf4j.Slf4j;
 
 import org.jsoup.nodes.Document;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -26,10 +26,17 @@ import java.util.stream.Collectors;
 @Service
 public class ScrapyPaginationServiceImpl extends ScrapyBase implements ScrapyPaginationService {
 
-    @Autowired
-    private ScrapyPaginationRepository scrapyPaginationRepository;
+    private final ScrapyPaginationRepository scrapyPaginationRepository;
 
-    private final ScrapyPaginationMapper scrapyPaginationMapper = ScrapyPaginationMapper.INSTANCE;
+    private final ScrapyPaginationMapper scrapyPaginationMapper;
+
+    public ScrapyPaginationServiceImpl(ReplaceValueMapRepository replaceValueMapRepository,
+            ScrapyPaginationRepository scrapyPaginationRepository,
+            ScrapyPaginationMapper scrapyPaginationMapper) {
+        super(replaceValueMapRepository);
+        this.scrapyPaginationRepository = scrapyPaginationRepository;
+        this.scrapyPaginationMapper = scrapyPaginationMapper;
+    }
 
     @Override
     public ScrapyPaginationTO get(String name) {

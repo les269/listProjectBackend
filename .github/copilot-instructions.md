@@ -135,10 +135,8 @@ public class FooListConverter extends JsonAttributeConverter<List<Foo>> {
 ## MapStruct Mapper 範本
 
 ```java
-@Mapper
+@Mapper(config = SpringAndIgnoreUnmappedMapperConfig.class)
 public interface FooBarMapper {
-    FooBarMapper INSTANCE = Mappers.getMapper(FooBarMapper.class);
-
     FooBar toEntity(FooBarTO to);
     List<FooBar> toEntityList(List<FooBarTO> list);
     FooBarTO toDomain(FooBar entity);
@@ -179,11 +177,11 @@ public interface FooBarService {
 @Slf4j
 @UseDynamic          // 使用動態 DB 時必須加
 @Service
+@RequiredArgsConstructor
 public class FooBarServiceImpl implements FooBarService {
-    @Autowired
-    private FooBarRepository fooBarRepository;
+    private final FooBarRepository fooBarRepository;
 
-    private final FooBarMapper fooBarMapper = FooBarMapper.INSTANCE;
+    private final FooBarMapper fooBarMapper;
 
     @Override
     public List<FooBarTO> getAll() {
@@ -215,9 +213,9 @@ public class FooBarServiceImpl implements FooBarService {
 @CrossOrigin("*")
 @RestController
 @RequestMapping("api")
+@RequiredArgsConstructor
 public class FooBarController {
-    @Autowired
-    private FooBarService fooBarService;
+    private final FooBarService fooBarService;
 
     @GetMapping("/foo-bar/all")
     public List<FooBarTO> getAll() {
@@ -260,6 +258,7 @@ public class FooBarController {
 
 - 所有存取動態 DB 的 ServiceImpl **必須** 加 `@UseDynamic`（class level）
 - `@UpdateTimestamp` 自動更新時間，entity 不需手動 set
-- Mapper instance 用 `XxxMapper.INSTANCE` 常數，不走 Spring 注入
+- MapStruct 一律使用 `@Mapper(config = SpringAndIgnoreUnmappedMapperConfig.class)`，由 Spring 管理 bean
+- Controller / ServiceImpl 一律使用 `@RequiredArgsConstructor` + `private final` 注入相依，不使用欄位 `@Autowired`
 - Repository 命名：`findAll*`、`count*`，查詢一律用 `nativeQuery = true`
 - Enum 存資料庫用 `@Enumerated(EnumType.STRING)`，Enum 定義在 `utils/Global.java`

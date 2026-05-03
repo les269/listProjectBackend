@@ -3,14 +3,14 @@ package com.lsb.listProjectBackend.mapper.common;
 import com.lsb.listProjectBackend.domain.common.CookieListTO;
 import com.lsb.listProjectBackend.entity.dynamic.common.CookieList;
 
+import com.lsb.listProjectBackend.mapper.SpringAndIgnoreUnmappedMapperConfig;
+
 import org.mapstruct.Mapper;
-import org.mapstruct.factory.Mappers;
 
 import java.util.List;
 
-@Mapper
+@Mapper(config = SpringAndIgnoreUnmappedMapperConfig.class)
 public interface CookieListMapper {
-    CookieListMapper INSTANCE = Mappers.getMapper(CookieListMapper.class);
 
     CookieList toEntity(CookieListTO to);
 

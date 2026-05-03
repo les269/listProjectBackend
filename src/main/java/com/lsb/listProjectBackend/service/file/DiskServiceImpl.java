@@ -5,7 +5,7 @@ import com.lsb.listProjectBackend.entity.local.Disk;
 import com.lsb.listProjectBackend.mapper.file.DiskMapper;
 import com.lsb.listProjectBackend.repository.local.file.DiskRepository;
 import com.lsb.listProjectBackend.service.file.DiskService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
@@ -14,12 +14,11 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class DiskServiceImpl implements DiskService {
+    private final DiskRepository diskRepository;
 
-    @Autowired
-    private DiskRepository diskRepository;
-
-    private final DiskMapper diskMapper = DiskMapper.INSTANCE;
+    private final DiskMapper diskMapper;
 
     @Override
     public List<DiskTO> getAll() {

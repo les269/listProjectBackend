@@ -2,7 +2,7 @@ package com.lsb.listProjectBackend.controller.common;
 
 import com.lsb.listProjectBackend.domain.common.SettingTO;
 import com.lsb.listProjectBackend.service.common.SettingService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -10,10 +10,9 @@ import java.util.List;
 @CrossOrigin("*")
 @RestController
 @RequestMapping("api")
+@RequiredArgsConstructor
 public class SettingController {
-
-    @Autowired
-    private SettingService settingService;
+    private final SettingService settingService;
 
     @GetMapping("/setting/all")
     List<SettingTO> getAll() {

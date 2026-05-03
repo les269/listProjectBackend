@@ -2,7 +2,7 @@ package com.lsb.listProjectBackend.controller.theme;
 
 import com.lsb.listProjectBackend.domain.theme.*;
 import com.lsb.listProjectBackend.service.theme.ThemeService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -11,9 +11,9 @@ import java.util.Map;
 @CrossOrigin("*")
 @RestController
 @RequestMapping("api")
+@RequiredArgsConstructor
 public class ThemeController {
-    @Autowired
-    private ThemeService themeService;
+    private final ThemeService themeService;
 
     @GetMapping("/theme/all")
     List<ThemeHeaderTO> getAllTheme() {

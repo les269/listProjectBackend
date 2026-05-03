@@ -4,15 +4,14 @@ import com.lsb.listProjectBackend.domain.theme.*;
 import com.lsb.listProjectBackend.entity.dynamic.theme.ThemeCustomValue;
 import com.lsb.listProjectBackend.entity.dynamic.theme.ThemeHeader;
 import com.lsb.listProjectBackend.entity.dynamic.theme.ThemeTopCustomValue;
+import com.lsb.listProjectBackend.mapper.SpringAndIgnoreUnmappedMapperConfig;
 
 import org.mapstruct.*;
-import org.mapstruct.factory.Mappers;
 
 import java.util.List;
 
-@Mapper
+@Mapper(config = SpringAndIgnoreUnmappedMapperConfig.class)
 public interface ThemeMapper {
-    ThemeMapper INSTANCE = Mappers.getMapper(ThemeMapper.class);
 
     ThemeHeader headerToEntity(ThemeHeaderTO to);
 

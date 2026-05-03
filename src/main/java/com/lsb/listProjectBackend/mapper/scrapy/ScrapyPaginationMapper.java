@@ -3,14 +3,14 @@ package com.lsb.listProjectBackend.mapper.scrapy;
 import com.lsb.listProjectBackend.domain.scrapy.ScrapyPaginationTO;
 import com.lsb.listProjectBackend.entity.dynamic.scrapy.ScrapyPagination;
 
+import com.lsb.listProjectBackend.mapper.SpringAndIgnoreUnmappedMapperConfig;
+
 import org.mapstruct.Mapper;
-import org.mapstruct.factory.Mappers;
 
 import java.util.List;
 
-@Mapper
+@Mapper(config = SpringAndIgnoreUnmappedMapperConfig.class)
 public interface ScrapyPaginationMapper {
-    ScrapyPaginationMapper INSTANCE = Mappers.getMapper(ScrapyPaginationMapper.class);
 
     ScrapyPagination toEntity(ScrapyPaginationTO to);
 

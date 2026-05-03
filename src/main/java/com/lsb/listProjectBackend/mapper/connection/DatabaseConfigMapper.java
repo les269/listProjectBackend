@@ -2,14 +2,14 @@ package com.lsb.listProjectBackend.mapper.connection;
 
 import com.lsb.listProjectBackend.domain.connection.DatabaseConfigTO;
 import com.lsb.listProjectBackend.entity.local.DatabaseConfig;
+import com.lsb.listProjectBackend.mapper.SpringAndIgnoreUnmappedMapperConfig;
+
 import org.mapstruct.Mapper;
-import org.mapstruct.factory.Mappers;
 
 import java.util.List;
 
-@Mapper
+@Mapper(config = SpringAndIgnoreUnmappedMapperConfig.class)
 public interface DatabaseConfigMapper {
-    DatabaseConfigMapper INSTANCE = Mappers.getMapper(DatabaseConfigMapper.class);
 
     DatabaseConfig toEntity(DatabaseConfigTO to);
 

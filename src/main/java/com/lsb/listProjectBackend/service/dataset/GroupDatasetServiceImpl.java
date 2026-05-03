@@ -11,9 +11,9 @@ import com.lsb.listProjectBackend.service.connection.ApiConfigService;
 import com.lsb.listProjectBackend.service.dataset.GroupDatasetService;
 import com.lsb.listProjectBackend.utils.Global;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -22,15 +22,13 @@ import java.util.Map;
 @Slf4j
 @UseDynamic
 @Service
+@RequiredArgsConstructor
 public class GroupDatasetServiceImpl implements GroupDatasetService {
-    @Autowired
-    private GroupDatasetRepository groupDatasetRepository;
-    @Autowired
-    private ApiConfigService apiConfigService;
-    @Autowired
-    private GroupDatasetDataRepository groupDatasetDataRepository;
+    private final GroupDatasetRepository groupDatasetRepository;
+    private final ApiConfigService apiConfigService;
+    private final GroupDatasetDataRepository groupDatasetDataRepository;
 
-    private final GroupDatasetMapper groupDatasetMapper = GroupDatasetMapper.INSTANCE;
+    private final GroupDatasetMapper groupDatasetMapper;
 
     public GroupDatasetTO getGroupDataset(String groupName) {
         return groupDatasetMapper.toDomain(groupDatasetRepository.findById(groupName).orElse(null));

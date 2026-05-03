@@ -3,7 +3,7 @@ package com.lsb.listProjectBackend.controller.scrapy;
 import com.lsb.listProjectBackend.domain.scrapy.ScrapyPaginationTO;
 import com.lsb.listProjectBackend.domain.scrapy.ScrapyPaginationTestTO;
 import com.lsb.listProjectBackend.service.scrapy.ScrapyPaginationService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -12,9 +12,9 @@ import java.util.Map;
 @CrossOrigin("*")
 @RestController
 @RequestMapping("api")
+@RequiredArgsConstructor
 public class ScrapyPaginationController {
-    @Autowired
-    private ScrapyPaginationService scrapyPaginationService;
+    private final ScrapyPaginationService scrapyPaginationService;
 
     @GetMapping("/scrapy-pagination/get")
     ScrapyPaginationTO get(@RequestParam("name") String name) {

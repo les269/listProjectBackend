@@ -4,8 +4,8 @@ import com.lsb.listProjectBackend.aop.UseDynamic;
 import com.lsb.listProjectBackend.domain.spider.SpiderItemTO;
 import com.lsb.listProjectBackend.mapper.spider.SpiderItemMapper;
 import com.lsb.listProjectBackend.repository.dynamic.spider.SpiderItemRepository;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -13,12 +13,11 @@ import java.util.List;
 @Slf4j
 @UseDynamic
 @Service
+@RequiredArgsConstructor
 public class SpiderItemServiceImpl implements SpiderItemService {
+    private final SpiderItemRepository spiderItemRepository;
 
-    @Autowired
-    private SpiderItemRepository spiderItemRepository;
-
-    private final SpiderItemMapper spiderItemMapper = SpiderItemMapper.INSTANCE;
+    private final SpiderItemMapper spiderItemMapper;
 
     @Override
     public List<SpiderItemTO> getAll() {

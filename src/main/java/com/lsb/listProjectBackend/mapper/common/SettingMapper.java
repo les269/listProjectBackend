@@ -3,14 +3,14 @@ package com.lsb.listProjectBackend.mapper.common;
 import com.lsb.listProjectBackend.domain.common.SettingTO;
 import com.lsb.listProjectBackend.entity.local.Setting;
 
+import com.lsb.listProjectBackend.mapper.SpringAndIgnoreUnmappedMapperConfig;
+
 import org.mapstruct.Mapper;
-import org.mapstruct.factory.Mappers;
 
 import java.util.List;
 
-@Mapper
+@Mapper(config = SpringAndIgnoreUnmappedMapperConfig.class)
 public interface SettingMapper {
-    SettingMapper INSTANCE = Mappers.getMapper(SettingMapper.class);
 
     Setting toEntity(SettingTO to);
 

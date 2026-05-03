@@ -2,14 +2,14 @@ package com.lsb.listProjectBackend.mapper.file;
 
 import com.lsb.listProjectBackend.domain.file.DiskTO;
 import com.lsb.listProjectBackend.entity.local.Disk;
+import com.lsb.listProjectBackend.mapper.SpringAndIgnoreUnmappedMapperConfig;
+
 import org.mapstruct.Mapper;
-import org.mapstruct.factory.Mappers;
 
 import java.util.List;
 
-@Mapper
+@Mapper(config = SpringAndIgnoreUnmappedMapperConfig.class)
 public interface DiskMapper {
-    DiskMapper INSTANCE = Mappers.getMapper(DiskMapper.class);
 
     Disk toEntity(DiskTO to);
 

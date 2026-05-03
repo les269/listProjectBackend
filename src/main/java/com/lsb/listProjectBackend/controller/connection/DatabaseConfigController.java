@@ -4,7 +4,7 @@ import com.lsb.listProjectBackend.domain.connection.ConnectionTestReqTO;
 import com.lsb.listProjectBackend.domain.connection.ConnectionTestResultTO;
 import com.lsb.listProjectBackend.domain.connection.DatabaseConfigTO;
 import com.lsb.listProjectBackend.service.connection.DatabaseConfigService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -12,10 +12,9 @@ import java.util.List;
 @CrossOrigin("*")
 @RestController
 @RequestMapping("api")
+@RequiredArgsConstructor
 public class DatabaseConfigController {
-
-    @Autowired
-    private DatabaseConfigService databaseConfigService;
+    private final DatabaseConfigService databaseConfigService;
 
     @GetMapping("/database-config/all")
     public List<DatabaseConfigTO> getAll() {

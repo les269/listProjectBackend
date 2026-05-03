@@ -3,14 +3,14 @@ package com.lsb.listProjectBackend.mapper.spider;
 import com.lsb.listProjectBackend.domain.spider.SpiderItemTO;
 import com.lsb.listProjectBackend.entity.dynamic.spider.SpiderItem;
 
+import com.lsb.listProjectBackend.mapper.SpringAndIgnoreUnmappedMapperConfig;
+
 import org.mapstruct.Mapper;
-import org.mapstruct.factory.Mappers;
 
 import java.util.List;
 
-@Mapper
+@Mapper(config = SpringAndIgnoreUnmappedMapperConfig.class)
 public interface SpiderItemMapper {
-    SpiderItemMapper INSTANCE = Mappers.getMapper(SpiderItemMapper.class);
 
     SpiderItem toEntity(SpiderItemTO to);
 

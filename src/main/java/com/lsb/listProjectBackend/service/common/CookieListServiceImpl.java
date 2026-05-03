@@ -12,8 +12,8 @@ import com.lsb.listProjectBackend.service.common.CookieListService;
 import com.lsb.listProjectBackend.utils.Global;
 import com.lsb.listProjectBackend.utils.Global.CookieListMapType;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import static java.util.stream.Collectors.groupingBy;
@@ -27,15 +27,12 @@ import java.util.stream.Collectors;
 @Slf4j
 @UseDynamic
 @Service
+@RequiredArgsConstructor
 public class CookieListServiceImpl implements CookieListService {
+    private final CookieListRepository cookieListRepository;
+    private final CookieListMapService cookieListMapService;
 
-    @Autowired
-    private CookieListRepository cookieListRepository;
-
-    @Autowired
-    private CookieListMapService cookieListMapService;
-
-    private final CookieListMapper cookieListMapper = CookieListMapper.INSTANCE;
+    private final CookieListMapper cookieListMapper;
 
     @Override
     public CookieListTO getByRefIdAndType(String refId, Global.CookieListMapType type) {

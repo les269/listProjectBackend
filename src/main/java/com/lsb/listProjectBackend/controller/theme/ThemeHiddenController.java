@@ -2,7 +2,7 @@ package com.lsb.listProjectBackend.controller.theme;
 
 import com.lsb.listProjectBackend.domain.theme.ThemeHiddenTO;
 import com.lsb.listProjectBackend.service.theme.ThemeHiddenService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -10,10 +10,9 @@ import java.util.List;
 @CrossOrigin("*")
 @RestController
 @RequestMapping("api")
+@RequiredArgsConstructor
 public class ThemeHiddenController {
-
-    @Autowired
-    private ThemeHiddenService themeHiddenService;
+    private final ThemeHiddenService themeHiddenService;
 
     @GetMapping("/theme-hidden/all")
     List<ThemeHiddenTO> getAll() {

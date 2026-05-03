@@ -4,7 +4,7 @@ import com.lsb.listProjectBackend.domain.share.ShareTagTO;
 import com.lsb.listProjectBackend.domain.share.ShareTagValueDeleteListTO;
 import com.lsb.listProjectBackend.domain.share.ShareTagValueTO;
 import com.lsb.listProjectBackend.service.share.ShareTagService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -12,9 +12,9 @@ import java.util.List;
 @CrossOrigin("*")
 @RestController
 @RequestMapping("api")
+@RequiredArgsConstructor
 public class ShareTagController {
-    @Autowired
-    private ShareTagService shareTagService;
+    private final ShareTagService shareTagService;
 
     @GetMapping("/share-tag/all")
     List<ShareTagTO> getAllTag() {

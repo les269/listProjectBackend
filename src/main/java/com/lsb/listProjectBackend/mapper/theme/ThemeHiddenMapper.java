@@ -3,14 +3,14 @@ package com.lsb.listProjectBackend.mapper.theme;
 import com.lsb.listProjectBackend.domain.theme.ThemeHiddenTO;
 import com.lsb.listProjectBackend.entity.dynamic.theme.ThemeHidden;
 
+import com.lsb.listProjectBackend.mapper.SpringAndIgnoreUnmappedMapperConfig;
+
 import org.mapstruct.Mapper;
-import org.mapstruct.factory.Mappers;
 
 import java.util.List;
 
-@Mapper
+@Mapper(config = SpringAndIgnoreUnmappedMapperConfig.class)
 public interface ThemeHiddenMapper {
-    ThemeHiddenMapper INSTANCE = Mappers.getMapper(ThemeHiddenMapper.class);
 
     ThemeHidden toEntity(ThemeHiddenTO to);
 

@@ -2,7 +2,7 @@ package com.lsb.listProjectBackend.controller.connection;
 
 import com.lsb.listProjectBackend.domain.connection.ApiConfigTO;
 import com.lsb.listProjectBackend.service.connection.ApiConfigService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -10,9 +10,9 @@ import java.util.List;
 @CrossOrigin("*")
 @RestController
 @RequestMapping("api")
+@RequiredArgsConstructor
 public class ApiConfigController {
-    @Autowired
-    private ApiConfigService apiConfigService;
+    private final ApiConfigService apiConfigService;
 
     @GetMapping("/api-config/all")
     public List<ApiConfigTO> getAll(){

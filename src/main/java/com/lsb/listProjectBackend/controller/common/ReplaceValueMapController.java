@@ -2,7 +2,7 @@ package com.lsb.listProjectBackend.controller.common;
 
 import com.lsb.listProjectBackend.domain.common.ReplaceValueMapTO;
 import com.lsb.listProjectBackend.service.common.ReplaceValueMapService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -10,9 +10,9 @@ import java.util.List;
 @CrossOrigin("*")
 @RestController
 @RequestMapping("api")
+@RequiredArgsConstructor
 public class ReplaceValueMapController {
-    @Autowired
-    private ReplaceValueMapService replaceValueMapService;
+    private final ReplaceValueMapService replaceValueMapService;
 
     @GetMapping("/replace-value-map/name-list")
     List<ReplaceValueMapTO> getNameList() {

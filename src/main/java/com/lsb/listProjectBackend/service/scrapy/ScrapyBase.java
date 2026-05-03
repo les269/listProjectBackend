@@ -6,12 +6,12 @@ import com.lsb.listProjectBackend.entity.dynamic.common.ReplaceValueMap;
 import com.lsb.listProjectBackend.entity.dynamic.scrapy.CssSelect;
 import com.lsb.listProjectBackend.repository.dynamic.common.ReplaceValueMapRepository;
 import com.lsb.listProjectBackend.utils.Utils;
+
 import lombok.extern.slf4j.Slf4j;
+
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -21,11 +21,13 @@ import java.util.stream.Stream;
 
 @Slf4j
 @UseDynamic
-@Service
-public class ScrapyBase {
+public abstract class ScrapyBase {
 
-    @Autowired
-    private ReplaceValueMapRepository replaceValueMapRepository;
+    private final ReplaceValueMapRepository replaceValueMapRepository;
+
+    protected ScrapyBase(ReplaceValueMapRepository replaceValueMapRepository) {
+        this.replaceValueMapRepository = replaceValueMapRepository;
+    }
 
     public void useCssSelect(String htmlString, List<CssSelect> select, Map<String, Object> result) {
         try {

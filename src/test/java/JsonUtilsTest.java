@@ -75,14 +75,25 @@ public class JsonUtilsTest {
     }
 
     @Test
-    public void replaceValueByJsonPath_shouldKeepOriginalWhenExpressionIsNotJsonPath() {
+    public void replaceValueByJsonPath_shouldAutoPrefixAndReplaceWhenExpressionIsPlainKey() {
         Map<String, Object> root = new HashMap<>();
         root.put("name", "Tom");
 
         String template = "hello {{name}}";
         String result = JsonUtils.replaceValueByJsonPath(template, root);
 
-        assertEquals("hello {{name}}", result);
+        assertEquals("hello Tom", result);
+    }
+
+    @Test
+    public void replaceValueByJsonPath_shouldKeepOriginalWhenAutoPrefixedPathNotFound() {
+        Map<String, Object> root = new HashMap<>();
+        root.put("name", "Tom");
+
+        String template = "hello {{missing}}";
+        String result = JsonUtils.replaceValueByJsonPath(template, root);
+
+        assertEquals("hello {{missing}}", result);
     }
 
     @Test

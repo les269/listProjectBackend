@@ -6,6 +6,7 @@ import com.lsb.listProjectBackend.config.datasource.DynamicDataSourceRefresher;
 import com.lsb.listProjectBackend.entity.local.DatabaseConfig;
 import com.lsb.listProjectBackend.repository.local.connection.DatabaseConfigRepository;
 import com.lsb.listProjectBackend.utils.Utils;
+import lombok.RequiredArgsConstructor;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
@@ -26,20 +27,14 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class DatabaseStartupInitializer implements ApplicationListener<ApplicationReadyEvent> {
 
     private final SettingRepository settingRepository;
     private final DatabaseConfigRepository databaseConfigRepository;
     private final DynamicDataSourceRefresher dynamicDataSourceRefresher;
-    private final DatabaseConfigMapper databaseConfigMapper = DatabaseConfigMapper.INSTANCE;
+    private final DatabaseConfigMapper databaseConfigMapper;
 
-    public DatabaseStartupInitializer(SettingRepository settingRepository,
-            DatabaseConfigRepository databaseConfigRepository,
-            DynamicDataSourceRefresher dynamicDataSourceRefresher) {
-        this.settingRepository = settingRepository;
-        this.databaseConfigRepository = databaseConfigRepository;
-        this.dynamicDataSourceRefresher = dynamicDataSourceRefresher;
-    }
 
     @Override
     public void onApplicationEvent(ApplicationReadyEvent event) {

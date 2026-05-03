@@ -2,7 +2,7 @@ package com.lsb.listProjectBackend.controller.dataset;
 
 import com.lsb.listProjectBackend.domain.dataset.GroupDatasetDataTO;
 import com.lsb.listProjectBackend.service.dataset.GroupDatasetDataService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
@@ -11,9 +11,9 @@ import java.util.List;
 @CrossOrigin("*")
 @RestController
 @RequestMapping("api")
+@RequiredArgsConstructor
 public class GroupDatasetDataController {
-    @Autowired
-    private GroupDatasetDataService groupDatasetDataService;
+    private final GroupDatasetDataService groupDatasetDataService;
 
     @GetMapping("/group-dataset-data/get")
     GroupDatasetDataTO getGroupDatasetData(

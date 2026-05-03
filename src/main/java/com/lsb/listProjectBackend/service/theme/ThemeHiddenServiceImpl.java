@@ -5,8 +5,8 @@ import com.lsb.listProjectBackend.domain.theme.ThemeHiddenTO;
 import com.lsb.listProjectBackend.mapper.theme.ThemeHiddenMapper;
 import com.lsb.listProjectBackend.repository.dynamic.theme.ThemeHiddenRepository;
 import com.lsb.listProjectBackend.service.theme.ThemeHiddenService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -14,12 +14,11 @@ import java.util.List;
 @Slf4j
 @UseDynamic
 @Service
+@RequiredArgsConstructor
 public class ThemeHiddenServiceImpl implements ThemeHiddenService {
+    private final ThemeHiddenRepository themeHiddenRepository;
 
-    @Autowired
-    private ThemeHiddenRepository themeHiddenRepository;
-
-    private final ThemeHiddenMapper themeHiddenMapper = ThemeHiddenMapper.INSTANCE;
+    private final ThemeHiddenMapper themeHiddenMapper;
 
     @Override
     public List<ThemeHiddenTO> getAll() {

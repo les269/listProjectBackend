@@ -2,7 +2,7 @@ package com.lsb.listProjectBackend.controller.scrapy;
 
 import com.lsb.listProjectBackend.domain.scrapy.*;
 import com.lsb.listProjectBackend.service.scrapy.ScrapyService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -11,9 +11,9 @@ import java.util.Map;
 @CrossOrigin("*")
 @RestController
 @RequestMapping("api")
+@RequiredArgsConstructor
 public class ScrapyController {
-    @Autowired
-    private ScrapyService scrapyService;
+    private final ScrapyService scrapyService;
 
     @GetMapping("/scrapy/get")
     ScrapyConfigTO getConfig(@RequestParam("name") String name) {

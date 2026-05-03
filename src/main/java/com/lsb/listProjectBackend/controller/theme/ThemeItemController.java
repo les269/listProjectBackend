@@ -4,7 +4,7 @@ import com.lsb.listProjectBackend.domain.theme.CopyThemeItemReq;
 import com.lsb.listProjectBackend.domain.theme.ThemeItemTO;
 import com.lsb.listProjectBackend.service.theme.ThemeItemService;
 import com.lsb.listProjectBackend.utils.Global;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -12,9 +12,9 @@ import java.util.List;
 @CrossOrigin("*")
 @RestController
 @RequestMapping("api")
+@RequiredArgsConstructor
 public class ThemeItemController {
-    @Autowired
-    private ThemeItemService themeItemService;
+    private final ThemeItemService themeItemService;
 
     @GetMapping("/theme/item")
     ThemeItemTO getThemeItemById(@RequestParam("type") Global.ThemeItemType type,

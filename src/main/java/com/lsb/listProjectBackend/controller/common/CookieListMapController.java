@@ -3,7 +3,7 @@ package com.lsb.listProjectBackend.controller.common;
 import com.lsb.listProjectBackend.domain.common.CookieListMapTO;
 import com.lsb.listProjectBackend.service.common.CookieListMapService;
 import com.lsb.listProjectBackend.utils.Global;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,10 +18,9 @@ import java.util.List;
 @CrossOrigin("*")
 @RestController
 @RequestMapping("api")
+@RequiredArgsConstructor
 public class CookieListMapController {
-
-    @Autowired
-    private CookieListMapService cookieListMapService;
+    private final CookieListMapService cookieListMapService;
 
     @GetMapping("/cookie-list/map/by-id-and-type")
     public CookieListMapTO getMapByIdAndType(@RequestParam("refId") String refId,

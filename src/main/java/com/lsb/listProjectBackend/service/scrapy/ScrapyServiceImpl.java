@@ -7,13 +7,15 @@ import com.lsb.listProjectBackend.entity.dynamic.common.Cookie;
 import com.lsb.listProjectBackend.entity.dynamic.scrapy.ScrapyConfig;
 import com.lsb.listProjectBackend.entity.dynamic.scrapy.ScrapyData;
 import com.lsb.listProjectBackend.mapper.scrapy.ScrapyConfigMapper;
+import com.lsb.listProjectBackend.repository.dynamic.common.ReplaceValueMapRepository;
 import com.lsb.listProjectBackend.repository.dynamic.scrapy.ScrapyConfigRepository;
 import com.lsb.listProjectBackend.service.scrapy.ScrapyService;
 import com.lsb.listProjectBackend.utils.Global;
 import com.lsb.listProjectBackend.utils.Utils;
+
 import lombok.extern.slf4j.Slf4j;
+
 import org.jsoup.nodes.Document;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -24,10 +26,17 @@ import java.util.stream.Collectors;
 @UseDynamic
 @Service
 public class ScrapyServiceImpl extends ScrapyBase implements ScrapyService {
-    @Autowired
-    private ScrapyConfigRepository scrapyConfigRepository;
+    private final ScrapyConfigRepository scrapyConfigRepository;
 
-    private final ScrapyConfigMapper scrapyConfigMapper = ScrapyConfigMapper.INSTANCE;
+    private final ScrapyConfigMapper scrapyConfigMapper;
+
+    public ScrapyServiceImpl(ReplaceValueMapRepository replaceValueMapRepository,
+            ScrapyConfigRepository scrapyConfigRepository,
+            ScrapyConfigMapper scrapyConfigMapper) {
+        super(replaceValueMapRepository);
+        this.scrapyConfigRepository = scrapyConfigRepository;
+        this.scrapyConfigMapper = scrapyConfigMapper;
+    }
 
     public List<ScrapyConfigTO> getAllConfig() {
         return scrapyConfigMapper.toDomainList(scrapyConfigRepository.findAll());

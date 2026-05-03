@@ -12,9 +12,9 @@ import com.lsb.listProjectBackend.repository.dynamic.share.ShareTagRepository;
 import com.lsb.listProjectBackend.repository.dynamic.share.ShareTagValueRepository;
 import com.lsb.listProjectBackend.service.share.ShareTagService;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
@@ -23,17 +23,14 @@ import java.util.List;
 @Slf4j
 @UseDynamic
 @Service
+@RequiredArgsConstructor
 public class ShareTagServiceImpl implements ShareTagService {
+    private final ShareTagRepository shareTagRepository;
+    private final ShareTagMapRepository shareTagMapRepository;
+    private final ShareTagValueRepository shareTagValueRepository;
 
-    @Autowired
-    private ShareTagRepository shareTagRepository;
-    @Autowired
-    private ShareTagMapRepository shareTagMapRepository;
-    @Autowired
-    private ShareTagValueRepository shareTagValueRepository;
-
-    private final ShareTagMapper shareTagMapper = ShareTagMapper.INSTANCE;
-    private final ShareTagValueMapper shareTagValueMapper = ShareTagValueMapper.INSTANCE;
+    private final ShareTagMapper shareTagMapper;
+    private final ShareTagValueMapper shareTagValueMapper;
 
     @Override
     public List<ShareTagTO> getAllTag() {

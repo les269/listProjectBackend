@@ -2,7 +2,7 @@ package com.lsb.listProjectBackend.controller.file;
 
 import com.lsb.listProjectBackend.domain.file.DiskTO;
 import com.lsb.listProjectBackend.service.file.DiskService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -10,10 +10,9 @@ import java.util.List;
 @CrossOrigin("*")
 @RestController
 @RequestMapping("api")
+@RequiredArgsConstructor
 public class DiskController {
-
-    @Autowired
-    private DiskService diskService;
+    private final DiskService diskService;
 
     @GetMapping("/disk/all")
     public List<DiskTO> getAll() {

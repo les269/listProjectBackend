@@ -3,14 +3,14 @@ package com.lsb.listProjectBackend.mapper.dataset;
 import com.lsb.listProjectBackend.domain.dataset.GroupDatasetTO;
 import com.lsb.listProjectBackend.entity.dynamic.dataset.GroupDataset;
 
+import com.lsb.listProjectBackend.mapper.SpringAndIgnoreUnmappedMapperConfig;
+
 import org.mapstruct.Mapper;
-import org.mapstruct.factory.Mappers;
 
 import java.util.List;
 
-@Mapper
+@Mapper(config = SpringAndIgnoreUnmappedMapperConfig.class)
 public interface GroupDatasetMapper {
-    GroupDatasetMapper INSTANCE = Mappers.getMapper(GroupDatasetMapper.class);
 
     GroupDataset toEntity(GroupDatasetTO to);
 

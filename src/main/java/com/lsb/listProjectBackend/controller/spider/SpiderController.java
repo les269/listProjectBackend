@@ -4,7 +4,7 @@ import com.lsb.listProjectBackend.domain.spider.SpiderReqTO;
 import com.lsb.listProjectBackend.domain.spider.SpiderTestTO;
 import com.lsb.listProjectBackend.entity.dynamic.spider.SpiderItemSetting;
 import com.lsb.listProjectBackend.service.spider.SpiderService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -14,10 +14,9 @@ import org.springframework.web.bind.annotation.RestController;
 @CrossOrigin("*")
 @RestController
 @RequestMapping("api")
+@RequiredArgsConstructor
 public class SpiderController {
-
-    @Autowired
-    private SpiderService spiderService;
+    private final SpiderService spiderService;
 
     @PostMapping("/spider/use-url")
     public String executeByUrl(@RequestBody SpiderReqTO req) throws Exception {

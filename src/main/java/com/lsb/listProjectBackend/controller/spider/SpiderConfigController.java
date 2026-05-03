@@ -2,7 +2,7 @@ package com.lsb.listProjectBackend.controller.spider;
 
 import com.lsb.listProjectBackend.domain.spider.SpiderConfigTO;
 import com.lsb.listProjectBackend.service.spider.SpiderConfigService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,10 +17,9 @@ import java.util.List;
 @CrossOrigin("*")
 @RestController
 @RequestMapping("api")
+@RequiredArgsConstructor
 public class SpiderConfigController {
-
-    @Autowired
-    private SpiderConfigService spiderConfigService;
+    private final SpiderConfigService spiderConfigService;
 
     @GetMapping("/spider-config/all")
     public List<SpiderConfigTO> getAllConfig() {

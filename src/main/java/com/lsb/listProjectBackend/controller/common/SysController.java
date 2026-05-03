@@ -1,6 +1,6 @@
 package com.lsb.listProjectBackend.controller.common;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -15,11 +15,10 @@ import com.lsb.listProjectBackend.config.datasource.DynamicDataSourceRefresher;
 @CrossOrigin("*")
 @RestController
 @RequestMapping("api")
+@RequiredArgsConstructor
 public class SysController {
-    @Autowired
-    private JdbcTemplate jdbcTemplate;
-    @Autowired
-    private DynamicDataSourceRefresher dynamicDataSourceRefresher;
+    private final JdbcTemplate jdbcTemplate;
+    private final DynamicDataSourceRefresher dynamicDataSourceRefresher;
 
     /**
      * 檢查 local DB（local.sqlite）是否存活。

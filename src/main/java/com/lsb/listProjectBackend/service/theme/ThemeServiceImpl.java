@@ -19,9 +19,9 @@ import com.lsb.listProjectBackend.repository.dynamic.theme.ThemeTopCustomValueRe
 import com.lsb.listProjectBackend.service.theme.ThemeItemService;
 import com.lsb.listProjectBackend.service.theme.ThemeService;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -35,22 +35,17 @@ import static java.util.stream.Collectors.toMap;
 @Slf4j
 @UseDynamic
 @Service
+@RequiredArgsConstructor
 public class ThemeServiceImpl implements ThemeService {
-    @Autowired
-    private ThemeHeaderRepository themeHeaderRepository;
-    @Autowired
-    private ThemeCustomValueRepository themeCustomValueRepository;
-    @Autowired
-    private ThemeTopCustomValueRepository themeTopCustomValueRepository;
-    @Autowired
-    private ThemeTagValueRepository themeTagValueRepository;
-    @Autowired
-    private ShareTagMapRepository shareTagMapRepository;
-    @Autowired
-    private ThemeItemService themeItemService;
+    private final ThemeHeaderRepository themeHeaderRepository;
+    private final ThemeCustomValueRepository themeCustomValueRepository;
+    private final ThemeTopCustomValueRepository themeTopCustomValueRepository;
+    private final ThemeTagValueRepository themeTagValueRepository;
+    private final ShareTagMapRepository shareTagMapRepository;
+    private final ThemeItemService themeItemService;
 
-    private final ThemeMapper themeMapper = ThemeMapper.INSTANCE;
-    private final ThemeTagValueMapper themeTagValueMapper = ThemeTagValueMapper.INSTANCE;
+    private final ThemeMapper themeMapper;
+    private final ThemeTagValueMapper themeTagValueMapper;
 
     public List<ThemeHeaderTO> getAllTheme() {
         return themeHeaderRepository.findAll().stream()

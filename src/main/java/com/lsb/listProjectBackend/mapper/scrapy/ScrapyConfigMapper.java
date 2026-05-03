@@ -3,14 +3,14 @@ package com.lsb.listProjectBackend.mapper.scrapy;
 import com.lsb.listProjectBackend.domain.scrapy.ScrapyConfigTO;
 import com.lsb.listProjectBackend.entity.dynamic.scrapy.ScrapyConfig;
 
+import com.lsb.listProjectBackend.mapper.SpringAndIgnoreUnmappedMapperConfig;
+
 import org.mapstruct.Mapper;
-import org.mapstruct.factory.Mappers;
 
 import java.util.List;
 
-@Mapper
+@Mapper(config = SpringAndIgnoreUnmappedMapperConfig.class)
 public interface ScrapyConfigMapper {
-    ScrapyConfigMapper INSTANCE = Mappers.getMapper(ScrapyConfigMapper.class);
 
     ScrapyConfig toEntity(ScrapyConfigTO to);
 

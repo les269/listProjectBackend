@@ -9,19 +9,18 @@ import com.lsb.listProjectBackend.service.common.CookieListMapService;
 import com.lsb.listProjectBackend.utils.Global;
 import com.lsb.listProjectBackend.utils.Global.CookieListMapType;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @UseDynamic
 @Service
+@RequiredArgsConstructor
 public class CookieListMapServiceImpl implements CookieListMapService {
+    private final CookieListMapRepository cookieListMapRepository;
 
-    @Autowired
-    private CookieListMapRepository cookieListMapRepository;
-
-    private final CookieListMapMapper cookieListMapMapper = CookieListMapMapper.INSTANCE;
+    private final CookieListMapMapper cookieListMapMapper;
 
     @Override
     public CookieListMapTO getMapByIdAndType(String refId, Global.CookieListMapType type) {

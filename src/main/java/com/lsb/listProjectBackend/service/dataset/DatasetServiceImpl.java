@@ -27,8 +27,8 @@ import com.lsb.listProjectBackend.service.scrapy.ScrapyPaginationService;
 import com.lsb.listProjectBackend.service.scrapy.ScrapyService;
 import com.lsb.listProjectBackend.utils.Global;
 import com.lsb.listProjectBackend.utils.Utils;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
@@ -40,29 +40,21 @@ import java.util.stream.Collectors;
 @Slf4j
 @UseDynamic
 @Service
+@RequiredArgsConstructor
 public class DatasetServiceImpl implements DatasetService {
-    @Autowired
-    private DatasetRepository datasetRepository;
-    @Autowired
-    private GroupDatasetDataRepository groupDatasetDataRepository;
-    @Autowired
-    private GroupDatasetRepository groupDatasetRepository;
-    @Autowired
-    private GroupDatasetService groupDatasetService;
-    @Autowired
-    private ScrapyService scrapyService;
-    @Autowired
-    private ScrapyPaginationService scrapyPaginationService;
-    @Autowired
-    private DatasetDataRepository datasetDataRepository;
-    @Autowired
-    private ImageService imageService;
-    @Autowired
-    private ReplaceValueMapRepository replaceValueMapRepository;
+    private final DatasetRepository datasetRepository;
+    private final GroupDatasetDataRepository groupDatasetDataRepository;
+    private final GroupDatasetRepository groupDatasetRepository;
+    private final GroupDatasetService groupDatasetService;
+    private final ScrapyService scrapyService;
+    private final ScrapyPaginationService scrapyPaginationService;
+    private final DatasetDataRepository datasetDataRepository;
+    private final ImageService imageService;
+    private final ReplaceValueMapRepository replaceValueMapRepository;
 
-    private final DatasetMapper datasetMapper = DatasetMapper.INSTANCE;
-    private final DatasetDataMapper datasetDataMapper = DatasetDataMapper.INSTANCE;
-    private final GroupDatasetDataMapper groupDatasetDataMapper = GroupDatasetDataMapper.INSTANCE;
+    private final DatasetMapper datasetMapper;
+    private final DatasetDataMapper datasetDataMapper;
+    private final GroupDatasetDataMapper groupDatasetDataMapper;
 
     public List<DatasetTO> getAllDataset() {
         return datasetMapper.toDomainList(datasetRepository.findAll());

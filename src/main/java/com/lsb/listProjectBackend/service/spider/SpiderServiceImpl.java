@@ -17,6 +17,7 @@ import com.lsb.listProjectBackend.utils.JsonUtils;
 import com.lsb.listProjectBackend.utils.Utils;
 import com.lsb.listProjectBackend.utils.Global.SpiderUrlType;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import org.jsoup.Connection;
@@ -24,7 +25,6 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -34,22 +34,13 @@ import java.util.Map;
 @Slf4j
 @UseDynamic
 @Service
+@RequiredArgsConstructor
 public class SpiderServiceImpl implements SpiderService {
-
-    @Autowired
-    private SpiderConfigService spiderConfigService;
-
-    @Autowired
-    private SpiderItemService spiderItemService;
-
-    @Autowired
-    private CookieListService cookieListService;
-
-    @Autowired
-    private ValuePipelineService valuePipelineService;
-
-    @Autowired
-    private ExtractionRuleService extractionRuleService;
+    private final SpiderConfigService spiderConfigService;
+    private final SpiderItemService spiderItemService;
+    private final CookieListService cookieListService;
+    private final ValuePipelineService valuePipelineService;
+    private final ExtractionRuleService extractionRuleService;
 
     @Override
     public String executeByUrl(String spiderId, String url) throws Exception {

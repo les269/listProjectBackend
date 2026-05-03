@@ -7,7 +7,7 @@ import com.lsb.listProjectBackend.mapper.connection.DatabaseConfigMapper;
 import com.lsb.listProjectBackend.repository.local.connection.DatabaseConfigRepository;
 import com.lsb.listProjectBackend.service.connection.DatabaseConfigService;
 import com.lsb.listProjectBackend.utils.Global;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
@@ -20,11 +20,11 @@ import java.util.List;
  * local不需要 @UseDynamic or @UseDynamicTx
  */
 @Service
+@RequiredArgsConstructor
 public class DatabaseConfigServiceImpl implements DatabaseConfigService {
-    @Autowired
-    private DatabaseConfigRepository databaseConfigRepository;
+    private final DatabaseConfigRepository databaseConfigRepository;
 
-    private final DatabaseConfigMapper databaseConfigMapper = DatabaseConfigMapper.INSTANCE;
+    private final DatabaseConfigMapper databaseConfigMapper;
 
     @Override
     public List<DatabaseConfigTO> getAll() {

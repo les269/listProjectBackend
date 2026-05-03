@@ -3,14 +3,14 @@ package com.lsb.listProjectBackend.mapper.common;
 import com.lsb.listProjectBackend.domain.common.ReplaceValueMapTO;
 import com.lsb.listProjectBackend.entity.dynamic.common.ReplaceValueMap;
 
+import com.lsb.listProjectBackend.mapper.SpringAndIgnoreUnmappedMapperConfig;
+
 import org.mapstruct.Mapper;
-import org.mapstruct.factory.Mappers;
 
 import java.util.List;
 
-@Mapper
+@Mapper(config = SpringAndIgnoreUnmappedMapperConfig.class)
 public interface ReplaceValueMapMapper {
-    ReplaceValueMapMapper INSTANCE = Mappers.getMapper(ReplaceValueMapMapper.class);
 
     ReplaceValueMap toEntity(ReplaceValueMapTO to);
 

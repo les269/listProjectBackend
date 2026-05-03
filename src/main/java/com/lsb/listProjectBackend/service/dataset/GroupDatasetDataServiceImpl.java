@@ -10,9 +10,9 @@ import com.lsb.listProjectBackend.service.dataset.GroupDatasetDataService;
 import com.lsb.listProjectBackend.service.dataset.GroupDatasetService;
 import com.lsb.listProjectBackend.utils.Utils;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
@@ -24,13 +24,12 @@ import java.util.Objects;
 @Slf4j
 @UseDynamic
 @Service
+@RequiredArgsConstructor
 public class GroupDatasetDataServiceImpl implements GroupDatasetDataService {
-    @Autowired
-    private GroupDatasetDataRepository groupDatasetDataRepository;
-    @Autowired
-    private GroupDatasetService groupDatasetService;
+    private final GroupDatasetDataRepository groupDatasetDataRepository;
+    private final GroupDatasetService groupDatasetService;
 
-    private final GroupDatasetDataMapper groupDatasetDataMapper = GroupDatasetDataMapper.INSTANCE;
+    private final GroupDatasetDataMapper groupDatasetDataMapper;
 
     public GroupDatasetDataTO getGroupDatasetData(String groupName, String primeValue) {
         var pk = new GroupDatasetDataPK(groupName, primeValue);

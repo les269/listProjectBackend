@@ -4,7 +4,7 @@ import com.lsb.listProjectBackend.domain.dataset.DatasetDataTO;
 import com.lsb.listProjectBackend.domain.dataset.DatasetQuickRefreshTO;
 import com.lsb.listProjectBackend.domain.dataset.DatasetTO;
 import com.lsb.listProjectBackend.service.dataset.DatasetService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -13,9 +13,9 @@ import java.util.Map;
 @CrossOrigin("*")
 @RestController
 @RequestMapping("api")
+@RequiredArgsConstructor
 public class DatasetController {
-    @Autowired
-    private DatasetService datasetService;
+    private final DatasetService datasetService;
 
     @GetMapping("/dataset/get")
     DatasetTO getDataset(@RequestParam("name") String name) {

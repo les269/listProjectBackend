@@ -6,9 +6,9 @@ import com.lsb.listProjectBackend.mapper.common.ReplaceValueMapMapper;
 import com.lsb.listProjectBackend.repository.dynamic.common.ReplaceValueMapRepository;
 import com.lsb.listProjectBackend.service.common.ReplaceValueMapService;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -16,11 +16,11 @@ import java.util.List;
 @Slf4j
 @UseDynamic
 @Service
+@RequiredArgsConstructor
 public class ReplaceValueMapServiceImpl implements ReplaceValueMapService {
-    @Autowired
-    private ReplaceValueMapRepository replaceValueMapRepository;
+    private final ReplaceValueMapRepository replaceValueMapRepository;
 
-    private ReplaceValueMapMapper mapper = ReplaceValueMapMapper.INSTANCE;
+    private final ReplaceValueMapMapper mapper;
 
     @Override
     public List<ReplaceValueMapTO> getNameList() {

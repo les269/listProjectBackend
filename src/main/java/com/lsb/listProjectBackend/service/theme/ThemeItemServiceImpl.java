@@ -15,8 +15,8 @@ import com.lsb.listProjectBackend.repository.dynamic.theme.ThemeItemMapRepositor
 import com.lsb.listProjectBackend.repository.dynamic.theme.ThemeItemRepository;
 import com.lsb.listProjectBackend.service.theme.ThemeItemService;
 import com.lsb.listProjectBackend.utils.Global;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -25,14 +25,13 @@ import java.util.List;
 @Slf4j
 @UseDynamic
 @Service
+@RequiredArgsConstructor
 public class ThemeItemServiceImpl implements ThemeItemService {
-    @Autowired
-    private ThemeItemRepository themeItemRepository;
-    @Autowired
-    private ThemeItemMapRepository themeItemMapRepository;
+    private final ThemeItemRepository themeItemRepository;
+    private final ThemeItemMapRepository themeItemMapRepository;
 
-    private ThemeItemMapper themeItemMapper = ThemeItemMapper.INSTANCE;
-    private ThemeItemMapMapper themeItemMapMapper = ThemeItemMapMapper.INSTANCE;
+    private final ThemeItemMapper themeItemMapper;
+    private final ThemeItemMapMapper themeItemMapMapper;
 
     public void copyThemeItem(CopyThemeItemReq req) {
         if (req == null || req.getType() == null

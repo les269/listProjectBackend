@@ -9,7 +9,7 @@ import com.lsb.listProjectBackend.mapper.common.SettingMapper;
 import com.lsb.listProjectBackend.repository.local.common.SettingRepository;
 import com.lsb.listProjectBackend.service.connection.DatabaseConfigService;
 import com.lsb.listProjectBackend.service.common.SettingService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -18,16 +18,13 @@ import java.util.List;
  * local不需要 @UseDynamic or @UseDynamicTx
  */
 @Service
+@RequiredArgsConstructor
 public class SettingServiceImpl implements SettingService {
+    private final SettingRepository settingRepository;
+    private final DatabaseConfigService databaseConfigService;
+    private final DynamicDataSourceRefresher dynamicDataSourceRefresher;
 
-    @Autowired
-    private SettingRepository settingRepository;
-    @Autowired
-    private DatabaseConfigService databaseConfigService;
-    @Autowired
-    private DynamicDataSourceRefresher dynamicDataSourceRefresher;
-
-    private final SettingMapper settingMapper = SettingMapper.INSTANCE;
+    private final SettingMapper settingMapper;
 
     @Override
     public List<SettingTO> getAll() {

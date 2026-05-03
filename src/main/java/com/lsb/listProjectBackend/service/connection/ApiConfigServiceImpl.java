@@ -8,8 +8,8 @@ import com.lsb.listProjectBackend.entity.dynamic.common.ApiConfig;
 import com.lsb.listProjectBackend.mapper.connection.ApiConfigMapper;
 import com.lsb.listProjectBackend.repository.dynamic.connection.ApiConfigRepository;
 import com.lsb.listProjectBackend.service.connection.ApiConfigService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestTemplate;
@@ -21,14 +21,14 @@ import java.util.Map;
 @Slf4j
 @UseDynamic
 @Service
+@RequiredArgsConstructor
 public class ApiConfigServiceImpl implements ApiConfigService {
-    @Autowired
-    private ApiConfigRepository apiConfigRepository;
+    private final ApiConfigRepository apiConfigRepository;
 
     private static final RestTemplate restTemplate = new RestTemplate();
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
-    private final ApiConfigMapper apiConfigMapper = ApiConfigMapper.INSTANCE;
+    private final ApiConfigMapper apiConfigMapper;
 
     public List<ApiConfigTO> getAll() {
         return apiConfigMapper.toDomainList(apiConfigRepository.findAll());
