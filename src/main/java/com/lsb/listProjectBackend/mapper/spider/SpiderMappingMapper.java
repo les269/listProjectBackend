@@ -4,13 +4,11 @@ import com.lsb.listProjectBackend.domain.spider.SpiderMappingTO;
 import com.lsb.listProjectBackend.entity.dynamic.spider.SpiderMapping;
 
 import org.mapstruct.Mapper;
-import org.mapstruct.factory.Mappers;
 
 import java.util.List;
 
-@Mapper
+@Mapper(componentModel = "spring")
 public interface SpiderMappingMapper {
-    SpiderMappingMapper INSTANCE = Mappers.getMapper(SpiderMappingMapper.class);
 
     SpiderMapping toEntity(SpiderMappingTO to);
 

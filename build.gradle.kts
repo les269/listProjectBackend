@@ -26,6 +26,8 @@ dependencies {
     implementation(libs.com.google.guava.guava)
     implementation(libs.com.jayway.jsonpath.json.path)
     implementation("org.eclipse:yasson:3.0.4")
+    // Source: https://mvnrepository.com/artifact/com.github.houbb/opencc4j
+    implementation("com.github.houbb:opencc4j:1.14.0")
 
     compileOnly(libs.org.projectlombok.lombok)
     

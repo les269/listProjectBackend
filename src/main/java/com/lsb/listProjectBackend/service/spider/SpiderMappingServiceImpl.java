@@ -6,9 +6,9 @@ import com.lsb.listProjectBackend.entity.dynamic.spider.SpiderMapping;
 import com.lsb.listProjectBackend.entity.dynamic.spider.SpiderMappingPK;
 import com.lsb.listProjectBackend.mapper.spider.SpiderMappingMapper;
 import com.lsb.listProjectBackend.repository.dynamic.spider.SpiderMappingRepository;
-import com.lsb.listProjectBackend.service.spider.SpiderMappingService;
+
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
 import org.springframework.stereotype.Service;
 
@@ -17,12 +17,12 @@ import java.util.List;
 @Slf4j
 @UseDynamic
 @Service
+@RequiredArgsConstructor
 public class SpiderMappingServiceImpl implements SpiderMappingService {
 
-    @Autowired
-    private SpiderMappingRepository spiderMappingRepository;
+    private final SpiderMappingRepository spiderMappingRepository;
 
-    private final SpiderMappingMapper spiderMappingMapper = SpiderMappingMapper.INSTANCE;
+    private final SpiderMappingMapper spiderMappingMapper;
 
     @Override
     public List<SpiderMappingTO> getAll() {

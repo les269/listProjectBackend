@@ -17,10 +17,12 @@ public class ValuePipeline {
     private boolean enabled;
     private String fixedValue;
     private String fixedJsonValue;
+    private String currentDataKey;
     private String attributeName;
     private String pattern;
     private String replacement;
     private String separator;
+    private String joinSeparator;
     private String combineToString;
     private String combineByKey;
     private String useReplaceValueMap;
@@ -30,8 +32,7 @@ public class ValuePipeline {
     @Enumerated(EnumType.STRING)
     private Global.ConvertToCaseType convertToCaseType;
     private CurrentTimeFormatOption currentTimeFormatOption;
-    @Enumerated(EnumType.STRING)
-    private Global.ChineseConvertType chineseConvertType;
+    private ChineseConvert chineseConvert;
     private InsertConfig insertConfig;
     private CopySpecifiedValueToConfig copySpecifiedValueToConfig;
     private DeleteConfig deleteConfig;

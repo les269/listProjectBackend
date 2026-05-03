@@ -104,10 +104,12 @@ public class Global {
     public enum ValuePipelineType {
         FIXED_VALUE,
         FIXED_JSON_VALUE,
+        CURRENT_DATA_KEY,
         EXTRACT_ATTR,
         EXTRACT_OWN_TEXT,
         REPLACE_REGULAR,
         SPLIT_TEXT,
+        JOIN_ARRAY_TO_STRING,
         CONVERT_TO_ARRAY,
         FIRST_VALUE,
         LAST_VALUE,
@@ -145,6 +147,12 @@ public class Global {
         TRADITIONAL_TO_SIMPLIFIED
     }
 
+    public enum ZhConverterUtilType {
+        ZH_CONVERTER_UTIL,
+        ZH_TW_CONVERTER_UTIL,
+        ZH_HK_CONVERTER_UTIL,
+        ZH_JP_CONVERTER_UTIL
+    }
 
     public enum Timezones {
         GMT_M12("GMT-12:00"),
