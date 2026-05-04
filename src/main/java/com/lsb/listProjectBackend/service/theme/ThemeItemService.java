@@ -1,6 +1,6 @@
 package com.lsb.listProjectBackend.service.theme;
 
-import com.lsb.listProjectBackend.domain.theme.CopyThemeItemReq;
+import com.lsb.listProjectBackend.domain.theme.CopyThemeItemReqTO;
 import com.lsb.listProjectBackend.domain.theme.ThemeItemMapTO;
 import com.lsb.listProjectBackend.domain.theme.ThemeItemTO;
 import com.lsb.listProjectBackend.utils.Global;
@@ -8,7 +8,7 @@ import com.lsb.listProjectBackend.utils.Global;
 import java.util.List;
 
 public interface ThemeItemService {
-    void copyThemeItem(CopyThemeItemReq req);
+    void copyThemeItem(CopyThemeItemReqTO req);
 
     ThemeItemTO getThemeItemById(Global.ThemeItemType type, String itemId);
 

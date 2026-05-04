@@ -48,9 +48,7 @@ public class ThemeServiceImpl implements ThemeService {
     private final ThemeTagValueMapper themeTagValueMapper;
 
     public List<ThemeHeaderTO> getAllTheme() {
-        return themeHeaderRepository.findAll().stream()
-                .map(this::toSummary)
-                .toList();
+        return themeMapper.headerToDomainList(themeHeaderRepository.findAll());
     }
 
     public ThemeHeaderTO getByHeaderId(String headerId) {
@@ -78,7 +76,7 @@ public class ThemeServiceImpl implements ThemeService {
         themeHeaderRepository.deleteById(headerId);
         themeHeaderRepository.save(themeHeader);
         ThemeHeaderTO latest = getByHeaderId(headerId);
-        syncShareTagMappings(headerId, latest == null ? null : latest.getThemeTagList());
+        syncShareTagMappings(headerId, latest == null ? null : latest.themeTagList());
     }
 
     public void deleteTheme(ThemeHeaderTO headerTO) {
@@ -92,9 +90,9 @@ public class ThemeServiceImpl implements ThemeService {
         }
     }
 
-    public void copyTheme(CopyThemeRequest request) {
-        ThemeHeader source = themeMapper.headerToEntity(request.getSource());
-        ThemeHeader target = themeMapper.headerToEntity(request.getTarget());
+    public void copyTheme(CopyThemeReqTO request) {
+        ThemeHeader source = themeMapper.headerToEntity(request.source());
+        ThemeHeader target = themeMapper.headerToEntity(request.target());
         Optional<ThemeHeader> sourceOptional = themeHeaderRepository.findById(source.getId());
         boolean existTarget = themeHeaderRepository.existsById(target.getId());
         if (sourceOptional.isPresent() && !existTarget) {
@@ -104,15 +102,15 @@ public class ThemeServiceImpl implements ThemeService {
             themeHeaderRepository.save(target);
             themeItemService.copyMapping(source.getId(), headerId);
             ThemeHeaderTO sourceTheme = themeMapper.headerToDomain(sourceOptional.get());
-            syncShareTagMappings(headerId, sourceTheme.getThemeTagList());
+            syncShareTagMappings(headerId, sourceTheme.themeTagList());
         } else {
             throw new LsbException("主題不存在無法複製", org.springframework.http.HttpStatus.NOT_FOUND);
         }
     }
 
-    public Map<String, Map<String, String>> findCustomValue(ThemeCustomValueRequest request) {
-        List<ThemeCustomValue> list = themeCustomValueRepository.findByHeaderIdAndInCorrDataValue(request.getHeaderId(),
-                request.getValueList());
+    public Map<String, Map<String, String>> findCustomValue(ThemeCustomValueReqTO request) {
+        List<ThemeCustomValue> list = themeCustomValueRepository.findByHeaderIdAndInCorrDataValue(request.headerId(),
+                request.valueList());
         // 先用data來groupBy,toMap成自定義的byKey跟value
         return list.stream().collect(
                 groupingBy(ThemeCustomValue::getCorrespondDataValue,
@@ -138,20 +136,17 @@ public class ThemeServiceImpl implements ThemeService {
         var result = themeTagValueMapper.toDomainList(themeTagValueRepository.findByHeaderId(headerId));
         themeHeaderRepository.findById(headerId).ifPresent(theme -> {
             ThemeHeaderTO current = themeMapper.headerToDomain(theme);
-            if (current == null || current.getThemeTagList() == null) {
+            if (current == null || current.themeTagList() == null) {
                 return;
             }
-            for (var tag : current.getThemeTagList()) {
+            for (var tag : current.themeTagList()) {
                 String shareTagId = tag.getShareTagId();
                 if (!StringUtils.hasText(shareTagId)) {
                     continue;
                 }
-                var tagValue = result.stream().filter(x -> shareTagId.equals(x.getTag())).findFirst();
+                var tagValue = result.stream().filter(x -> shareTagId.equals(x.tag())).findFirst();
                 if (tagValue.isEmpty()) {
-                    ThemeTagValueTO themeTagValueTO = new ThemeTagValueTO();
-                    themeTagValueTO.setHeaderId(headerId);
-                    themeTagValueTO.setTag(shareTagId);
-                    themeTagValueTO.setValueList(new ArrayList<>());
+                    ThemeTagValueTO themeTagValueTO = new ThemeTagValueTO(headerId, shareTagId, new ArrayList<>());
                     result.add(themeTagValueTO);
                 }
             }
@@ -168,22 +163,6 @@ public class ThemeServiceImpl implements ThemeService {
 
     public void updateTopCustomValue(ThemeTopCustomValueTO topCustomValueTO) {
         themeTopCustomValueRepository.save(themeMapper.topCustomValueToEntity(topCustomValueTO));
-    }
-
-    private ThemeHeaderTO toSummary(ThemeHeader entity) {
-        ThemeHeaderTO summary = new ThemeHeaderTO();
-        summary.setName(entity.getName());
-        summary.setVersion(entity.getVersion());
-        summary.setTitle(entity.getTitle());
-        summary.setType(entity.getType());
-        summary.setSeq(entity.getSeq());
-        summary.setThemeCustomList(entity.getThemeCustomList());
-        summary.setThemeImage(entity.getThemeImage());
-        summary.setThemeLabelList(entity.getThemeLabelList());
-        summary.setThemeDatasetList(entity.getThemeDatasetList());
-        summary.setThemeTagList(entity.getThemeTagList());
-        summary.setThemeOtherSetting(entity.getThemeOtherSetting());
-        return summary;
     }
 
     private void syncShareTagMappings(String headerId, List<ThemeTag> themeTagList) {

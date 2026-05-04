@@ -66,8 +66,8 @@ public class GroupDatasetDataServiceImpl implements GroupDatasetDataService {
 
     public String deleteGroupDatasetDataForImage(String groupName, String primeValue) throws IOException {
         GroupDatasetTO groupDataset = groupDatasetService.getGroupDataset(groupName);
-        if (groupDataset != null && Utils.isNotBlank(groupDataset.getConfig().getImageSaveFolder())) {
-            String folder = groupDataset.getConfig().getImageSaveFolder();
+        if (groupDataset != null && Utils.isNotBlank(groupDataset.config().getImageSaveFolder())) {
+            String folder = groupDataset.config().getImageSaveFolder();
             String path = folder + "\\" + primeValue;
             if (new File(path).exists()) {
                 Utils.deleteFile(path);

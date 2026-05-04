@@ -67,7 +67,7 @@ public class ScrapyPaginationServiceImpl extends ScrapyBase implements ScrapyPag
     @Override
     public Map<String, Object> testHtml(ScrapyPaginationTestTO to) {
         Map<String, Object> result = new HashMap<>();
-        useCssSelect(to.getHtml(), to.getConfig().getCssSelectList(), result);
+        useCssSelect(to.html(), to.config().getCssSelectList(), result);
         return result;
     }
 
@@ -111,10 +111,10 @@ public class ScrapyPaginationServiceImpl extends ScrapyBase implements ScrapyPag
     @Override
     public boolean checkForUpdate(String name) {
         var to = this.get(name);
-        if (to == null || to.getConfig() == null) {
+        if (to == null || to.config() == null) {
             return false;
         }
-        var config = to.getConfig();
+        var config = to.config();
         if (config.getCurrentUpdateDate() == null || config.getLastUpdateDate() == null) {
             return false;
         }

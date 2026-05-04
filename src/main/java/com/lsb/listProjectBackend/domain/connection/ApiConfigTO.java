@@ -1,16 +1,14 @@
 package com.lsb.listProjectBackend.domain.connection;
 
 import com.lsb.listProjectBackend.utils.Global;
-import lombok.Data;
 
-@Data
-public class ApiConfigTO {
-    private String apiName;
-    private Global.HttpMethodType httpMethod;
-    private String endpointUrl;
-    private String requestBody;
-    private String httpParams;
-    private String httpHeaders;
-    private String successMessage;
-    private Long updatedTime;
+public record ApiConfigTO(
+        String apiName,
+        Global.HttpMethodType httpMethod,
+        String endpointUrl,
+        String requestBody,
+        String httpParams,
+        String httpHeaders,
+        String successMessage,
+        Long updatedTime) {
 }

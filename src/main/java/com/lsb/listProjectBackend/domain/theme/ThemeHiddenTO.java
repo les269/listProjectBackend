@@ -1,11 +1,6 @@
 package com.lsb.listProjectBackend.domain.theme;
 
-import lombok.Data;
-
 import java.time.LocalDateTime;
 
-@Data
-public class ThemeHiddenTO {
-    private String headerId;
-    private LocalDateTime updatedTime;
+public record ThemeHiddenTO(String headerId, LocalDateTime updatedTime) {
 }

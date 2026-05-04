@@ -42,8 +42,8 @@ public class ValuePipelineServiceImplTest {
         disabledReplaceMap.setType(Global.ValuePipelineType.USE_REPLACE_VALUE_MAP);
         disabledReplaceMap.setUseReplaceValueMap("ignored-map");
 
-        ReplaceValueMapTO replaceValueMapTO = new ReplaceValueMapTO();
-        replaceValueMapTO.setName("status-map");
+        ReplaceValueMapTO replaceValueMapTO = new ReplaceValueMapTO("status-map", Map.of("A", "Alpha", "B", "Beta"),
+                null, null);
         when(replaceValueMapService.getAllByNameList(eq(List.of("status-map"))))
                 .thenReturn(List.of(replaceValueMapTO));
 
@@ -51,7 +51,7 @@ public class ValuePipelineServiceImplTest {
                 .fetchReplaceValueMaps(List.of(enabledReplaceMap, duplicateReplaceMap, disabledReplaceMap));
 
         assertEquals(1, result.size());
-        assertEquals("status-map", result.getFirst().getName());
+        assertEquals("status-map", result.getFirst().name());
         verify(replaceValueMapService).getAllByNameList(eq(List.of("status-map")));
     }
 
@@ -99,9 +99,9 @@ public class ValuePipelineServiceImplTest {
         pipeline.setType(Global.ValuePipelineType.USE_REPLACE_VALUE_MAP);
         pipeline.setUseReplaceValueMap("status-map");
 
-        ReplaceValueMapTO replaceValueMapTO = new ReplaceValueMapTO();
-        replaceValueMapTO.setName("status-map");
-        replaceValueMapTO.setMap(Map.of("A", "Alpha", "B", "Beta"));
+        ReplaceValueMapTO replaceValueMapTO = new ReplaceValueMapTO("status-map", Map.of("A", "Alpha", "B", "Beta"),
+                null, null);
+        when(service.fetchReplaceValueMaps(List.of(pipeline))).thenReturn(List.of(replaceValueMapTO));
 
         var context = new ValuePipelineContext(List.of(replaceValueMapTO), JsonPath.parse("{}"),
                 null);
@@ -120,7 +120,3 @@ public class ValuePipelineServiceImplTest {
         assertIterableEquals(List.of("A", "B"), (List<?>) result);
     }
 }
-
-
-
-

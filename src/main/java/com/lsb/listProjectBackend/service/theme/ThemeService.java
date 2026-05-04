@@ -19,9 +19,9 @@ public interface ThemeService {
 
     void deleteTheme(ThemeHeaderTO headerTO);
 
-    void copyTheme(CopyThemeRequest request);
+    void copyTheme(CopyThemeReqTO request);
 
-    Map<String, Map<String, String>> findCustomValue(ThemeCustomValueRequest request);
+    Map<String, Map<String, String>> findCustomValue(ThemeCustomValueReqTO request);
 
     void updateCustomValue(ThemeCustomValueTO customValueTO);
 

@@ -38,8 +38,8 @@ public class DatabaseConfigServiceImpl implements DatabaseConfigService {
 
     @Override
     public ConnectionTestResultTO testConnection(ConnectionTestReqTO to) {
-        String type = to.getDatabaseType();
-        String sqliteFilePath = to.getSqliteFilePath();
+        String type = to.databaseType();
+        String sqliteFilePath = to.sqliteFilePath();
         String jdbcUrl = "";
 
         if ("sqlite".equalsIgnoreCase(type)) {
@@ -53,9 +53,9 @@ public class DatabaseConfigServiceImpl implements DatabaseConfigService {
             }
             jdbcUrl = "jdbc:sqlite:" + file.getAbsolutePath();
         } else if ("postgresql".equalsIgnoreCase(type) || "postgres".equalsIgnoreCase(type)) {
-            String host = to.getHost() == null ? "localhost" : to.getHost();
-            Integer port = to.getPort() == null ? 5432 : to.getPort();
-            String db = to.getDatabaseName() == null ? "" : to.getDatabaseName();
+            String host = to.host() == null ? "localhost" : to.host();
+            Integer port = to.port() == null ? 5432 : to.port();
+            String db = to.databaseName() == null ? "" : to.databaseName();
             if (db.isBlank() || host.isBlank()) {
                 return new ConnectionTestResultTO(false, "jdbcUrl or host+port+databaseName required for postgresql");
             }
@@ -66,7 +66,7 @@ public class DatabaseConfigServiceImpl implements DatabaseConfigService {
 
         try (Connection conn = "sqlite".equalsIgnoreCase(type)
                 ? DriverManager.getConnection(jdbcUrl)
-                : DriverManager.getConnection(jdbcUrl, to.getUsername(), to.getPassword())) {
+                : DriverManager.getConnection(jdbcUrl, to.username(), to.password())) {
             return new ConnectionTestResultTO(true, "Connection successful");
         } catch (SQLException e) {
             return new ConnectionTestResultTO(false, e.getMessage());

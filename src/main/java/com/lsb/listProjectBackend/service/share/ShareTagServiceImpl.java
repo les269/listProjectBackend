@@ -83,11 +83,11 @@ public class ShareTagServiceImpl implements ShareTagService {
 
     @Override
     public void deleteShareTagValueList(ShareTagValueDeleteListTO to) {
-        if (to == null || to.getShareTagId() == null || to.getValues() == null || to.getValues().isEmpty()) {
+        if (to == null || to.shareTagId() == null || to.values() == null || to.values().isEmpty()) {
             return;
         }
-        String shareTagId = to.getShareTagId();
-        var shareTagValuePKs = to.getValues().stream().map(value -> new ShareTagValuePK(shareTagId, value)).toList();
+        String shareTagId = to.shareTagId();
+        var shareTagValuePKs = to.values().stream().map(value -> new ShareTagValuePK(shareTagId, value)).toList();
         shareTagValueRepository.deleteAllById(shareTagValuePKs);
     }
 }

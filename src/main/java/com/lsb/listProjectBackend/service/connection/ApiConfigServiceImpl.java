@@ -54,26 +54,26 @@ public class ApiConfigServiceImpl implements ApiConfigService {
     }
 
     public void delete(ApiConfigTO apiConfigTO) {
-        this.apiConfigRepository.deleteById(apiConfigTO.getApiName());
+        this.apiConfigRepository.deleteById(apiConfigTO.apiName());
     }
 
     public List<Map<String, Object>> callApi(ApiConfigTO apiConfig) throws Exception {
         try {
-            String url = apiConfig.getEndpointUrl();
+            String url = apiConfig.endpointUrl();
             String response = "";
-            switch (apiConfig.getHttpMethod()) {
+            switch (apiConfig.httpMethod()) {
                 case get:
                     response = restTemplate.getForObject(url, String.class);
                     break;
                 case post:
                     response = restTemplate.postForObject(url,
-                            objectMapper.readValue(apiConfig.getRequestBody(), new TypeReference<>() {
+                            objectMapper.readValue(apiConfig.requestBody(), new TypeReference<>() {
                             }),
                             String.class);
                     break;
                 case put:
                     restTemplate.put(url,
-                            objectMapper.readValue(apiConfig.getRequestBody(), new TypeReference<>() {
+                            objectMapper.readValue(apiConfig.requestBody(), new TypeReference<>() {
                             }),
                             String.class);
                     break;

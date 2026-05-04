@@ -50,7 +50,7 @@ public class SettingServiceImpl implements SettingService {
     public void changeDatabase(SettingTO to) {
         dynamicDataSourceRefresher.refresh();
 
-        DatabaseConfigTO databaseConfigTO = databaseConfigService.getById(to.getValue());
+        DatabaseConfigTO databaseConfigTO = databaseConfigService.getById(to.value());
         if (databaseConfigTO != null) {
             // 根據資料庫類型初始化動態資料庫並執行 dynamic.sql
             DatabaseInitializer.initializeDynamicDatabase(databaseConfigTO);

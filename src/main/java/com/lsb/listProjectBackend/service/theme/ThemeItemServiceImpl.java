@@ -1,7 +1,7 @@
 package com.lsb.listProjectBackend.service.theme;
 
 import com.lsb.listProjectBackend.aop.UseDynamic;
-import com.lsb.listProjectBackend.domain.theme.CopyThemeItemReq;
+import com.lsb.listProjectBackend.domain.theme.CopyThemeItemReqTO;
 import com.lsb.listProjectBackend.domain.common.LsbException;
 import com.lsb.listProjectBackend.domain.theme.ThemeItemMapTO;
 import com.lsb.listProjectBackend.domain.theme.ThemeItemTO;
@@ -33,26 +33,26 @@ public class ThemeItemServiceImpl implements ThemeItemService {
     private final ThemeItemMapper themeItemMapper;
     private final ThemeItemMapMapper themeItemMapMapper;
 
-    public void copyThemeItem(CopyThemeItemReq req) {
-        if (req == null || req.getType() == null
-                || !StringUtils.hasText(req.getSourceItemId())
-                || !StringUtils.hasText(req.getTargetItemId())) {
+    public void copyThemeItem(CopyThemeItemReqTO req) {
+        if (req == null || req.type() == null
+                || !StringUtils.hasText(req.sourceItemId())
+                || !StringUtils.hasText(req.targetItemId())) {
             throw new LsbException("sourceItemId、targetItemId、type 皆不可為空");
         }
 
-        ThemeItemPK sourcePk = new ThemeItemPK(req.getSourceItemId(), req.getType());
+        ThemeItemPK sourcePk = new ThemeItemPK(req.sourceItemId(), req.type());
         ThemeItem source = themeItemRepository.findById(sourcePk)
-                .orElseThrow(() -> new LsbException("找不到來源 ThemeItem: " + req.getSourceItemId(),
+                .orElseThrow(() -> new LsbException("找不到來源 ThemeItem: " + req.sourceItemId(),
                         org.springframework.http.HttpStatus.NOT_FOUND));
 
-        ThemeItemPK targetPk = new ThemeItemPK(req.getTargetItemId(), req.getType());
+        ThemeItemPK targetPk = new ThemeItemPK(req.targetItemId(), req.type());
         if (themeItemRepository.existsById(targetPk)) {
-            throw new LsbException("目標 ThemeItem 已存在: " + req.getTargetItemId());
+            throw new LsbException("目標 ThemeItem 已存在: " + req.targetItemId());
         }
 
         ThemeItem target = new ThemeItem();
-        target.setItemId(req.getTargetItemId());
-        target.setType(req.getType());
+        target.setItemId(req.targetItemId());
+        target.setType(req.type());
         target.setJson(source.getJson());
         target.setDescription(source.getDescription());
         themeItemRepository.save(target);

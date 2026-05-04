@@ -1,6 +1,6 @@
 package com.lsb.listProjectBackend.controller.theme;
 
-import com.lsb.listProjectBackend.domain.theme.CopyThemeItemReq;
+import com.lsb.listProjectBackend.domain.theme.CopyThemeItemReqTO;
 import com.lsb.listProjectBackend.domain.theme.ThemeItemTO;
 import com.lsb.listProjectBackend.service.theme.ThemeItemService;
 import com.lsb.listProjectBackend.utils.Global;
@@ -43,7 +43,7 @@ public class ThemeItemController {
     }
 
     @PostMapping("/theme/item/copy")
-    void copyThemeItem(@RequestBody CopyThemeItemReq req) {
+    void copyThemeItem(@RequestBody CopyThemeItemReqTO req) {
         themeItemService.copyThemeItem(req);
     }
 

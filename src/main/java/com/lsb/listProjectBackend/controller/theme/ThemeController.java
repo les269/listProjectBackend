@@ -46,12 +46,12 @@ public class ThemeController {
     }
 
     @PostMapping("/theme/copy")
-    void copyTheme(@RequestBody CopyThemeRequest copyThemeRequest) throws Exception {
+    void copyTheme(@RequestBody CopyThemeReqTO copyThemeRequest) throws Exception {
         themeService.copyTheme(copyThemeRequest);
     }
 
     @PostMapping("/theme/custom/value")
-    Map<String, Map<String, String>> findCustomValue(@RequestBody ThemeCustomValueRequest request) throws Exception {
+    Map<String, Map<String, String>> findCustomValue(@RequestBody ThemeCustomValueReqTO request) throws Exception {
         return themeService.findCustomValue(request);
     }
 

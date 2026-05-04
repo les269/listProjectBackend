@@ -1,14 +1,11 @@
 package com.lsb.listProjectBackend.domain.connection;
 
-import lombok.Data;
-
-@Data
-public class ConnectionTestReqTO {
-    private String databaseType;
-    private String sqliteFilePath;
-    private String host;
-    private Integer port;
-    private String databaseName;
-    private String username;
-    private String password;
+public record ConnectionTestReqTO(
+        String databaseType,
+        String sqliteFilePath,
+        String host,
+        Integer port,
+        String databaseName,
+        String username,
+        String password) {
 }

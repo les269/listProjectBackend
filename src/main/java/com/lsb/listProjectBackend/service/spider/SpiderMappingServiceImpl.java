@@ -39,8 +39,8 @@ public class SpiderMappingServiceImpl implements SpiderMappingService {
     public List<SpiderMappingTO> getBySpiderId(String spiderId) {
         return spiderMappingMapper.toDomainList(spiderMappingRepository.findAll())
                 .stream()
-                .filter(m -> m.getSpiderId().equals(spiderId))
-                .sorted((a, b) -> a.getExecutionOrder().compareTo(b.getExecutionOrder()))
+                .filter(m -> m.spiderId().equals(spiderId))
+                .sorted((a, b) -> a.executionOrder().compareTo(b.executionOrder()))
                 .toList();
     }
 

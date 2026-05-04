@@ -78,7 +78,7 @@ public class GroupDatasetServiceImpl implements GroupDatasetService {
                         }
                     } catch (Exception e) {
                         System.out.println(
-                                "API call failed for config: " + apiConfig.getApiName() + " - " + e.getMessage());
+                                "API call failed for config: " + apiConfig.apiName() + " - " + e.getMessage());
                     }
                 }
             }

@@ -1,17 +1,15 @@
 package com.lsb.listProjectBackend.domain.dataset;
 
 import com.lsb.listProjectBackend.utils.Global;
-import lombok.Data;
 
 import java.util.List;
 
-@Data
-public class DatasetQuickRefreshTO {
-    private String byKey;
-    private String primeKey;
-    private String scrapyName;
-    private String datasetName;
-    private String url;
-    private Global.QuickRefreshType quickRefreshType;
-    private List<String> params;
+public record DatasetQuickRefreshTO(
+        String byKey,
+        String primeKey,
+        String scrapyName,
+        String datasetName,
+        String url,
+        Global.QuickRefreshType quickRefreshType,
+        List<String> params) {
 }

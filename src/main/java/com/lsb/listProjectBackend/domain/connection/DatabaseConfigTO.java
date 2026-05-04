@@ -1,25 +1,22 @@
 package com.lsb.listProjectBackend.domain.connection;
 
-import lombok.Data;
-
 import java.time.LocalDateTime;
 
-@Data
-public class DatabaseConfigTO {
-    private String configId;
-    private String configName;
-    private String databaseType;
-    private String jdbcUrl;
-    private String driverClassName;
-    private String host;
-    private Integer port;
-    private String databaseName;
-    private String username;
-    private String password;
-    private String hibernateDialect;
-    private String additionalProperties;
-    private Integer enabled;
-    private String description;
-    private LocalDateTime createdTime;
-    private LocalDateTime updatedTime;
+public record DatabaseConfigTO(
+        String configId,
+        String configName,
+        String databaseType,
+        String jdbcUrl,
+        String driverClassName,
+        String host,
+        Integer port,
+        String databaseName,
+        String username,
+        String password,
+        String hibernateDialect,
+        String additionalProperties,
+        Integer enabled,
+        String description,
+        LocalDateTime createdTime,
+        LocalDateTime updatedTime) {
 }

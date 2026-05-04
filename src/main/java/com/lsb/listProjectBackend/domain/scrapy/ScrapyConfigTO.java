@@ -1,19 +1,10 @@
 package com.lsb.listProjectBackend.domain.scrapy;
 
-import lombok.Data;
-
 import java.time.LocalDateTime;
 import java.util.List;
 
 import com.lsb.listProjectBackend.entity.dynamic.scrapy.ScrapyData;
 
-@Data
-public class ScrapyConfigTO {
-    private String name;
-    private Integer paramSize;
-    private List<ScrapyData> data;
-    private LocalDateTime createdTime;
-    private LocalDateTime updatedTime;
-    private String testJson;
-    private String testUrl;
+public record ScrapyConfigTO(String name, Integer paramSize, List<ScrapyData> data, LocalDateTime createdTime,
+        LocalDateTime updatedTime, String testJson, String testUrl) {
 }

@@ -225,16 +225,16 @@ public class ValuePipelineServiceImpl implements ValuePipelineService {
                 if (Utils.isNotBlank(replaceValueMapName)) {
                     ReplaceValueMapTO map = allReplaceValueMapList == null ? null
                             : allReplaceValueMapList.stream()
-                                    .filter(x -> replaceValueMapName.equals(x.getName())).findFirst().orElse(null);
+                                    .filter(x -> replaceValueMapName.equals(x.name())).findFirst().orElse(null);
                     if (map != null) {
                         if (pipelineValue instanceof List) {
                             pipelineValue = ((List<?>) pipelineValue).stream().map(x -> {
                                 String xStr = String.valueOf(x);
-                                return map.getMap().getOrDefault(xStr, xStr);
+                                return map.map().getOrDefault(xStr, xStr);
                             }).toList();
                         } else {
                             String xStr = String.valueOf(pipelineValue);
-                            pipelineValue = map.getMap().getOrDefault(xStr, xStr);
+                            pipelineValue = map.map().getOrDefault(xStr, xStr);
                         }
                     }
                 }

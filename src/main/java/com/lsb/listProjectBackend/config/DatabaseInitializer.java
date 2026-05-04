@@ -92,15 +92,15 @@ public class DatabaseInitializer {
      */
     public static synchronized void initializeDynamicDatabase(
             DatabaseConfigTO databaseConfigTO) {
-        String databaseType = databaseConfigTO.getDatabaseType();
+        String databaseType = databaseConfigTO.databaseType();
         try {
             if ("sqlite".equalsIgnoreCase(databaseType)) {
-                initializeSqliteDatabase(databaseConfigTO.getJdbcUrl());
+                initializeSqliteDatabase(databaseConfigTO.jdbcUrl());
             } else if ("postgresql".equalsIgnoreCase(databaseType)) {
                 initializePostgresqlDatabase(
-                        databaseConfigTO.getJdbcUrl(),
-                        databaseConfigTO.getUsername(),
-                        databaseConfigTO.getPassword());
+                        databaseConfigTO.jdbcUrl(),
+                        databaseConfigTO.username(),
+                        databaseConfigTO.password());
             } else {
                 log.warn("Unsupported database type: {}", databaseType);
             }

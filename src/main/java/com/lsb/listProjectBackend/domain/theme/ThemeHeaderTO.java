@@ -7,23 +7,21 @@ import com.lsb.listProjectBackend.entity.dynamic.theme.ThemeLabel;
 import com.lsb.listProjectBackend.entity.dynamic.theme.ThemeOtherSetting;
 import com.lsb.listProjectBackend.entity.dynamic.theme.ThemeTag;
 import com.lsb.listProjectBackend.utils.Global;
-import lombok.Data;
 
 import java.util.List;
 
-@Data
-public class ThemeHeaderTO {
-    private String headerId;
-    private String name;
-    private String version;
-    private String title;
-    private Global.ThemeHeaderType type;
-    private ThemeImage themeImage;
-    private List<ThemeLabel> themeLabelList;
-    private List<ThemeDataset> themeDatasetList;
-    private List<ThemeCustom> themeCustomList;
-    private List<ThemeTag> themeTagList;
-    private ThemeOtherSetting themeOtherSetting;
-    private Integer seq;
-    private Long updateTime;
+public record ThemeHeaderTO(
+        String headerId,
+        String name,
+        String version,
+        String title,
+        Global.ThemeHeaderType type,
+        ThemeImage themeImage,
+        List<ThemeLabel> themeLabelList,
+        List<ThemeDataset> themeDatasetList,
+        List<ThemeCustom> themeCustomList,
+        List<ThemeTag> themeTagList,
+        ThemeOtherSetting themeOtherSetting,
+        Integer seq,
+        Long updateTime) {
 }

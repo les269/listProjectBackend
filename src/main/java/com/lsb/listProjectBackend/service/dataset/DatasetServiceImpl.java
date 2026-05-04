@@ -131,20 +131,17 @@ public class DatasetServiceImpl implements DatasetService {
 
     @Override
     public Map<String, Object> quickRefresh(DatasetQuickRefreshTO to) throws Exception {
-        String primeKey = to.getPrimeKey();
-        String byKey = to.getByKey();
-        Dataset dataset = datasetRepository.findById(to.getDatasetName()).orElse(null);
+        String primeKey = to.primeKey();
+        String byKey = to.byKey();
+        Dataset dataset = datasetRepository.findById(to.datasetName()).orElse(null);
         if (dataset == null) {
             return null;
         }
-        ScrapyReqTO scrapyReqTO = new ScrapyReqTO();
-        scrapyReqTO.setScrapyName(to.getScrapyName());
-        scrapyReqTO.setUrl(to.getUrl());
-        scrapyReqTO.setJson(to.getParams());
+        ScrapyReqTO scrapyReqTO = new ScrapyReqTO(to.scrapyName(), to.params(), to.url());
 
         // 1.爬蟲獲取資料
         Map<String, Object> json;
-        if (Global.QuickRefreshType.url.equals(to.getQuickRefreshType())) {
+        if (Global.QuickRefreshType.url.equals(to.quickRefreshType())) {
             json = scrapyService.scrapyByUrl(scrapyReqTO);
         } else {
             json = scrapyService.scrapyByJson(scrapyReqTO);
@@ -153,14 +150,14 @@ public class DatasetServiceImpl implements DatasetService {
         // 2.根據primeKey跟group name去更新 group_dataset_data
         GroupDatasetData groupDatasetData = new GroupDatasetData();
         groupDatasetData.setGroupName(dataset.getConfig().getGroupName());
-        groupDatasetData.setPrimeValue(to.getPrimeKey());
+        groupDatasetData.setPrimeValue(to.primeKey());
         groupDatasetData.setJson(json);
         groupDatasetDataRepository.save(groupDatasetData);
 
         // 3.刷新datasetData
-        refreshData(to.getDatasetName());
-        return getDatasetDataByName(to.getDatasetName())
-                .getData().stream()
+        refreshData(to.datasetName());
+        return getDatasetDataByName(to.datasetName())
+                .data().stream()
                 .filter(x -> primeKey.equals(x.get(byKey)))
                 .findFirst()
                 .orElse(new HashMap<>());
@@ -246,7 +243,7 @@ public class DatasetServiceImpl implements DatasetService {
                 scrapyPaginationService.updateRedirectData(datasetConfig.getScrapyPagination());
             }
             var to = scrapyPaginationService.get(datasetConfig.getScrapyPagination());
-            Map<String, String> keyRedirectUrlMap = to.getConfig().getKeyRedirectUrlMap();
+            Map<String, String> keyRedirectUrlMap = to.config().getKeyRedirectUrlMap();
             Set<String> keys = keyRedirectUrlMap.keySet();
             // 過濾未獲取過的資料
             targetList = keyRedirectUrlMap.entrySet().stream()
@@ -271,8 +268,8 @@ public class DatasetServiceImpl implements DatasetService {
 
                 log.info("scrapy key is {}", target.getFirst());
                 Map<String, Object> scrapyResult = type == Global.DatasetConfigType.pagination
-                        ? scrapyService.doScrapyByUrl(target.getLast(), scrapyConfigTO.getData())
-                        : scrapyService.doScrapyByJson(target, scrapyConfigTO.getData());
+                        ? scrapyService.doScrapyByUrl(target.getLast(), scrapyConfigTO.data())
+                        : scrapyService.doScrapyByJson(target, scrapyConfigTO.data());
 
                 scrapyResult.put(groupDatasetConfig.getByKey(), target.getFirst());
                 if (type == Global.DatasetConfigType.pagination) {

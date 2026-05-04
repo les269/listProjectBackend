@@ -1,13 +1,6 @@
 package com.lsb.listProjectBackend.domain.spider;
 
-import lombok.Data;
-
 import java.time.LocalDateTime;
 
-@Data
-public class SpiderMappingTO {
-    private String spiderId;
-    private Integer executionOrder;
-    private String spiderItemId;
-    private LocalDateTime updatedTime;
+public record SpiderMappingTO(String spiderId, Integer executionOrder, String spiderItemId, LocalDateTime updatedTime) {
 }

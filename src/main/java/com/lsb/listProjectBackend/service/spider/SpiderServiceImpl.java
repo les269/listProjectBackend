@@ -59,7 +59,7 @@ public class SpiderServiceImpl implements SpiderService {
         if (config == null) {
             throw new LsbException("該爬蟲配置不存在: " + spiderId, org.springframework.http.HttpStatus.NOT_FOUND);
         }
-        if (Boolean.TRUE.equals(config.getIsUrlBased())) {
+        if (Boolean.TRUE.equals(config.isUrlBased())) {
             throw new LsbException("該爬蟲是無法使用主鍵進行爬蟲的: " + spiderId);
         }
         List<SpiderItemTO> itemList = spiderItemService.getBySpiderId(spiderId);
@@ -81,26 +81,26 @@ public class SpiderServiceImpl implements SpiderService {
 
     @Override
     public String previewByUrl(SpiderTestTO req) throws Exception {
-        String url = req.getSpiderConfig().getTestData().getUrl();
-        return runSpiderItemByUrl(req.getSpiderItems(), url);
+        String url = req.spiderConfig().testData().getUrl();
+        return runSpiderItemByUrl(req.spiderItems(), url);
     }
 
     @Override
     public String previewByPrimeKey(SpiderTestTO req) throws Exception {
-        List<String> primeKeyList = req.getSpiderConfig().getTestData().getPrimeKeyList();
-        return runSpiderItemByPrimeKeyList(req.getSpiderItems(), primeKeyList);
+        List<String> primeKeyList = req.spiderConfig().testData().getPrimeKeyList();
+        return runSpiderItemByPrimeKeyList(req.spiderItems(), primeKeyList);
     }
 
     private String runSpiderItemByUrl(List<SpiderItemTO> itemList, String url) throws Exception {
         DocumentContext result = JsonPath.parse("{}");
-        List<String> spiderItemIdsForCookieRef = itemList.stream().filter(x -> x.getItemSetting().isUseCookie())
-                .map(SpiderItemTO::getSpiderItemId).distinct().toList();
+        List<String> spiderItemIdsForCookieRef = itemList.stream().filter(x -> x.itemSetting().isUseCookie())
+                .map(SpiderItemTO::spiderItemId).distinct().toList();
         Map<String, CookieListTO> cookieMap = cookieListService.getMapByRefIdsAndType(spiderItemIdsForCookieRef,
                 Global.CookieListMapType.SPIDER);
         boolean firstConnection = true;
         for (SpiderItemTO item : itemList) {
             String currentUrl = "";
-            SpiderItemSetting setting = item.getItemSetting();
+            SpiderItemSetting setting = item.itemSetting();
             // 判斷是否為第一次連線且設定為使用URL時要跳過的參數SkipWhenUsingUrl
             if (firstConnection && setting.isSkipWhenUsingUrl()) {
                 continue;
@@ -116,10 +116,10 @@ public class SpiderServiceImpl implements SpiderService {
                 currentUrl = JsonUtils.replaceValueByJsonPath(setting.getUrl(), result.json());
             }
             Map<String, String> cookie = null;
-            if (setting.isUseCookie() && cookieMap.containsKey(item.getSpiderItemId())) {
-                CookieListTO cookieList = cookieMap.get(item.getSpiderItemId());
+            if (setting.isUseCookie() && cookieMap.containsKey(item.spiderItemId())) {
+                CookieListTO cookieList = cookieMap.get(item.spiderItemId());
                 if (cookieList != null) {
-                    cookie = Utils.getCookieMap(cookieList.getList());
+                    cookie = Utils.getCookieMap(cookieList.list());
                 }
             }
             Connection connection = getConnection(currentUrl);
@@ -136,13 +136,13 @@ public class SpiderServiceImpl implements SpiderService {
             throws Exception {
         DocumentContext result = JsonPath.parse("{}");
 
-        List<String> spiderItemIdsForCookieRef = itemList.stream().filter(x -> x.getItemSetting().isUseCookie())
-                .map(SpiderItemTO::getSpiderItemId).distinct().toList();
+        List<String> spiderItemIdsForCookieRef = itemList.stream().filter(x -> x.itemSetting().isUseCookie())
+                .map(SpiderItemTO::spiderItemId).distinct().toList();
         Map<String, CookieListTO> cookieMap = cookieListService.getMapByRefIdsAndType(spiderItemIdsForCookieRef,
                 Global.CookieListMapType.SPIDER);
         for (SpiderItemTO item : itemList) {
             String currentUrl = "";
-            SpiderItemSetting setting = item.getItemSetting();
+            SpiderItemSetting setting = item.itemSetting();
             // 判斷是否為第一次連線且設定為使用URL時要跳過的參數SkipWhenUsingUrl
             if (SpiderUrlType.BY_PRIME_KEY.equals(setting.getUrlType())) {
                 currentUrl = JsonUtils.replaceValueByJsonPath(setting.getUrl(), primeKeyList);
@@ -153,10 +153,10 @@ public class SpiderServiceImpl implements SpiderService {
                 continue;
             }
             Map<String, String> cookie = null;
-            if (setting.isUseCookie() && cookieMap.containsKey(item.getSpiderItemId())) {
-                CookieListTO cookieList = cookieMap.get(item.getSpiderItemId());
+            if (setting.isUseCookie() && cookieMap.containsKey(item.spiderItemId())) {
+                CookieListTO cookieList = cookieMap.get(item.spiderItemId());
                 if (cookieList != null) {
-                    cookie = Utils.getCookieMap(cookieList.getList());
+                    cookie = Utils.getCookieMap(cookieList.list());
                 }
             }
             Connection connection = getConnection(currentUrl);
@@ -227,7 +227,6 @@ public class SpiderServiceImpl implements SpiderService {
                     valuePipelineService.normalizeExtractedValue(pipelineValue));
         }
     }
-
 
     protected Connection getConnection(String url) {
         return Jsoup.connect(url).header("Accept-Language", "zh-TW,zh;q=0.9,en-US;q=0.8,en;q=0.7,zh-CN;q=0.6,ja;q=0.5")

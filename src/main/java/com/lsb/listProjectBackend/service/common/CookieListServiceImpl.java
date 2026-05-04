@@ -70,12 +70,12 @@ public class CookieListServiceImpl implements CookieListService {
         if (cookieListMaps.isEmpty()) {
             return Map.of();
         }
-        List<String> cookieIds = cookieListMaps.stream().map(CookieListMapTO::getCookieId).distinct().toList();
+        List<String> cookieIds = cookieListMaps.stream().map(CookieListMapTO::cookieId).distinct().toList();
         List<CookieListTO> cookies = cookieListMapper.toDomainList(cookieListRepository.findAllById(cookieIds));
         Map<String, CookieListTO> cookieMap = cookies.stream()
-                .collect(Collectors.toMap(CookieListTO::getCookieId, Function.identity()));
+                .collect(Collectors.toMap(CookieListTO::cookieId, Function.identity()));
         return cookieListMaps.stream()
-                .collect(Collectors.toMap(CookieListMapTO::getRefId, map -> cookieMap.get(map.getCookieId())));
+                .collect(Collectors.toMap(CookieListMapTO::refId, map -> cookieMap.get(map.cookieId())));
     }
 
 }

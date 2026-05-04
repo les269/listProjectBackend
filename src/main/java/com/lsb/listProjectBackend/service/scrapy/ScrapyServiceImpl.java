@@ -74,9 +74,9 @@ public class ScrapyServiceImpl extends ScrapyBase implements ScrapyService {
     }
 
     public Map<String, Object> scrapyByJson(ScrapyReqTO to) throws Exception {
-        ScrapyConfigTO scrapyConfigTO = getConfig(to.getScrapyName());
+        ScrapyConfigTO scrapyConfigTO = getConfig(to.scrapyName());
         if (scrapyConfigTO != null) {
-            return doScrapyByJson(to.getJson(), scrapyConfigTO.getData());
+            return doScrapyByJson(to.json(), scrapyConfigTO.data());
         }
         return new HashMap<>();
     }
@@ -128,9 +128,9 @@ public class ScrapyServiceImpl extends ScrapyBase implements ScrapyService {
     }
 
     public Map<String, Object> scrapyByUrl(ScrapyReqTO to) {
-        ScrapyConfigTO scrapyConfigTO = getConfig(to.getScrapyName());
+        ScrapyConfigTO scrapyConfigTO = getConfig(to.scrapyName());
         if (scrapyConfigTO != null) {
-            return doScrapyByUrl(to.getUrl(), scrapyConfigTO.getData());
+            return doScrapyByUrl(to.url(), scrapyConfigTO.data());
         }
         return new HashMap<>();
     }

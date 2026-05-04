@@ -20,12 +20,12 @@ public class SpiderController {
 
     @PostMapping("/spider/use-url")
     public String executeByUrl(@RequestBody SpiderReqTO req) throws Exception {
-        return spiderService.executeByUrl(req.getSpiderId(), req.getUrl());
+        return spiderService.executeByUrl(req.spiderId(), req.url());
     }
 
     @PostMapping("/spider/use-prime-key")
     public String executeByPrimeKeyList(@RequestBody SpiderReqTO req) throws Exception {
-        return spiderService.executeByPrimeKeyList(req.getSpiderId(), req.getPrimeKeyList());
+        return spiderService.executeByPrimeKeyList(req.spiderId(), req.primeKeyList());
     }
 
     @PostMapping("/spider/preview-extraction")
