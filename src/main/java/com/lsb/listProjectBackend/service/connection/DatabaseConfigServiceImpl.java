@@ -5,7 +5,6 @@ import com.lsb.listProjectBackend.domain.connection.ConnectionTestResultTO;
 import com.lsb.listProjectBackend.domain.connection.DatabaseConfigTO;
 import com.lsb.listProjectBackend.mapper.connection.DatabaseConfigMapper;
 import com.lsb.listProjectBackend.repository.local.connection.DatabaseConfigRepository;
-import com.lsb.listProjectBackend.service.connection.DatabaseConfigService;
 import com.lsb.listProjectBackend.utils.Global;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

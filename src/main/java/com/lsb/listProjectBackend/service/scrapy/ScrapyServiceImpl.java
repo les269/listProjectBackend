@@ -9,7 +9,6 @@ import com.lsb.listProjectBackend.entity.dynamic.scrapy.ScrapyData;
 import com.lsb.listProjectBackend.mapper.scrapy.ScrapyConfigMapper;
 import com.lsb.listProjectBackend.repository.dynamic.common.ReplaceValueMapRepository;
 import com.lsb.listProjectBackend.repository.dynamic.scrapy.ScrapyConfigRepository;
-import com.lsb.listProjectBackend.service.scrapy.ScrapyService;
 import com.lsb.listProjectBackend.utils.Global;
 import com.lsb.listProjectBackend.utils.Utils;
 

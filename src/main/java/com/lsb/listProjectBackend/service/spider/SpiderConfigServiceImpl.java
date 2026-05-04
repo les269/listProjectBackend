@@ -4,7 +4,6 @@ import com.lsb.listProjectBackend.aop.UseDynamic;
 import com.lsb.listProjectBackend.domain.spider.SpiderConfigTO;
 import com.lsb.listProjectBackend.mapper.spider.SpiderConfigMapper;
 import com.lsb.listProjectBackend.repository.dynamic.spider.SpiderConfigRepository;
-import com.lsb.listProjectBackend.service.spider.SpiderConfigService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

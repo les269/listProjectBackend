@@ -16,8 +16,6 @@ import com.lsb.listProjectBackend.repository.dynamic.theme.ThemeCustomValueRepos
 import com.lsb.listProjectBackend.repository.dynamic.theme.ThemeHeaderRepository;
 import com.lsb.listProjectBackend.repository.dynamic.theme.ThemeTagValueRepository;
 import com.lsb.listProjectBackend.repository.dynamic.theme.ThemeTopCustomValueRepository;
-import com.lsb.listProjectBackend.service.theme.ThemeItemService;
-import com.lsb.listProjectBackend.service.theme.ThemeService;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

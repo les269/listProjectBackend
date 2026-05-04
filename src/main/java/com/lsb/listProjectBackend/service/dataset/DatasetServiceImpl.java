@@ -501,6 +501,8 @@ public class DatasetServiceImpl implements DatasetService {
                             json.put(fieldKey, replacedList);
                         }
                     }
+                    case number, date -> {
+                    }
                 }
             }
         }

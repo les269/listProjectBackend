@@ -4,14 +4,12 @@ import com.lsb.listProjectBackend.domain.file.DiskTO;
 import com.lsb.listProjectBackend.entity.local.Disk;
 import com.lsb.listProjectBackend.mapper.file.DiskMapper;
 import com.lsb.listProjectBackend.repository.local.file.DiskRepository;
-import com.lsb.listProjectBackend.service.file.DiskService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -68,7 +66,8 @@ public class DiskServiceImpl implements DiskService {
 
     @Override
     public void delete(String disk) {
-        if (disk == null || disk.trim().isEmpty()) return;
+        if (disk == null || disk.trim().isEmpty())
+            return;
         String key = disk.trim();
         if (diskRepository.existsById(key)) {
             diskRepository.deleteById(key);

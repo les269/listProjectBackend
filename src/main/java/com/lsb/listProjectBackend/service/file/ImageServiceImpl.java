@@ -1,6 +1,5 @@
 package com.lsb.listProjectBackend.service.file;
 
-import com.lsb.listProjectBackend.service.file.ImageService;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
@@ -19,10 +18,11 @@ import java.util.Map;
 @Slf4j
 @Service
 public class ImageServiceImpl implements ImageService {
-    public void downloadImageFromUrl(String url, String fileDirectoryPath, String fileName, Map<String, String> cookie, String extension, String referer) {
-    log.info("download image:{}",fileName);
+    public void downloadImageFromUrl(String url, String fileDirectoryPath, String fileName, Map<String, String> cookie,
+            String extension, String referer) {
+        log.info("download image:{}", fileName);
         try {
-            TrustManager[] trustAllCerts = new TrustManager[]{
+            TrustManager[] trustAllCerts = new TrustManager[] {
                     new X509TrustManager() {
                         public X509Certificate[] getAcceptedIssuers() {
                             return null;
@@ -46,7 +46,8 @@ public class ImageServiceImpl implements ImageService {
                     .header("Referer", uri.getScheme() + "://" + uri.getHost())
                     .header("Accept", "*/*")
                     .header("Accept-Language", "zh-TW,zh;q=0.9,en-US;q=0.8,en;q=0.7,zh-CN;q=0.6,ja;q=0.5")
-                    .header("User-Agent", "Mozilla/5.0 (Linux; Android 4.2.1; Nexus 7 Build/JOP40D) AppleWebKit/535.19 (KHTML, like Gecko) Chrome/18.0.1025.166  Safari/535.19");
+                    .header("User-Agent",
+                            "Mozilla/5.0 (Linux; Android 4.2.1; Nexus 7 Build/JOP40D) AppleWebKit/535.19 (KHTML, like Gecko) Chrome/18.0.1025.166  Safari/535.19");
             if (url.startsWith("https://")) {
                 connection.sslSocketFactory(HttpsURLConnection.getDefaultSSLSocketFactory());
             }

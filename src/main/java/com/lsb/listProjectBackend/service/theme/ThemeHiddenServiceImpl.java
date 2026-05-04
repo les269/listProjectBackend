@@ -4,7 +4,6 @@ import com.lsb.listProjectBackend.aop.UseDynamic;
 import com.lsb.listProjectBackend.domain.theme.ThemeHiddenTO;
 import com.lsb.listProjectBackend.mapper.theme.ThemeHiddenMapper;
 import com.lsb.listProjectBackend.repository.dynamic.theme.ThemeHiddenRepository;
-import com.lsb.listProjectBackend.service.theme.ThemeHiddenService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

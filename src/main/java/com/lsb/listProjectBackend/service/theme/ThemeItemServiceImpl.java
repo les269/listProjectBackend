@@ -13,7 +13,6 @@ import com.lsb.listProjectBackend.mapper.theme.ThemeItemMapMapper;
 import com.lsb.listProjectBackend.mapper.theme.ThemeItemMapper;
 import com.lsb.listProjectBackend.repository.dynamic.theme.ThemeItemMapRepository;
 import com.lsb.listProjectBackend.repository.dynamic.theme.ThemeItemRepository;
-import com.lsb.listProjectBackend.service.theme.ThemeItemService;
 import com.lsb.listProjectBackend.utils.Global;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

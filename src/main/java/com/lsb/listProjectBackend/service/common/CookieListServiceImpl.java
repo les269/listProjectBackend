@@ -3,12 +3,8 @@ package com.lsb.listProjectBackend.service.common;
 import com.lsb.listProjectBackend.aop.UseDynamic;
 import com.lsb.listProjectBackend.domain.common.CookieListMapTO;
 import com.lsb.listProjectBackend.domain.common.CookieListTO;
-import com.lsb.listProjectBackend.entity.dynamic.common.CookieListMap;
 import com.lsb.listProjectBackend.mapper.common.CookieListMapper;
-import com.lsb.listProjectBackend.repository.dynamic.common.CookieListMapRepository;
 import com.lsb.listProjectBackend.repository.dynamic.common.CookieListRepository;
-import com.lsb.listProjectBackend.service.common.CookieListMapService;
-import com.lsb.listProjectBackend.service.common.CookieListService;
 import com.lsb.listProjectBackend.utils.Global;
 import com.lsb.listProjectBackend.utils.Global.CookieListMapType;
 
@@ -16,9 +12,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import static java.util.stream.Collectors.groupingBy;
-
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;

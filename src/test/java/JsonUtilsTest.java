@@ -1,7 +1,6 @@
 import com.jayway.jsonpath.DocumentContext;
 import com.jayway.jsonpath.JsonPath;
 import com.lsb.listProjectBackend.utils.JsonUtils;
-import com.lsb.listProjectBackend.utils.Utils;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

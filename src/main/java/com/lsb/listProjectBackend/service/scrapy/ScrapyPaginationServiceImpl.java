@@ -7,7 +7,6 @@ import com.lsb.listProjectBackend.entity.dynamic.common.Cookie;
 import com.lsb.listProjectBackend.mapper.scrapy.ScrapyPaginationMapper;
 import com.lsb.listProjectBackend.repository.dynamic.common.ReplaceValueMapRepository;
 import com.lsb.listProjectBackend.repository.dynamic.scrapy.ScrapyPaginationRepository;
-import com.lsb.listProjectBackend.service.scrapy.ScrapyPaginationService;
 import com.lsb.listProjectBackend.utils.Utils;
 
 import lombok.extern.slf4j.Slf4j;

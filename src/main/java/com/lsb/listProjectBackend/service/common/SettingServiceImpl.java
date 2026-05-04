@@ -8,7 +8,6 @@ import com.lsb.listProjectBackend.entity.local.Setting;
 import com.lsb.listProjectBackend.mapper.common.SettingMapper;
 import com.lsb.listProjectBackend.repository.local.common.SettingRepository;
 import com.lsb.listProjectBackend.service.connection.DatabaseConfigService;
-import com.lsb.listProjectBackend.service.common.SettingService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

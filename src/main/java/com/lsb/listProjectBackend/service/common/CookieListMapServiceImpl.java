@@ -5,7 +5,6 @@ import com.lsb.listProjectBackend.domain.common.CookieListMapTO;
 import com.lsb.listProjectBackend.entity.dynamic.common.CookieListMapPK;
 import com.lsb.listProjectBackend.mapper.common.CookieListMapMapper;
 import com.lsb.listProjectBackend.repository.dynamic.common.CookieListMapRepository;
-import com.lsb.listProjectBackend.service.common.CookieListMapService;
 import com.lsb.listProjectBackend.utils.Global;
 import com.lsb.listProjectBackend.utils.Global.CookieListMapType;
 

@@ -88,8 +88,8 @@ public abstract class ScrapyBase {
 
         if (convertToArray) {
             List<String> mergedList = new ArrayList<>(newTextList);
-            if (result.containsKey(key) && result.get(key) instanceof List) {
-                mergedList.addAll((List<String>) result.get(key));
+            if (result.containsKey(key) && result.get(key) instanceof List<?> existing) {
+                existing.stream().map(Object::toString).forEach(mergedList::add);
             }
             result.put(key, mergedList.stream().distinct().toList());
         } else {
