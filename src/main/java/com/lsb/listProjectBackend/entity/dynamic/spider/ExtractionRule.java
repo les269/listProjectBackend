@@ -4,11 +4,6 @@ import lombok.Data;
 
 import java.util.List;
 
-import com.lsb.listProjectBackend.utils.Global;
-
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-
 @Data
 public class ExtractionRule {
     private Integer seq;
@@ -16,7 +11,6 @@ public class ExtractionRule {
     private String selector;
     private String jsonPath;
     private List<ValuePipeline> pipelines;
-    @Enumerated(EnumType.STRING)
-    private Global.ExtractionStepCondition conditionType;
+
     private ExtractionCondition conditionValue;
 }

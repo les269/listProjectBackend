@@ -93,7 +93,7 @@ public class SpiderServiceImpl implements SpiderService {
 
     private String runSpiderItemByUrl(List<SpiderItemTO> itemList, String url) throws Exception {
         DocumentContext result = JsonPath.parse("{}");
-        List<String> spiderItemIdsForCookieRef = itemList.stream().filter(x -> x.itemSetting().isUseCookie())
+        List<String> spiderItemIdsForCookieRef = itemList.stream()
                 .map(SpiderItemTO::spiderItemId).distinct().toList();
         Map<String, CookieListTO> cookieMap = cookieListService.getMapByRefIdsAndType(spiderItemIdsForCookieRef,
                 Global.CookieListMapType.SPIDER);
@@ -116,7 +116,7 @@ public class SpiderServiceImpl implements SpiderService {
                 currentUrl = JsonUtils.replaceValueByJsonPath(setting.getUrl(), result.json());
             }
             Map<String, String> cookie = null;
-            if (setting.isUseCookie() && cookieMap.containsKey(item.spiderItemId())) {
+            if (cookieMap.containsKey(item.spiderItemId())) {
                 CookieListTO cookieList = cookieMap.get(item.spiderItemId());
                 if (cookieList != null) {
                     cookie = Utils.getCookieMap(cookieList.list());
@@ -136,7 +136,7 @@ public class SpiderServiceImpl implements SpiderService {
             throws Exception {
         DocumentContext result = JsonPath.parse("{}");
 
-        List<String> spiderItemIdsForCookieRef = itemList.stream().filter(x -> x.itemSetting().isUseCookie())
+        List<String> spiderItemIdsForCookieRef = itemList.stream()
                 .map(SpiderItemTO::spiderItemId).distinct().toList();
         Map<String, CookieListTO> cookieMap = cookieListService.getMapByRefIdsAndType(spiderItemIdsForCookieRef,
                 Global.CookieListMapType.SPIDER);
@@ -153,7 +153,7 @@ public class SpiderServiceImpl implements SpiderService {
                 continue;
             }
             Map<String, String> cookie = null;
-            if (setting.isUseCookie() && cookieMap.containsKey(item.spiderItemId())) {
+            if (cookieMap.containsKey(item.spiderItemId())) {
                 CookieListTO cookieList = cookieMap.get(item.spiderItemId());
                 if (cookieList != null) {
                     cookie = Utils.getCookieMap(cookieList.list());

@@ -45,11 +45,12 @@ public class ExtractionRuleServiceImpl implements ExtractionRuleService {
 
     @Override
     public boolean checkCondition(ExtractionRule extractionRule, DocumentContext result) {
-        if (extractionRule == null || extractionRule.getConditionType() == null) {
+        if (extractionRule == null || extractionRule.getConditionValue() == null) {
             return true;
         }
         ExtractionCondition condition = extractionRule.getConditionValue();
-        if (condition == null) {
+        var type = condition.getConditionType();
+        if (condition == null || type == null) {
             return true;
         }
 
@@ -57,7 +58,7 @@ public class ExtractionRuleServiceImpl implements ExtractionRuleService {
         final var value = safeRead(result, condition.getKey());
         final var ignoreCase = condition.isIgnoreCase();
 
-        return switch (extractionRule.getConditionType()) {
+        return switch (type) {
             case IF_KEY_EMPTY -> isEffectivelyEmpty(value);
             case IF_KEY_NOT_EMPTY -> !isEffectivelyEmpty(value);
             case CONTAINS -> isContains(value, conditionValue, ignoreCase);
@@ -136,4 +137,3 @@ public class ExtractionRuleServiceImpl implements ExtractionRuleService {
         return false;
     }
 }
-

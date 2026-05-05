@@ -21,5 +21,4 @@ public class SpiderItemSetting {
 
     private List<ExtractionRule> extractionRuleList;
     private boolean skipWhenUsingUrl;
-    private boolean useCookie;
 }
