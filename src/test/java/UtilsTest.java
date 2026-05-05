@@ -95,4 +95,103 @@ public class UtilsTest {
     public void capitalizeFirst_nullString() {
         assertNull(Utils.capitalizeFirstLetter(null));
     }
+
+    // ---------- moveChar ----------
+
+    @Test
+    public void moveChar_nullInput() {
+        // null 輸入應原樣回傳
+        assertNull(Utils.moveChar(null, 0, 1));
+    }
+
+    @Test
+    public void moveChar_emptyInput() {
+        // 空字串應原樣回傳
+        assertEquals("", Utils.moveChar("", 0, 1));
+    }
+
+    @Test
+    public void moveChar_fromIndexNegative() {
+        // fromIndex 為負數 → 無效，原樣回傳
+        assertEquals("abcde", Utils.moveChar("abcde", -1, 2));
+    }
+
+    @Test
+    public void moveChar_fromIndexOutOfBounds() {
+        // fromIndex >= length → 無效，原樣回傳
+        assertEquals("abcde", Utils.moveChar("abcde", 5, 2));
+    }
+
+    @Test
+    public void moveChar_toIndexNegative() {
+        // toIndex 為負數 → 無效，原樣回傳（不 clamp）
+        assertEquals("abcde", Utils.moveChar("abcde", 1, -1));
+    }
+
+    @Test
+    public void moveChar_toIndexOutOfBounds() {
+        // toIndex > len → 無效，原樣回傳
+        assertEquals("abcde", Utils.moveChar("abcde", 1, 6));
+    }
+
+    @Test
+    public void moveChar_moveToEnd() {
+        // toIndex=len(5) 代表「字串最末尾」插入點
+        // from=0(a) to=5：delete(0)→"bcde", toIndex-- →4, insert(4,'a') → "bcdea"
+        assertEquals("bcdea", Utils.moveChar("abcde", 0, 5));
+    }
+
+    @Test
+    public void moveChar_sameIndex() {
+        // fromIndex == toIndex → 無需移動，原樣回傳
+        assertEquals("abcde", Utils.moveChar("abcde", 2, 2));
+    }
+
+    @Test
+    public void moveChar_moveForward() {
+        // 向後移動：from=1(b), toIndex=3（插入點「before d」）
+        // delete(1)→"acde", toIndex-- →2, insert(2,'b') → "acbde"
+        // 'b' 落在 'c' 與 'd' 之間，即原本 toIndex=3 插入點之前
+        assertEquals("acbde", Utils.moveChar("abcde", 1, 3));
+    }
+
+    @Test
+    public void moveChar_moveBackward() {
+        // 向前移動：from=3(d) to=1(b)
+        // delete(3)→"abce", no adjust, insert(1,'d') → "adbce"
+        assertEquals("adbce", Utils.moveChar("abcde", 3, 1));
+    }
+
+    @Test
+    public void moveChar_moveToStart() {
+        // 移到最前面：from=2(c) to=0
+        assertEquals("cabde", Utils.moveChar("abcde", 2, 0));
+    }
+
+    @Test
+    public void moveChar_moveToLastIndex() {
+        // toIndex=4 代表插入點「before e」
+        // from=0(a) to=4：delete(0)→"bcde", toIndex-- →3, insert(3,'a') → "bcdae"
+        // 'a' 落在 'd' 與 'e' 之間
+        assertEquals("bcdae", Utils.moveChar("abcde", 0, 4));
+    }
+
+    @Test
+    public void moveChar_swapTwoChars() {
+        // 兩字元交換：from=1(b) to=0(a) → "ba"
+        assertEquals("ba", Utils.moveChar("ab", 1, 0));
+    }
+
+    @Test
+    public void moveChar_adjacentForward() {
+        // 相鄰往後：from=0(a), toIndex=1（插入點「before b」= 'a' 原本位置右側）
+        // delete(0)→"b", toIndex-- →0, insert(0,'a') → "ab"（等同未動）
+        assertEquals("ab", Utils.moveChar("ab", 0, 1));
+    }
+
+    @Test
+    public void moveChar_singleChar() {
+        // 單字元字串：from=0 to=0 → 同索引，回傳原字串
+        assertEquals("x", Utils.moveChar("x", 0, 0));
+    }
 }

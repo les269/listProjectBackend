@@ -3,6 +3,7 @@ package com.lsb.listProjectBackend.utils;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -67,7 +68,22 @@ public class JsonUtils {
         }
 
         PathToken last = tokens.get(tokens.size() - 1);
+        if (value == null) {
+            value = "";
+        }
         putValue(ctx, currentPath, last, value);
+    }
+
+    public static void deleteValue(DocumentContext ctx, String fullPath) {
+        if (exists(ctx, fullPath)) {
+            ctx.delete(ensurePrefix(fullPath));
+        }
+    }
+
+    public static void deleteValueByPaths(DocumentContext ctx, List<String> paths) {
+        for (String path : paths.stream().filter(Objects::nonNull).map(x -> ensurePrefix(x)).distinct().toList()) {
+            deleteValue(ctx, path);
+        }
     }
 
     /**
@@ -152,7 +168,7 @@ public class JsonUtils {
 
     private static boolean exists(DocumentContext ctx, String path) {
         try {
-            ctx.read(path);
+            ctx.read(ensurePrefix(path));
             return true;
         } catch (PathNotFoundException e) {
             return false;

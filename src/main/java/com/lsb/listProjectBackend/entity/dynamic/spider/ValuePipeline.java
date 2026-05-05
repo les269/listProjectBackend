@@ -34,7 +34,6 @@ public class ValuePipeline {
     private CurrentTimeFormatOption currentTimeFormatOption;
     private ChineseConvert chineseConvert;
     private InsertConfig insertConfig;
-    private CopySpecifiedValueToConfig copySpecifiedValueToConfig;
     private DeleteConfig deleteConfig;
     private List<String> deletePaths;
     private MoveCharConfig moveCharConfig;

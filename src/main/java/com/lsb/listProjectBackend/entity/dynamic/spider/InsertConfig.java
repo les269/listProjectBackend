@@ -9,7 +9,6 @@ import lombok.Data;
 public class InsertConfig {
     @Enumerated(EnumType.STRING)
     private Global.PositionType position;
-    private String key;
     private int index;
     private String text;
 }

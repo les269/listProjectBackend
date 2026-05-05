@@ -119,11 +119,9 @@ public class Global {
         CURRENT_TIME,
         CHINESE_CONVERT,
         INSERT,
-        COPY_SPECIFIED_VALUE_TO,
         DELETE,
         DELETE_PATHS,
-        MOVE_CHAR,
-        JOIN_ARRAY
+        MOVE_CHAR
     }
 
     public enum PositionType {

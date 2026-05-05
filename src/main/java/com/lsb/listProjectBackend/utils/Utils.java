@@ -1,6 +1,7 @@
 package com.lsb.listProjectBackend.utils;
 
 import com.lsb.listProjectBackend.entity.dynamic.common.Cookie;
+import com.lsb.listProjectBackend.entity.dynamic.spider.MoveCharConfig;
 import com.sun.jna.platform.FileUtils;
 import lombok.extern.slf4j.Slf4j;
 
@@ -55,7 +56,6 @@ public class Utils {
     public static boolean isEmpty(Collection<?> collection) {
         return collection == null || collection.isEmpty();
     }
-
 
     /**
      * 將字串中的 {@code ${0}}、{@code ${1}} 等索引佔位符替換為 List 對應位置的值。
@@ -279,7 +279,7 @@ public class Utils {
         return Pattern.compile("[a-zA-Z]").matcher(str).replaceFirst(m -> m.group().toUpperCase());
     }
 
-    public static String getCurrentTimeString(String format,Global.Timezones timezones) {
+    public static String getCurrentTimeString(String format, Global.Timezones timezones) {
         ZonedDateTime nowZoned = ZonedDateTime.now(timezones.toZoneId());
         // 1. 如果 format 為空，回傳預設的 ISO 格式字串
         if (isBlank(format)) {
@@ -294,6 +294,7 @@ public class Utils {
             return "";
         }
     }
+
     public static Map<String, String> getCookieMap(List<Cookie> list) {
         if (list == null) {
             return Map.of();
@@ -303,5 +304,48 @@ public class Utils {
                 Cookie::getValue,
                 (existingValue, newValue) -> newValue // 遇到重複時，繼續用新的值
         ));
+    }
+
+    /**
+     * 將字串中指定位置的字元移動到目標插入點。
+     *
+     * <p>以 {@code "abcde"} 為例：
+     * <pre>
+     *   fromIndex（字元索引，0-based）：  0=a  1=b  2=c  3=d  4=e
+     *   toIndex  （插入點，0 到 len）  ：0  a  1  b  2  c  3  d  4  e  5
+     * </pre>
+     * 插入點 5 代表「字串最末尾」，因此 toIndex 的有效範圍是 0 到 {@code value.length()} 含端點。
+     *
+     * @param value     原始字串
+     * @param fromIndex 要移動的字元索引（0 到 len-1）
+     * @param toIndex   目標插入點（0 到 len），指移動後字元落在該插入點的左側
+     * @return 移動後的字串；索引無效時原樣回傳
+     */
+    public static String moveChar(String value, int fromIndex, int toIndex) {
+        if (value == null || value.isEmpty())
+            return value;
+
+        int len = value.length();
+        if (fromIndex < 0 || fromIndex >= len || toIndex < 0 || toIndex > len)
+            return value;
+
+        // 如果來源與目標相同，則不需移動
+        if (fromIndex == toIndex)
+            return value;
+
+        StringBuilder sb = new StringBuilder(value);
+
+        // 執行移動邏輯
+        char targetChar = sb.charAt(fromIndex);
+        sb.deleteCharAt(fromIndex);
+
+        // 刪除 fromIndex 後，若插入點在刪除位置之後，插入點需往前補償一格
+        if (fromIndex < toIndex) {
+            toIndex--;
+        }
+
+        sb.insert(toIndex, targetChar);
+
+        return sb.toString();
     }
 }

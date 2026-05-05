@@ -8,6 +8,9 @@ import com.jayway.jsonpath.DocumentContext;
 import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.PathNotFoundException;
 import com.lsb.listProjectBackend.domain.common.ReplaceValueMapTO;
+import com.lsb.listProjectBackend.entity.dynamic.spider.DeleteConfig;
+import com.lsb.listProjectBackend.entity.dynamic.spider.InsertConfig;
+import com.lsb.listProjectBackend.entity.dynamic.spider.MoveCharConfig;
 import com.lsb.listProjectBackend.entity.dynamic.spider.ValuePipeline;
 import com.lsb.listProjectBackend.entity.dynamic.spider.ValuePipelineContext;
 import com.lsb.listProjectBackend.service.common.ReplaceValueMapService;
@@ -25,6 +28,7 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -71,7 +75,7 @@ public class ValuePipelineServiceImpl implements ValuePipelineService {
                 ? List.of()
                 : context.getReplaceValueMapList();
 
-        return applyPipelineInternal(pipeLine, pipelineValue, allReplaceValueMapList, result, elements);
+        return applyPipelineInternal(result, pipeLine, pipelineValue, allReplaceValueMapList, elements);
     }
 
     @Override
@@ -102,8 +106,8 @@ public class ValuePipelineServiceImpl implements ValuePipelineService {
                 .toList();
     }
 
-    private Object applyPipelineInternal(ValuePipeline pipeLine, Object pipelineValue,
-            List<ReplaceValueMapTO> allReplaceValueMapList, DocumentContext result,
+    private Object applyPipelineInternal(DocumentContext result, ValuePipeline pipeLine, Object pipelineValue,
+            List<ReplaceValueMapTO> allReplaceValueMapList,
             Elements elements) {
         switch (pipeLine.getType()) {
             case FIXED_VALUE:
@@ -179,9 +183,8 @@ public class ValuePipelineServiceImpl implements ValuePipelineService {
                     if (pipelineValue == null && elements != null && !elements.isEmpty()) {
                         pipelineValue = normalizeExtractedValue(elements.stream().map(Element::text).toList());
                     }
-                    if (pipelineValue instanceof List) {
-                        pipelineValue = ((List<?>) pipelineValue)
-                                .stream()
+                    if (pipelineValue instanceof List<?> list) {
+                        pipelineValue = list.stream()
                                 .map(x -> {
                                     if (x instanceof String) {
                                         return ((String) x).replaceAll(pattern, replacement);
@@ -199,8 +202,8 @@ public class ValuePipelineServiceImpl implements ValuePipelineService {
             case SPLIT_TEXT:
                 var separator = pipeLine.getSeparator();
                 if (Utils.isNotBlank(separator)) {
-                    if (pipelineValue instanceof List) {
-                        pipelineValue = ((List<?>) pipelineValue).stream()
+                    if (pipelineValue instanceof List<?> list) {
+                        pipelineValue = list.stream()
                                 .flatMap(x -> Arrays.stream(String.valueOf(x).split(separator))).map(String::trim)
                                 .filter(Utils::isNotBlank).toList();
                     } else {
@@ -210,13 +213,14 @@ public class ValuePipelineServiceImpl implements ValuePipelineService {
                 }
                 break;
             case JOIN_ARRAY_TO_STRING:
-                if (pipelineValue instanceof List) {
-                    var anyNullAndNotString = ((List<?>) pipelineValue).stream()
-                            .anyMatch(x -> !(x instanceof String));
-                    if (!anyNullAndNotString) {
-                        var joinSeparator = pipeLine.getJoinSeparator();
-                        var list = ((List<?>) pipelineValue).stream().map(String::valueOf).toList();
-                        pipelineValue = String.join(joinSeparator == null ? "" : joinSeparator, list);
+                if (pipelineValue instanceof List<?> list) {
+                    String joinSeparator = Objects.requireNonNullElse(pipeLine.getJoinSeparator(), "");
+                    // 方案 A：只要 List 內全是 String 才執行（保持你原本的邏輯，但更簡潔）
+                    boolean allStrings = list.stream().allMatch(x -> x instanceof String);
+                    if (allStrings) {
+                        pipelineValue = list.stream()
+                                .map(String::valueOf)
+                                .collect(Collectors.joining(joinSeparator));
                     }
                 }
                 break;
@@ -227,8 +231,8 @@ public class ValuePipelineServiceImpl implements ValuePipelineService {
                             : allReplaceValueMapList.stream()
                                     .filter(x -> replaceValueMapName.equals(x.name())).findFirst().orElse(null);
                     if (map != null) {
-                        if (pipelineValue instanceof List) {
-                            pipelineValue = ((List<?>) pipelineValue).stream().map(x -> {
+                        if (pipelineValue instanceof List<?> list) {
+                            pipelineValue = list.stream().map(x -> {
                                 String xStr = String.valueOf(x);
                                 return map.map().getOrDefault(xStr, xStr);
                             }).toList();
@@ -268,8 +272,8 @@ public class ValuePipelineServiceImpl implements ValuePipelineService {
                 break;
             case CONVERT_TO_CASE:
                 var convertToCaseType = pipeLine.getConvertToCaseType();
-                if (pipelineValue instanceof List) {
-                    pipelineValue = ((List<?>) pipelineValue).stream().map(x -> converterCase(x, convertToCaseType))
+                if (pipelineValue instanceof List<?> list) {
+                    pipelineValue = list.stream().map(x -> converterCase(x, convertToCaseType))
                             .toList();
                 } else {
                     pipelineValue = converterCase(pipelineValue, convertToCaseType);
@@ -287,8 +291,8 @@ public class ValuePipelineServiceImpl implements ValuePipelineService {
                 var util = pipeLine.getChineseConvert().getZhConverterUtilType();
                 var convert = pipeLine.getChineseConvert().getChineseConvertType();
                 var toTraditional = convert.equals(Global.ChineseConvertType.SIMPLIFIED_TO_TRADITIONAL);
-                if (pipelineValue instanceof List) {
-                    pipelineValue = ((List<?>) pipelineValue).stream()
+                if (pipelineValue instanceof List<?> list) {
+                    pipelineValue = list.stream()
                             .map(x -> convertChinese(x, toTraditional, util))
                             .toList();
                 } else {
@@ -296,11 +300,60 @@ public class ValuePipelineServiceImpl implements ValuePipelineService {
                 }
                 break;
             case INSERT:
-            case COPY_SPECIFIED_VALUE_TO:
+                var insertConfig = pipeLine.getInsertConfig();
+                if (insertConfig != null && Utils.isNotBlank(insertConfig.getText())) {
+                    var text = insertConfig.getText();
+                    var index = insertConfig.getIndex() - 1;
+                    var position = insertConfig.getPosition();
+                    if (pipelineValue instanceof List<?> list) {
+                        // 使用 Java 16+ 的 Pattern Matching for instanceof
+                        pipelineValue = list.stream()
+                                .map(item -> item instanceof String s ? applyInsertion(s, text, index, position) : item)
+                                .toList();
+                    } else if (pipelineValue instanceof String s) {
+                        // 單一數值處理
+                        pipelineValue = applyInsertion(s, text, index, position);
+                    }
+                }
+                break;
             case DELETE:
+                var deleteConfig = pipeLine.getDeleteConfig();
+                if (deleteConfig != null) {
+                    var index = deleteConfig.getIndex() - 1;
+                    var length = deleteConfig.getLength();
+                    var position = deleteConfig.getPosition();
+                    if (pipelineValue instanceof List<?> list) {
+                        pipelineValue = list.stream()
+                                .map(item -> item instanceof String s ? applyDeletion(s, index, length, position)
+                                        : item)
+                                .toList();
+                    } else if (pipelineValue instanceof String s) {
+                        pipelineValue = applyDeletion(s, index, length, position);
+                    }
+                }
+                break;
             case DELETE_PATHS:
+                var deletePaths = pipeLine.getDeletePaths();
+                if (deletePaths != null && !deletePaths.isEmpty()) {
+                    JsonUtils.deleteValueByPaths(result, deletePaths);
+                    return pipelineValue;
+                }
+                break;
             case MOVE_CHAR:
-            case JOIN_ARRAY:
+                var moveCharConfig = pipeLine.getMoveCharConfig();
+                if (moveCharConfig != null) {
+                    var fromIndex = moveCharConfig.getFromIndex() - 1;
+                    var toIndex = moveCharConfig.getToIndex();
+                    if (pipelineValue instanceof List<?> list) {
+                        pipelineValue = list.stream()
+                                .map(item -> item instanceof String s
+                                        ? Utils.moveChar(s, fromIndex, toIndex)
+                                        : item)
+                                .toList();
+                    } else if (pipelineValue instanceof String s) {
+                        pipelineValue = Utils.moveChar(s, fromIndex, toIndex);
+                    }
+                }
                 break;
         }
         return pipelineValue;
@@ -347,6 +400,37 @@ public class ValuePipelineServiceImpl implements ValuePipelineService {
             };
         }
         return value;
+    }
+
+    private String applyInsertion(String value, String insertText, int index, Global.PositionType position) {
+        return switch (position) {
+            case START -> insertText + value;
+            case END -> value + insertText;
+            case NTH -> (index >= 0 && index <= value.length())
+                    ? value.substring(0, index) + insertText + value.substring(index)
+                    : value;
+        };
+    }
+
+    private String applyDeletion(String value, int index, int length, Global.PositionType position) {
+        if (value == null || value.isEmpty())
+            return value;
+
+        int valueLength = value.length();
+        int maxLength = Math.max(0, length); // 確保長度不為負
+
+        return switch (position) {
+            case START -> value.substring(Math.min(valueLength, maxLength));
+            case END -> value.substring(0, Math.max(0, valueLength - maxLength));
+            case NTH -> {
+                if (index < 0 || index >= valueLength)
+                    yield value;
+
+                // 計算刪除的結束位置，不超過字串總長
+                int end = Math.min(valueLength, index + maxLength);
+                yield value.substring(0, index) + value.substring(end);
+            }
+        };
     }
 
 }
