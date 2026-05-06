@@ -6,6 +6,49 @@ argument-hint: "Describe what you want to create (e.g. new table + CRUD for xxx)
 
 # Spring Boot 分層架構與命名慣例
 
+## 專案概覽
+
+- **Stack**: Spring Boot 4.0.5, Java 21, Gradle Kotlin DSL
+- **打包方式**: WAR（Tomcat embedded）或 JAR（Windows Service）
+- **主要相依**: JSoup（CSS 選取器爬蟲）、JsonPath（JSON 擷取）、MapStruct、Lombok、opencc4j（中文轉換）
+- **Context Path**: `/list-project-backend`；開發埠 `8081`，生產埠 `8080`
+
+### 建置與部署指令
+
+```bash
+# 建置 + 自動複製 WAR 到 C:/code/apache-tomcat/webapps
+./gradlew build
+
+# 僅打包 WAR（不複製）
+./gradlew bootWar
+
+# 打包 JAR + 部署到 Windows Service（stop → copy → start）
+./gradlew copyJarToDeploy
+
+# 執行測試
+./gradlew test
+```
+
+---
+
+## 雙資料庫架構
+
+詳細說明見 [spec/dynamic-datasource.md](../spec/dynamic-datasource.md)。
+
+| 資料庫           | 用途                                             | 設定方式                                                                         |
+| ---------------- | ------------------------------------------------ | -------------------------------------------------------------------------------- |
+| **Local SQLite** | 系統設定（`setting`、`database_config`、`disk`） | 固定，不可切換                                                                   |
+| **Dynamic DB**   | 業務資料（所有 `dynamic.sql` 的表）              | 依 `setting.current_dynamic_database` 在 runtime 切換；支援 SQLite 和 PostgreSQL |
+
+### AOP 注解（Service class level 必加）
+
+| 注解            | 場景                                                                 |
+| --------------- | -------------------------------------------------------------------- |
+| `@UseDynamic`   | 所有存取 Dynamic DB 的 ServiceImpl（最常用）                         |
+| `@UseDynamicTx` | 需要 transaction 的寫入操作（包含 `@UseDynamic` + `@Transactional`） |
+
+---
+
 ## 資料庫 Schema（dynamic.sql）
 
 - 所有 DDL 放在 `src/main/resources/dynamic.sql`，格式一律用 `CREATE TABLE IF NOT EXISTS`
@@ -14,6 +57,10 @@ argument-hint: "Describe what you want to create (e.g. new table + CRUD for xxx)
 - 複合主鍵直接在 `PRIMARY KEY(col1, col2)` 宣告
 - 自增主鍵：`id INTEGER PRIMARY KEY AUTOINCREMENT`（非業務 key 用此）
 - index 另外 `CREATE INDEX IF NOT EXISTS idx_<table>_<col> ON <table>(<col>)`
+
+### 現有 Dynamic DB 表格
+
+`theme_header`, `theme_custom_value`, `theme_top_custom_value`, `theme_item`, `theme_item_map`, `share_tag`, `share_tag_value`, `share_tag_map`, `api_config`, `scrapy_config`, `group_dataset_data`, `group_dataset`, `dataset`, `dataset_data`, `replace_value_map`, `scrapy_pagination`, `theme_hidden`, `cookie_list`, `cookie_list_map`, `spider_config`, `spider_mapping`, `spider_item`
 
 ---
 
@@ -24,7 +71,6 @@ com.lsb.listProjectBackend
 ├── aop/                  # @UseDynamic, @UseDynamicTx
 ├── config/               # DataSource, Web 設定
 ├── controller/           # REST controllers
-├── converter/            # JPA JSON converters
 ├── domain/               # DTO / TO (傳輸物件)
 ├── entity/
 │   ├── dynamic/          # 動態 DB 的 JPA Entity + PK
@@ -71,8 +117,8 @@ public class FooBar implements Serializable {
     @Column(name = "foo_id", nullable = false)
     private String fooId;
 
+    @JdbcTypeCode(SqlTypes.JSON)              // JSON 物件欄位才加
     @Column(name = "json", nullable = false)
-    @Convert(converter = XxxConverter.class)  // JSON 欄位才加
     private List<Xxx> json;
 
     @Enumerated(EnumType.STRING)              // Enum 欄位才加
@@ -110,23 +156,6 @@ public class FooBarTO {
     private String barId;
     private List<Cookie> list;   // 直接用 entity 內的 value object
     private LocalDateTime updatedTime;
-}
-```
-
----
-
-## Converter（JSON 欄位）
-
-- 繼承 `JsonAttributeConverter<T>`，只需實作 `getTypeClass()`
-- 已有：`CookieListConverter`（`List<Cookie>`）
-- 新增範本：
-
-```java
-public class FooListConverter extends JsonAttributeConverter<List<Foo>> {
-    @Override
-    protected TypeReference<List<Foo>> getTypeClass() {
-        return new TypeReference<>() {};
-    }
 }
 ```
 

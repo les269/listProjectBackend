@@ -63,22 +63,22 @@ public class ExtractionRuleServiceImplTest {
         var result = JsonPath.parse("{\"name\":\"Tom\",\"tags\":[\"a\",\"b\"]}");
 
         ExtractionCondition containsCondition = new ExtractionCondition();
+        containsCondition.setConditionType(Global.ExtractionStepCondition.CONTAINS);
         containsCondition.setKey("$.name");
         containsCondition.setValue("to");
         containsCondition.setIgnoreCase(true);
 
         ExtractionRule containsRule = new ExtractionRule();
-        containsRule.setConditionType(Global.ExtractionStepCondition.CONTAINS);
         containsRule.setConditionValue(containsCondition);
 
         assertTrue(service.checkCondition(containsRule, result));
 
         ExtractionCondition notContainsCondition = new ExtractionCondition();
+        notContainsCondition.setConditionType(Global.ExtractionStepCondition.NOT_CONTAINS);
         notContainsCondition.setKey("$.tags");
         notContainsCondition.setValue("z");
 
         ExtractionRule notContainsRule = new ExtractionRule();
-        notContainsRule.setConditionType(Global.ExtractionStepCondition.NOT_CONTAINS);
         notContainsRule.setConditionValue(notContainsCondition);
 
         assertTrue(service.checkCondition(notContainsRule, result));
@@ -86,4 +86,3 @@ public class ExtractionRuleServiceImplTest {
         assertFalse(service.checkCondition(notContainsRule, result));
     }
 }
-

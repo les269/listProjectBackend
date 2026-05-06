@@ -9,8 +9,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -279,22 +277,6 @@ public class Utils {
         return Pattern.compile("[a-zA-Z]").matcher(str).replaceFirst(m -> m.group().toUpperCase());
     }
 
-    public static String getCurrentTimeString(String format, Global.Timezones timezones) {
-        ZonedDateTime nowZoned = ZonedDateTime.now(timezones.toZoneId());
-        // 1. 如果 format 為空，回傳預設的 ISO 格式字串
-        if (isBlank(format)) {
-            return nowZoned.toString();
-        }
-        try {
-            // 2. 嘗試建立格式化器
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern(format);
-            return nowZoned.format(formatter);
-        } catch (IllegalArgumentException e) {
-            // 3. 如果 format 格式錯誤（不合法的 Pattern），回傳空字串
-            return "";
-        }
-    }
-
     public static Map<String, String> getCookieMap(List<Cookie> list) {
         if (list == null) {
             return Map.of();
@@ -309,11 +291,14 @@ public class Utils {
     /**
      * 將字串中指定位置的字元移動到目標插入點。
      *
-     * <p>以 {@code "abcde"} 為例：
+     * <p>
+     * 以 {@code "abcde"} 為例：
+     * 
      * <pre>
      *   fromIndex（字元索引，0-based）：  0=a  1=b  2=c  3=d  4=e
      *   toIndex  （插入點，0 到 len）  ：0  a  1  b  2  c  3  d  4  e  5
      * </pre>
+     * 
      * 插入點 5 代表「字串最末尾」，因此 toIndex 的有效範圍是 0 到 {@code value.length()} 含端點。
      *
      * @param value     原始字串

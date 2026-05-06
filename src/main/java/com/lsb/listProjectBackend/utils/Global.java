@@ -117,6 +117,7 @@ public class Global {
         MERGE_MULTI_ARRAY_TO_ARRAY,
         CONVERT_TO_CASE,
         CURRENT_TIME,
+        TIME_FORMAT,
         CHINESE_CONVERT,
         INSERT,
         DELETE,

@@ -31,12 +31,12 @@ public class ValuePipeline {
     private List<String> mergeMultiArrayKeys;
     @Enumerated(EnumType.STRING)
     private Global.ConvertToCaseType convertToCaseType;
-    private CurrentTimeFormatOption currentTimeFormatOption;
+    private TimeFormatOption currentTimeFormatOption;
+    private TimeFormatOption timeFormat;
     private ChineseConvert chineseConvert;
     private InsertConfig insertConfig;
     private DeleteConfig deleteConfig;
     private List<String> deletePaths;
     private MoveCharConfig moveCharConfig;
-    private String joinArraySeparator;
 
 }

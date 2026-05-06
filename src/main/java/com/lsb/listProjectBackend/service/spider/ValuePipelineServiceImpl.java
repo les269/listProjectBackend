@@ -14,6 +14,7 @@ import com.lsb.listProjectBackend.entity.dynamic.spider.MoveCharConfig;
 import com.lsb.listProjectBackend.entity.dynamic.spider.ValuePipeline;
 import com.lsb.listProjectBackend.entity.dynamic.spider.ValuePipelineContext;
 import com.lsb.listProjectBackend.service.common.ReplaceValueMapService;
+import com.lsb.listProjectBackend.utils.DateUtils;
 import com.lsb.listProjectBackend.utils.Global;
 import com.lsb.listProjectBackend.utils.JsonUtils;
 import com.lsb.listProjectBackend.utils.Utils;
@@ -282,9 +283,34 @@ public class ValuePipelineServiceImpl implements ValuePipelineService {
             case CURRENT_TIME:
                 var option = pipeLine.getCurrentTimeFormatOption();
                 if (option != null && Utils.isNotBlank(option.getFormat()) && option.getTimezones() != null) {
-                    pipelineValue = Utils.getCurrentTimeString(option.getFormat(), option.getTimezones());
+                    pipelineValue = DateUtils.getCurrentTimeString(option.getFormat(), option.getTimezones());
                 } else {
                     pipelineValue = "";
+                }
+                break;
+            case TIME_FORMAT:
+                var timeFormat = pipeLine.getTimeFormat();
+                if (timeFormat != null && Utils.isNotBlank(timeFormat.getFormat())
+                        && timeFormat.getTimezones() != null) {
+                    var format = timeFormat.getFormat();
+                    var timezones = timeFormat.getTimezones();
+                    var formatParsed = timeFormat.getFormatParsed();
+                    var skipTimezoneConversion = timeFormat.isSkipTimezoneConversion();
+                    if (pipelineValue instanceof List<?> list) {
+                        pipelineValue = list.stream()
+                                .map(x -> skipTimezoneConversion
+                                        ? DateUtils.convertTimeFormat(String.valueOf(x), formatParsed,
+                                                format)
+                                        : DateUtils.convertTimeFormatWithTimeZone(String.valueOf(x), formatParsed,
+                                                format, timezones))
+                                .toList();
+                    } else {
+                        pipelineValue = skipTimezoneConversion
+                                ? DateUtils.convertTimeFormat(String.valueOf(pipelineValue),
+                                        formatParsed, format)
+                                : DateUtils.convertTimeFormatWithTimeZone(String.valueOf(pipelineValue),
+                                        formatParsed, format, timezones);
+                    }
                 }
                 break;
             case CHINESE_CONVERT:
