@@ -38,5 +38,5 @@ public class ValuePipeline {
     private DeleteConfig deleteConfig;
     private List<String> deletePaths;
     private MoveCharConfig moveCharConfig;
-
+    private CalculateConfig calculateConfig;
 }

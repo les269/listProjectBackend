@@ -125,7 +125,7 @@ public class Utils {
     /**
      * 判斷字串是否可解析為整數。
      */
-    private static boolean isNumeric(String str) {
+    public static boolean isNumeric(String str) {
         try {
             Integer.parseInt(str);
             return true;

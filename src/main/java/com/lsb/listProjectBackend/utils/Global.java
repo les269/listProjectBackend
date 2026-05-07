@@ -122,7 +122,8 @@ public class Global {
         INSERT,
         DELETE,
         DELETE_PATHS,
-        MOVE_CHAR
+        MOVE_CHAR,
+        CALCULATE
     }
 
     public enum PositionType {

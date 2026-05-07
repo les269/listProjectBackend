@@ -8,6 +8,7 @@ import com.jayway.jsonpath.DocumentContext;
 import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.PathNotFoundException;
 import com.lsb.listProjectBackend.domain.common.ReplaceValueMapTO;
+import com.lsb.listProjectBackend.entity.dynamic.spider.ChipsMapValue;
 import com.lsb.listProjectBackend.entity.dynamic.spider.DeleteConfig;
 import com.lsb.listProjectBackend.entity.dynamic.spider.InsertConfig;
 import com.lsb.listProjectBackend.entity.dynamic.spider.MoveCharConfig;
@@ -15,6 +16,7 @@ import com.lsb.listProjectBackend.entity.dynamic.spider.ValuePipeline;
 import com.lsb.listProjectBackend.entity.dynamic.spider.ValuePipelineContext;
 import com.lsb.listProjectBackend.service.common.ReplaceValueMapService;
 import com.lsb.listProjectBackend.utils.DateUtils;
+import com.lsb.listProjectBackend.utils.ExperessionUtils;
 import com.lsb.listProjectBackend.utils.Global;
 import com.lsb.listProjectBackend.utils.JsonUtils;
 import com.lsb.listProjectBackend.utils.Utils;
@@ -24,10 +26,13 @@ import lombok.RequiredArgsConstructor;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.springframework.stereotype.Service;
+import org.springframework.util.NumberUtils;
 
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -381,6 +386,46 @@ public class ValuePipelineServiceImpl implements ValuePipelineService {
                     }
                 }
                 break;
+            case CALCULATE:
+                var calculateConfig = pipeLine.getCalculateConfig();
+                if (calculateConfig != null && Utils.isNotBlank(calculateConfig.getExpression())) {
+                    var expression = calculateConfig.getExpression();
+                    var defaultValue = calculateConfig.getDefaultValue();
+                    var variablePaths = calculateConfig.getVariablePaths();
+                    Map<String, Object> variables = variablePaths.stream()
+                            .filter(x -> Utils.isNotBlank(x.getKey()) || Utils.isNotBlank(x.getValue()))
+                            .collect(Collectors.toMap(ChipsMapValue::getKey, x -> {
+                                var value = safeRead(result, x.getValue());
+                                if (value != null) {
+                                    if (value instanceof String str) {
+                                        try {
+                                            return new BigDecimal(str);
+                                        } catch (NumberFormatException e) {
+                                            return str;
+                                        }
+                                    } else if (value instanceof List<?> list) {
+                                        return list.stream()
+                                                .map(item -> {
+                                                    if (item instanceof String itemStr) {
+                                                        try {
+                                                            return new BigDecimal(itemStr);
+                                                        } catch (NumberFormatException e) {
+                                                            return itemStr;
+                                                        }
+                                                    }
+                                                    return item;
+                                                }).filter(v -> v instanceof BigDecimal).toList();
+                                    }
+                                }
+                                return value;
+                            }));
+                    try {
+                        pipelineValue = ExperessionUtils.calculateExpression(expression, variables);
+                    } catch (Exception e) {
+                        pipelineValue = safeReadOrReturnKey(result, defaultValue);
+                    }
+                }
+                break;
         }
         return pipelineValue;
     }
@@ -393,6 +438,17 @@ public class ValuePipelineServiceImpl implements ValuePipelineService {
             return result.read(key);
         } catch (PathNotFoundException e) {
             return null;
+        }
+    }
+
+    private Object safeReadOrReturnKey(DocumentContext result, String key) {
+        if (result == null || Utils.isBlank(key)) {
+            return null;
+        }
+        try {
+            return result.read(key);
+        } catch (PathNotFoundException e) {
+            return key;
         }
     }
 
