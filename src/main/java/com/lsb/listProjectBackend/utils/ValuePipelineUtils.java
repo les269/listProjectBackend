@@ -416,6 +416,24 @@ public class ValuePipelineUtils {
                     }
                 }
                 break;
+            // 獲取request中的cookies並設定其中的值
+            case FETCH_COOKIE:
+                var cookies = context.getCookies();
+                var fetchCookieName = pipeLine.getFetchCookieName();
+                if (cookies != null && Utils.isNotBlank(fetchCookieName) && cookies.containsKey(fetchCookieName)
+                        && Utils.isNotBlank(cookies.get(fetchCookieName))) {
+                    pipelineValue = cookies.get(fetchCookieName);
+                }
+                break;
+            case FETCH_HEADER:
+                var headers = context.getHeaders();
+                var fetchHeaderName = pipeLine.getFetchHeaderName();
+                if (headers != null && Utils.isNotBlank(fetchHeaderName) && headers.containsKey(fetchHeaderName)
+                        && Utils.isNotBlank(headers.get(fetchHeaderName))) {
+                    pipelineValue = headers.get(fetchHeaderName);
+                }
+                break;
+
         }
         return pipelineValue;
     }

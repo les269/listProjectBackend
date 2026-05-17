@@ -39,4 +39,6 @@ public class ValuePipeline {
     private List<String> deletePaths;
     private MoveCharConfig moveCharConfig;
     private CalculateConfig calculateConfig;
+    private String fetchCookieName;
+    private String fetchHeaderName;
 }

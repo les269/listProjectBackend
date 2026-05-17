@@ -122,7 +122,9 @@ public class Global {
         DELETE,
         DELETE_PATHS,
         MOVE_CHAR,
-        CALCULATE
+        CALCULATE,
+        FETCH_COOKIE,
+        FETCH_HEADER
     }
 
     public enum PositionType {

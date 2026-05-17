@@ -8,6 +8,7 @@ import com.lsb.listProjectBackend.domain.common.LsbException;
 import com.lsb.listProjectBackend.domain.spider.SpiderConfigTO;
 import com.lsb.listProjectBackend.domain.spider.SpiderItemTO;
 import com.lsb.listProjectBackend.domain.spider.SpiderTestTO;
+import com.lsb.listProjectBackend.entity.dynamic.common.Cookie;
 import com.lsb.listProjectBackend.entity.dynamic.spider.ExtractionRule;
 import com.lsb.listProjectBackend.entity.dynamic.spider.SpiderItemSetting;
 import com.lsb.listProjectBackend.entity.dynamic.spider.ValuePipelineContext;
@@ -123,16 +124,14 @@ public class SpiderServiceImpl implements SpiderService {
             } else {
                 currentUrl = JsonUtils.replaceValueByJsonPath(setting.getUrl(), result.json());
             }
-            Map<String, String> cookie = null;
+            Connection connection = getConnection(currentUrl);
+            // 判斷是否有cookie設定 有的話要帶入cookie
             if (cookieMap.containsKey(item.spiderItemId())) {
                 CookieListTO cookieList = cookieMap.get(item.spiderItemId());
                 if (cookieList != null) {
-                    cookie = Utils.getCookieMap(cookieList.list());
+                    var cookie = getCookieMap(cookieList.list(), result);
+                    connection.cookies(cookie);
                 }
-            }
-            Connection connection = getConnection(currentUrl);
-            if (cookie != null) {
-                connection.cookies(cookie);
             }
 
             useExtraction(connection, setting, result);
@@ -160,16 +159,14 @@ public class SpiderServiceImpl implements SpiderService {
             if (Utils.isBlank(currentUrl)) {
                 continue;
             }
-            Map<String, String> cookie = null;
+            Connection connection = getConnection(currentUrl);
+            // 判斷是否有cookie設定 有的話要帶入cookie
             if (cookieMap.containsKey(item.spiderItemId())) {
                 CookieListTO cookieList = cookieMap.get(item.spiderItemId());
                 if (cookieList != null) {
-                    cookie = Utils.getCookieMap(cookieList.list());
+                    var cookie = getCookieMap(cookieList.list(), result);
+                    connection.cookies(cookie);
                 }
-            }
-            Connection connection = getConnection(currentUrl);
-            if (cookie != null) {
-                connection.cookies(cookie);
             }
 
             useExtraction(connection, setting, result);
@@ -255,15 +252,20 @@ public class SpiderServiceImpl implements SpiderService {
     }
 
     private Map<String, String> getCookieMapByItemId(String spiderItemId) {
-        DocumentContext cookiesContext = JsonPath.parse("{}");
         var cookieListTO = cookieListService.getByRefIdAndType(spiderItemId, Global.CookieListMapType.SPIDER);
         if (cookieListTO != null) {
-            cookieListTO.list().stream().collect(HashMap::new, (map, cookie) -> {
-                var ctx = ValuePipelineContext.builder().result(cookiesContext)
-                        .build();
-                Object val = ValuePipelineUtils.applyPipelines(cookie.getValuePipelines(), cookie.getValue(), ctx);
-                map.put(cookie.getName(), val != null ? String.valueOf(val) : "");
-            }, HashMap::putAll);
+            return getCookieMap(cookieListTO.list(), null);
+        }
+        return Map.of();
+    }
+
+    private Map<String, String> getCookieMap(List<Cookie> list, DocumentContext extraContext) {
+        DocumentContext cookiesContext = JsonPath.parse("{}");
+        for (Cookie cookie : list) {
+            var ctx = ValuePipelineContext.builder().result(cookiesContext).extraContext(extraContext)
+                    .build();
+            Object val = ValuePipelineUtils.applyPipelines(cookie.getValuePipelines(), cookie.getValue(), ctx);
+            cookiesContext.put("$", cookie.getName(), val != null ? String.valueOf(val) : "");
         }
         return cookiesContext.read("$");
     }
