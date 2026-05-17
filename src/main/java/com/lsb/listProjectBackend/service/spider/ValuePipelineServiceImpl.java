@@ -31,6 +31,7 @@ import org.springframework.util.NumberUtils;
 import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -391,36 +392,14 @@ public class ValuePipelineServiceImpl implements ValuePipelineService {
                 if (calculateConfig != null && Utils.isNotBlank(calculateConfig.getExpression())) {
                     var expression = calculateConfig.getExpression();
                     var defaultValue = calculateConfig.getDefaultValue();
-                    var variablePaths = calculateConfig.getVariablePaths();
-                    Map<String, Object> variables = variablePaths.stream()
+                    Map<String, Object> variables = calculateConfig.getVariablePaths().stream()
                             .filter(x -> Utils.isNotBlank(x.getKey()) || Utils.isNotBlank(x.getValue()))
-                            .collect(Collectors.toMap(ChipsMapValue::getKey, x -> {
-                                var value = safeRead(result, x.getValue());
-                                if (value != null) {
-                                    if (value instanceof String str) {
-                                        try {
-                                            return new BigDecimal(str);
-                                        } catch (NumberFormatException e) {
-                                            return str;
-                                        }
-                                    } else if (value instanceof List<?> list) {
-                                        return list.stream()
-                                                .map(item -> {
-                                                    if (item instanceof String itemStr) {
-                                                        try {
-                                                            return new BigDecimal(itemStr);
-                                                        } catch (NumberFormatException e) {
-                                                            return itemStr;
-                                                        }
-                                                    }
-                                                    return item;
-                                                }).filter(v -> v instanceof BigDecimal).toList();
-                                    }
-                                }
-                                return value;
-                            }));
+                            .collect(
+                                    HashMap::new,
+                                    (map, x) -> map.put(x.getKey(), toNumericValue(safeRead(result, x.getValue()))),
+                                    HashMap::putAll);
                     try {
-                        pipelineValue = ExperessionUtils.calculateExpression(expression, variables);
+                        pipelineValue = ExperessionUtils.calculateExpression(expression, variables).toString();
                     } catch (Exception e) {
                         pipelineValue = safeReadOrReturnKey(result, defaultValue);
                     }
@@ -428,6 +407,30 @@ public class ValuePipelineServiceImpl implements ValuePipelineService {
                 break;
         }
         return pipelineValue;
+    }
+
+    private Object parseBigDecimalOrSelf(String str) {
+        try {
+            return new BigDecimal(str);
+        } catch (NumberFormatException e) {
+            return str;
+        }
+    }
+
+    private Object toNumericValue(Object value) {
+        if (value instanceof String str) {
+            return parseBigDecimalOrSelf(str);
+        }
+        if (value instanceof Number) {
+            return new BigDecimal(((Number) value).toString());
+        }
+        if (value instanceof List<?> list) {
+            return list.stream()
+                    .map(item -> item instanceof String s ? parseBigDecimalOrSelf(s) : item)
+                    .filter(v -> v instanceof BigDecimal)
+                    .toList();
+        }
+        return value;
     }
 
     private Object safeRead(DocumentContext result, String key) {
