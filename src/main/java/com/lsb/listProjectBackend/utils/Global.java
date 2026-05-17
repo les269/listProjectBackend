@@ -112,7 +112,6 @@ public class Global {
         LAST_VALUE,
         COMBINE_TO_STRING,
         COMBINE_BY_KEY,
-        USE_REPLACE_VALUE_MAP,
         MERGE_MULTI_OBJ_TO_ARRAY,
         MERGE_MULTI_ARRAY_TO_ARRAY,
         CONVERT_TO_CASE,

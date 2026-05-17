@@ -5,17 +5,13 @@ import com.jayway.jsonpath.JsonPath;
 import com.lsb.listProjectBackend.aop.UseDynamic;
 import com.lsb.listProjectBackend.domain.common.CookieListTO;
 import com.lsb.listProjectBackend.domain.common.LsbException;
-import com.lsb.listProjectBackend.domain.common.ReplaceValueMapTO;
 import com.lsb.listProjectBackend.domain.spider.SpiderConfigTO;
 import com.lsb.listProjectBackend.domain.spider.SpiderItemTO;
 import com.lsb.listProjectBackend.domain.spider.SpiderTestTO;
-import com.lsb.listProjectBackend.entity.dynamic.common.Cookie;
 import com.lsb.listProjectBackend.entity.dynamic.spider.ExtractionRule;
 import com.lsb.listProjectBackend.entity.dynamic.spider.SpiderItemSetting;
-import com.lsb.listProjectBackend.entity.dynamic.spider.ValuePipeline;
 import com.lsb.listProjectBackend.entity.dynamic.spider.ValuePipelineContext;
 import com.lsb.listProjectBackend.service.common.CookieListService;
-import com.lsb.listProjectBackend.service.common.ReplaceValueMapService;
 import com.lsb.listProjectBackend.utils.ValuePipelineUtils;
 import com.lsb.listProjectBackend.utils.Global;
 import com.lsb.listProjectBackend.utils.JsonUtils;
@@ -47,7 +43,6 @@ public class SpiderServiceImpl implements SpiderService {
     private final SpiderItemService spiderItemService;
     private final CookieListService cookieListService;
     private final ExtractionRuleService extractionRuleService;
-    private final ReplaceValueMapService replaceValueMapService;
 
     @Override
     public String executeByUrl(String spiderId, String url) throws Exception {
@@ -80,11 +75,7 @@ public class SpiderServiceImpl implements SpiderService {
         var setting = req.itemSetting();
         var mode = setting.getMode();
 
-        Map<String, String> cookies = getCookieMap(List.of());
-        var cookieListTO = cookieListService.getByRefIdAndType(req.spiderItemId(), Global.CookieListMapType.SPIDER);
-        if (cookieListTO != null) {
-            cookies = getCookieMap(cookieListTO.list());
-        }
+        Map<String, String> cookies = getCookieMapByItemId(req.spiderItemId());
 
         switch (mode) {
             case SELECT ->
@@ -210,7 +201,6 @@ public class SpiderServiceImpl implements SpiderService {
             DocumentContext result) {
         try {
             Document doc = Jsoup.parse(html);
-            var allReplaceValueMapList = fetchReplaceValueMaps(extractionRuleService.allPipelines(extractionRules));
             for (ExtractionRule extractionRule : extractionRuleService.sortedRules(extractionRules)) {
                 if (!extractionRuleService.checkCondition(extractionRule, result)) {
                     continue;
@@ -220,7 +210,6 @@ public class SpiderServiceImpl implements SpiderService {
                         ? doc.select(extractionRule.getSelector())
                         : null;
                 var context = ValuePipelineContext.builder()
-                        .replaceValueMapList(allReplaceValueMapList)
                         .result(result)
                         .elements(elements)
                         .cookies(cookies != null ? cookies : new HashMap<>())
@@ -242,7 +231,6 @@ public class SpiderServiceImpl implements SpiderService {
     public void useJsonPath(String json, Map<String, String> cookies, Map<String, String> headers,
             List<ExtractionRule> extractionRules,
             DocumentContext result) {
-        var allReplaceValueMapList = fetchReplaceValueMaps(extractionRuleService.allPipelines(extractionRules));
         for (ExtractionRule extractionRule : extractionRuleService.sortedRules(extractionRules)) {
             if (!extractionRuleService.checkCondition(extractionRule, result)) {
                 continue;
@@ -251,7 +239,6 @@ public class SpiderServiceImpl implements SpiderService {
             Object pipelineValue = JsonPath.read(json, extractionRule.getJsonPath());
             log.info("pipeline value before pipeline: {}", pipelineValue);
             var context = ValuePipelineContext.builder()
-                    .replaceValueMapList(allReplaceValueMapList)
                     .result(result)
                     .cookies(cookies != null ? cookies : new HashMap<>())
                     .headers(headers != null ? headers : new HashMap<>())
@@ -267,19 +254,17 @@ public class SpiderServiceImpl implements SpiderService {
                 .header("Accept", "*/*").header("Content-Type", "text/html; charset=UTF-8");
     }
 
-    private List<ReplaceValueMapTO> fetchReplaceValueMaps(List<ValuePipeline> pipelines) {
-        List<String> names = ValuePipelineUtils.getReplaceValueNameList(pipelines);
-        return replaceValueMapService.getAllByNameList(names);
-    }
-
-    private Map<String, String> getCookieMap(List<Cookie> list) {
+    private Map<String, String> getCookieMapByItemId(String spiderItemId) {
         DocumentContext cookiesContext = JsonPath.parse("{}");
-        return list.stream().collect(HashMap::new, (map, cookie) -> {
-            var replaceValueMap = fetchReplaceValueMaps(cookie.getValuePipelines());
-            var ctx = ValuePipelineContext.builder().result(cookiesContext).replaceValueMapList(replaceValueMap)
-                    .build();
-            Object val = ValuePipelineUtils.applyPipelines(cookie.getValuePipelines(), cookie.getValue(), ctx);
-            map.put(cookie.getName(), val != null ? String.valueOf(val) : "");
-        }, HashMap::putAll);
+        var cookieListTO = cookieListService.getByRefIdAndType(spiderItemId, Global.CookieListMapType.SPIDER);
+        if (cookieListTO != null) {
+            cookieListTO.list().stream().collect(HashMap::new, (map, cookie) -> {
+                var ctx = ValuePipelineContext.builder().result(cookiesContext)
+                        .build();
+                Object val = ValuePipelineUtils.applyPipelines(cookie.getValuePipelines(), cookie.getValue(), ctx);
+                map.put(cookie.getName(), val != null ? String.valueOf(val) : "");
+            }, HashMap::putAll);
+        }
+        return cookiesContext.read("$");
     }
 }

@@ -1,14 +1,12 @@
 package com.lsb.listProjectBackend.entity.dynamic.spider;
 
 import com.jayway.jsonpath.DocumentContext;
-import com.lsb.listProjectBackend.domain.common.ReplaceValueMapTO;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.jsoup.select.Elements;
 
-import java.util.List;
 import java.util.Map;
 
 @Data
@@ -16,7 +14,6 @@ import java.util.Map;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ValuePipelineContext {
-    private List<ReplaceValueMapTO> replaceValueMapList;
     private DocumentContext result;// 當前所有資料的就是一個json物件 可能是初始的空json 也可能是經過前面pipeline處理後的json物件
     private Elements elements;
     private Map<String, String> cookies;

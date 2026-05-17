@@ -7,7 +7,6 @@ import com.github.houbb.opencc4j.util.ZhTwConverterUtil;
 import com.jayway.jsonpath.DocumentContext;
 import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.PathNotFoundException;
-import com.lsb.listProjectBackend.domain.common.ReplaceValueMapTO;
 import com.lsb.listProjectBackend.entity.dynamic.spider.ValuePipeline;
 import com.lsb.listProjectBackend.entity.dynamic.spider.ValuePipelineContext;
 
@@ -33,25 +32,6 @@ import java.util.stream.Collectors;
 public class ValuePipelineUtils {
 
     private ValuePipelineUtils() {
-    }
-
-    /**
-     * 從 pipeline 清單中，取出所有已啟用且類型為 {@code USE_REPLACE_VALUE_MAP} 的對應表名稱（不重複）。
-     *
-     * @param pipelines pipeline 清單
-     * @return 不重複的對應表名稱清單；若無符合項目則回傳空清單
-     */
-    public static List<String> getReplaceValueNameList(List<ValuePipeline> pipelines) {
-        if (pipelines == null || pipelines.isEmpty()) {
-            return List.of();
-        }
-        return pipelines.stream()
-                .filter(Objects::nonNull)
-                .filter(x -> x.isEnabled() && Global.ValuePipelineType.USE_REPLACE_VALUE_MAP.equals(x.getType()))
-                .map(ValuePipeline::getUseReplaceValueMap)
-                .filter(Utils::isNotBlank)
-                .distinct()
-                .toList();
     }
 
     /**
@@ -100,11 +80,8 @@ public class ValuePipelineUtils {
 
         final DocumentContext result = context == null ? null : context.getResult();
         final Elements elements = context == null ? null : context.getElements();
-        final List<ReplaceValueMapTO> allReplaceValueMapList = context == null
-                ? List.of()
-                : context.getReplaceValueMapList();
 
-        return applyPipelineInternal(result, pipeLine, pipelineValue, allReplaceValueMapList, elements);
+        return applyPipelineInternal(result, pipeLine, pipelineValue, context, elements);
     }
 
     /**
@@ -148,7 +125,7 @@ public class ValuePipelineUtils {
 
     /** 依 pipeline 的類型分派處理邏輯，為 {@link #applyPipeline} 的核心實作。 */
     private static Object applyPipelineInternal(DocumentContext result, ValuePipeline pipeLine, Object pipelineValue,
-            List<ReplaceValueMapTO> allReplaceValueMapList,
+            ValuePipelineContext context,
             Elements elements) {
         switch (pipeLine.getType()) {
             // 強制以固定字串取代當前值
@@ -274,26 +251,6 @@ public class ValuePipelineUtils {
                         pipelineValue = list.stream()
                                 .map(String::valueOf)
                                 .collect(Collectors.joining(joinSeparator));
-                    }
-                }
-                break;
-            // 依對應表（依名稱匹配）將值做轉換
-            case USE_REPLACE_VALUE_MAP:
-                var replaceValueMapName = pipeLine.getUseReplaceValueMap();
-                if (Utils.isNotBlank(replaceValueMapName)) {
-                    ReplaceValueMapTO map = allReplaceValueMapList == null ? null
-                            : allReplaceValueMapList.stream()
-                                    .filter(x -> replaceValueMapName.equals(x.name())).findFirst().orElse(null);
-                    if (map != null) {
-                        if (pipelineValue instanceof List<?> list) {
-                            pipelineValue = list.stream().map(x -> {
-                                String xStr = String.valueOf(x);
-                                return map.map().getOrDefault(xStr, xStr);
-                            }).toList();
-                        } else {
-                            String xStr = String.valueOf(pipelineValue);
-                            pipelineValue = map.map().getOrDefault(xStr, xStr);
-                        }
                     }
                 }
                 break;

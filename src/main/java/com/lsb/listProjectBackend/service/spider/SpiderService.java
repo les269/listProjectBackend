@@ -4,7 +4,6 @@ import java.util.List;
 
 import com.lsb.listProjectBackend.domain.spider.SpiderItemTO;
 import com.lsb.listProjectBackend.domain.spider.SpiderTestTO;
-import com.lsb.listProjectBackend.entity.dynamic.spider.SpiderItemSetting;
 
 public interface SpiderService {
 
