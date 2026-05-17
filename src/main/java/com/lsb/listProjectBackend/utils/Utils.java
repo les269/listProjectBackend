@@ -1,7 +1,6 @@
 package com.lsb.listProjectBackend.utils;
 
 import com.lsb.listProjectBackend.entity.dynamic.common.Cookie;
-import com.lsb.listProjectBackend.entity.dynamic.spider.MoveCharConfig;
 import com.sun.jna.platform.FileUtils;
 import lombok.extern.slf4j.Slf4j;
 

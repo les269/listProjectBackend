@@ -182,7 +182,6 @@ public class ExperessionUtilsTest {
 
     @Test
     void fn_ifNull_null_value() {
-        var vars = Map.of("defaultVal", (Object) new BigDecimal("99"));
         // null 無法放入 Map.of，改用 HashMap
         var vars2 = new java.util.HashMap<String, Object>();
         vars2.put("v", null);

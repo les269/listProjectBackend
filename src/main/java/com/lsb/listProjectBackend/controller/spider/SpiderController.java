@@ -3,8 +3,6 @@ package com.lsb.listProjectBackend.controller.spider;
 import com.lsb.listProjectBackend.domain.spider.SpiderItemTO;
 import com.lsb.listProjectBackend.domain.spider.SpiderReqTO;
 import com.lsb.listProjectBackend.domain.spider.SpiderTestTO;
-import com.lsb.listProjectBackend.entity.dynamic.spider.SpiderItem;
-import com.lsb.listProjectBackend.entity.dynamic.spider.SpiderItemSetting;
 import com.lsb.listProjectBackend.service.spider.SpiderService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.CrossOrigin;
