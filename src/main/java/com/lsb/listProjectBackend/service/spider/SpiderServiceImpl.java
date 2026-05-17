@@ -5,13 +5,18 @@ import com.jayway.jsonpath.JsonPath;
 import com.lsb.listProjectBackend.aop.UseDynamic;
 import com.lsb.listProjectBackend.domain.common.CookieListTO;
 import com.lsb.listProjectBackend.domain.common.LsbException;
+import com.lsb.listProjectBackend.domain.common.ReplaceValueMapTO;
 import com.lsb.listProjectBackend.domain.spider.SpiderConfigTO;
 import com.lsb.listProjectBackend.domain.spider.SpiderItemTO;
 import com.lsb.listProjectBackend.domain.spider.SpiderTestTO;
+import com.lsb.listProjectBackend.entity.dynamic.common.Cookie;
 import com.lsb.listProjectBackend.entity.dynamic.spider.ExtractionRule;
 import com.lsb.listProjectBackend.entity.dynamic.spider.SpiderItemSetting;
+import com.lsb.listProjectBackend.entity.dynamic.spider.ValuePipeline;
 import com.lsb.listProjectBackend.entity.dynamic.spider.ValuePipelineContext;
 import com.lsb.listProjectBackend.service.common.CookieListService;
+import com.lsb.listProjectBackend.service.common.ReplaceValueMapService;
+import com.lsb.listProjectBackend.utils.ValuePipelineUtils;
 import com.lsb.listProjectBackend.utils.Global;
 import com.lsb.listProjectBackend.utils.JsonUtils;
 import com.lsb.listProjectBackend.utils.Utils;
@@ -21,6 +26,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import org.jsoup.Connection;
+import org.jsoup.Connection.Request;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -28,6 +34,7 @@ import org.jsoup.select.Elements;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -39,8 +46,8 @@ public class SpiderServiceImpl implements SpiderService {
     private final SpiderConfigService spiderConfigService;
     private final SpiderItemService spiderItemService;
     private final CookieListService cookieListService;
-    private final ValuePipelineService valuePipelineService;
     private final ExtractionRuleService extractionRuleService;
+    private final ReplaceValueMapService replaceValueMapService;
 
     @Override
     public String executeByUrl(String spiderId, String url) throws Exception {
@@ -68,12 +75,22 @@ public class SpiderServiceImpl implements SpiderService {
     }
 
     @Override
-    public String previewExtraction(SpiderItemSetting setting) {
+    public String previewExtraction(SpiderItemTO req) {
         DocumentContext result = JsonPath.parse("{}");
+        var setting = req.itemSetting();
         var mode = setting.getMode();
+
+        Map<String, String> cookies = getCookieMap(List.of());
+        var cookieListTO = cookieListService.getByRefIdAndType(req.spiderItemId(), Global.CookieListMapType.SPIDER);
+        if (cookieListTO != null) {
+            cookies = getCookieMap(cookieListTO.list());
+        }
+
         switch (mode) {
-            case SELECT -> useCssSelect(setting.getTestData().getHtml(), setting.getExtractionRuleList(), result);
-            case JSON_PATH -> useJsonPath(setting.getTestData().getJson(), setting.getExtractionRuleList(), result);
+            case SELECT ->
+                useCssSelect(setting.getTestData().getHtml(), cookies, null, setting.getExtractionRuleList(), result);
+            case JSON_PATH ->
+                useJsonPath(setting.getTestData().getJson(), cookies, null, setting.getExtractionRuleList(), result);
             default -> throw new LsbException("未知的抽取模式: " + mode);
         }
         return result.jsonString();
@@ -171,24 +188,29 @@ public class SpiderServiceImpl implements SpiderService {
 
     public void useExtraction(Connection connection, SpiderItemSetting setting, DocumentContext result)
             throws IOException {
+        Document doc;
+        Request req;
         switch (setting.getMode()) {
             case Global.ExtractionRuleMode.SELECT:
-                Document doc = connection.get();
-                useCssSelect(doc.html(), setting.getExtractionRuleList(), result);
+                doc = connection.get();
+                req = connection.request();
+                useCssSelect(doc.html(), req.cookies(), req.headers(), setting.getExtractionRuleList(), result);
                 break;
             case Global.ExtractionRuleMode.JSON_PATH:
-                String jsonText = connection.ignoreContentType(true).execute() // 執行請求
-                        .body();
-                useJsonPath(jsonText, setting.getExtractionRuleList(), result);
+                connection.ignoreContentType(true).get();
+                doc = connection.ignoreContentType(true).get();
+                req = connection.request();
+                useJsonPath(doc.text(), req.cookies(), req.headers(), setting.getExtractionRuleList(), result);
                 break;
         }
     }
 
-    public void useCssSelect(String html, List<ExtractionRule> extractionRules, DocumentContext result) {
+    public void useCssSelect(String html, Map<String, String> cookies, Map<String, String> headers,
+            List<ExtractionRule> extractionRules,
+            DocumentContext result) {
         try {
             Document doc = Jsoup.parse(html);
-            var allReplaceValueMapList = valuePipelineService
-                    .fetchReplaceValueMaps(extractionRuleService.allPipelines(extractionRules));
+            var allReplaceValueMapList = fetchReplaceValueMaps(extractionRuleService.allPipelines(extractionRules));
             for (ExtractionRule extractionRule : extractionRuleService.sortedRules(extractionRules)) {
                 if (!extractionRuleService.checkCondition(extractionRule, result)) {
                     continue;
@@ -197,13 +219,19 @@ public class SpiderServiceImpl implements SpiderService {
                 Elements elements = Utils.isNotBlank(extractionRule.getSelector())
                         ? doc.select(extractionRule.getSelector())
                         : null;
-                var context = new ValuePipelineContext(allReplaceValueMapList, result, elements);
-                Object pipelineValue = valuePipelineService.applyPipelines(pipelines, null, context);
-                if (elements != null && !valuePipelineService.hasEnabledPipelines(pipelines)) {
+                var context = ValuePipelineContext.builder()
+                        .replaceValueMapList(allReplaceValueMapList)
+                        .result(result)
+                        .elements(elements)
+                        .cookies(cookies != null ? cookies : new HashMap<>())
+                        .headers(headers != null ? headers : new HashMap<>())
+                        .build();
+                Object pipelineValue = ValuePipelineUtils.applyPipelines(pipelines, null, context);
+                if (elements != null && !ValuePipelineUtils.hasEnabledPipelines(pipelines)) {
                     pipelineValue = elements.stream().map(Element::text).toList();
                 }
                 JsonUtils.putValue(result, extractionRule.getKey(),
-                        valuePipelineService.normalizeExtractedValue(pipelineValue));
+                        ValuePipelineUtils.normalizeExtractedValue(pipelineValue));
             }
         } catch (Exception e) {
             log.error("css select error:", e);
@@ -211,9 +239,10 @@ public class SpiderServiceImpl implements SpiderService {
         }
     }
 
-    public void useJsonPath(String json, List<ExtractionRule> extractionRules, DocumentContext result) {
-        var allReplaceValueMapList = valuePipelineService
-                .fetchReplaceValueMaps(extractionRuleService.allPipelines(extractionRules));
+    public void useJsonPath(String json, Map<String, String> cookies, Map<String, String> headers,
+            List<ExtractionRule> extractionRules,
+            DocumentContext result) {
+        var allReplaceValueMapList = fetchReplaceValueMaps(extractionRuleService.allPipelines(extractionRules));
         for (ExtractionRule extractionRule : extractionRuleService.sortedRules(extractionRules)) {
             if (!extractionRuleService.checkCondition(extractionRule, result)) {
                 continue;
@@ -221,10 +250,15 @@ public class SpiderServiceImpl implements SpiderService {
             var pipelines = extractionRule.getPipelines();
             Object pipelineValue = JsonPath.read(json, extractionRule.getJsonPath());
             log.info("pipeline value before pipeline: {}", pipelineValue);
-            var context = new ValuePipelineContext(allReplaceValueMapList, result, null);
-            pipelineValue = valuePipelineService.applyPipelines(pipelines, pipelineValue, context);
+            var context = ValuePipelineContext.builder()
+                    .replaceValueMapList(allReplaceValueMapList)
+                    .result(result)
+                    .cookies(cookies != null ? cookies : new HashMap<>())
+                    .headers(headers != null ? headers : new HashMap<>())
+                    .build();
+            pipelineValue = ValuePipelineUtils.applyPipelines(pipelines, pipelineValue, context);
             JsonUtils.putValue(result, extractionRule.getKey(),
-                    valuePipelineService.normalizeExtractedValue(pipelineValue));
+                    ValuePipelineUtils.normalizeExtractedValue(pipelineValue));
         }
     }
 
@@ -233,4 +267,19 @@ public class SpiderServiceImpl implements SpiderService {
                 .header("Accept", "*/*").header("Content-Type", "text/html; charset=UTF-8");
     }
 
+    private List<ReplaceValueMapTO> fetchReplaceValueMaps(List<ValuePipeline> pipelines) {
+        List<String> names = ValuePipelineUtils.getReplaceValueNameList(pipelines);
+        return replaceValueMapService.getAllByNameList(names);
+    }
+
+    private Map<String, String> getCookieMap(List<Cookie> list) {
+        DocumentContext cookiesContext = JsonPath.parse("{}");
+        return list.stream().collect(HashMap::new, (map, cookie) -> {
+            var replaceValueMap = fetchReplaceValueMaps(cookie.getValuePipelines());
+            var ctx = ValuePipelineContext.builder().result(cookiesContext).replaceValueMapList(replaceValueMap)
+                    .build();
+            Object val = ValuePipelineUtils.applyPipelines(cookie.getValuePipelines(), cookie.getValue(), ctx);
+            map.put(cookie.getName(), val != null ? String.valueOf(val) : "");
+        }, HashMap::putAll);
+    }
 }

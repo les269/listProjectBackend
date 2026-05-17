@@ -2,6 +2,7 @@ package com.lsb.listProjectBackend.service.spider;
 
 import java.util.List;
 
+import com.lsb.listProjectBackend.domain.spider.SpiderItemTO;
 import com.lsb.listProjectBackend.domain.spider.SpiderTestTO;
 import com.lsb.listProjectBackend.entity.dynamic.spider.SpiderItemSetting;
 
@@ -28,10 +29,10 @@ public interface SpiderService {
     /**
      * 預覽抽取結果（單一設定，不連線）
      *
-     * @param setting 抽取設定
+     * @param req 抽取設定
      * @return 預覽結果
      */
-    String previewExtraction(SpiderItemSetting setting);
+    String previewExtraction(SpiderItemTO req);
 
     /**
      * 使用測試資料的 URL 預覽完整爬蟲流程

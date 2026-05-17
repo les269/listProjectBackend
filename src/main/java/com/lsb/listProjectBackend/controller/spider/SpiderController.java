@@ -1,7 +1,9 @@
 package com.lsb.listProjectBackend.controller.spider;
 
+import com.lsb.listProjectBackend.domain.spider.SpiderItemTO;
 import com.lsb.listProjectBackend.domain.spider.SpiderReqTO;
 import com.lsb.listProjectBackend.domain.spider.SpiderTestTO;
+import com.lsb.listProjectBackend.entity.dynamic.spider.SpiderItem;
 import com.lsb.listProjectBackend.entity.dynamic.spider.SpiderItemSetting;
 import com.lsb.listProjectBackend.service.spider.SpiderService;
 import lombok.RequiredArgsConstructor;
@@ -29,8 +31,8 @@ public class SpiderController {
     }
 
     @PostMapping("/spider/preview-extraction")
-    public String previewExtraction(@RequestBody SpiderItemSetting setting) {
-        return spiderService.previewExtraction(setting);
+    public String previewExtraction(@RequestBody SpiderItemTO req) {
+        return spiderService.previewExtraction(req);
     }
 
     @PostMapping("/spider/preview/use-url")
