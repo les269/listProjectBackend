@@ -433,7 +433,13 @@ public class ValuePipelineUtils {
                     pipelineValue = headers.get(fetchHeaderName);
                 }
                 break;
-
+            case FETCH_CURRENT_DATA:
+                var currentDataKeyForFetch = pipeLine.getFetchCurrentDataKey();
+                var extraContext = context.getExtraContext();
+                if (extraContext != null && Utils.isNotBlank(currentDataKeyForFetch)) {
+                    pipelineValue = safeRead(extraContext, currentDataKeyForFetch);
+                }
+                break;
         }
         return pipelineValue;
     }
@@ -493,7 +499,7 @@ public class ValuePipelineUtils {
      */
     private static Object safeReadOrReturnKey(DocumentContext result, String key) {
         if (result == null || Utils.isBlank(key)) {
-            return null;
+            return key;
         }
         try {
             return result.read(key);

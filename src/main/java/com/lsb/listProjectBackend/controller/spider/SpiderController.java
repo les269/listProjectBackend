@@ -33,14 +33,4 @@ public class SpiderController {
         return spiderService.previewExtraction(req);
     }
 
-    @PostMapping("/spider/preview/use-url")
-    public String previewByUrl(@RequestBody SpiderTestTO req) throws Exception {
-        return spiderService.previewByUrl(req);
-    }
-
-    @PostMapping("/spider/preview/use-prime-key")
-    public String previewByPrimeKey(@RequestBody SpiderTestTO req) throws Exception {
-        return spiderService.previewByPrimeKey(req);
-    }
-
 }

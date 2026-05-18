@@ -41,4 +41,5 @@ public class ValuePipeline {
     private CalculateConfig calculateConfig;
     private String fetchCookieName;
     private String fetchHeaderName;
+    private String fetchCurrentDataKey;
 }

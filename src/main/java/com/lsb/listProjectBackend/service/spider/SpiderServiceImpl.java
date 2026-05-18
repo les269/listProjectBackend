@@ -88,18 +88,6 @@ public class SpiderServiceImpl implements SpiderService {
         return result.jsonString();
     }
 
-    @Override
-    public String previewByUrl(SpiderTestTO req) throws Exception {
-        String url = req.spiderConfig().testData().getUrl();
-        return runSpiderItemByUrl(req.spiderItems(), url);
-    }
-
-    @Override
-    public String previewByPrimeKey(SpiderTestTO req) throws Exception {
-        List<String> primeKeyList = req.spiderConfig().testData().getPrimeKeyList();
-        return runSpiderItemByPrimeKeyList(req.spiderItems(), primeKeyList);
-    }
-
     private String runSpiderItemByUrl(List<SpiderItemTO> itemList, String url) throws Exception {
         DocumentContext result = JsonPath.parse("{}");
         List<String> spiderItemIdsForCookieRef = itemList.stream()
@@ -136,7 +124,7 @@ public class SpiderServiceImpl implements SpiderService {
 
             useExtraction(connection, setting, result);
         }
-        return result.read("$");
+        return result.jsonString();
     }
 
     private String runSpiderItemByPrimeKeyList(List<SpiderItemTO> itemList, List<String> primeKeyList)
@@ -171,7 +159,7 @@ public class SpiderServiceImpl implements SpiderService {
 
             useExtraction(connection, setting, result);
         }
-        return result.read("$");
+        return result.jsonString();
     }
 
     public void useExtraction(Connection connection, SpiderItemSetting setting, DocumentContext result)

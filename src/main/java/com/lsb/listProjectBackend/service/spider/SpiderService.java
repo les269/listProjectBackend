@@ -33,19 +33,4 @@ public interface SpiderService {
      */
     String previewExtraction(SpiderItemTO req);
 
-    /**
-     * 使用測試資料的 URL 預覽完整爬蟲流程
-     *
-     * @param req 測試資料（含 spiderConfig.testData.url 與 spiderItems）
-     * @return 爬蟲結果
-     */
-    String previewByUrl(SpiderTestTO req) throws Exception;
-
-    /**
-     * 使用測試資料的主鍵陣列預覽完整爬蟲流程
-     *
-     * @param req 測試資料（含 spiderConfig.testData.pkArray 與 spiderItems）
-     * @return 爬蟲結果
-     */
-    String previewByPrimeKey(SpiderTestTO req) throws Exception;
 }

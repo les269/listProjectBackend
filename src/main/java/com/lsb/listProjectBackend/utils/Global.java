@@ -124,7 +124,8 @@ public class Global {
         MOVE_CHAR,
         CALCULATE,
         FETCH_COOKIE,
-        FETCH_HEADER
+        FETCH_HEADER,
+        FETCH_CURRENT_DATA
     }
 
     public enum PositionType {
