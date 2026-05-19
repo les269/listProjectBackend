@@ -4,15 +4,18 @@ import com.jayway.jsonpath.DocumentContext;
 import com.jayway.jsonpath.JsonPath;
 import com.lsb.listProjectBackend.aop.UseDynamic;
 import com.lsb.listProjectBackend.domain.common.CookieListTO;
+import com.lsb.listProjectBackend.domain.common.HeadersTO;
 import com.lsb.listProjectBackend.domain.common.LsbException;
 import com.lsb.listProjectBackend.domain.spider.SpiderConfigTO;
 import com.lsb.listProjectBackend.domain.spider.SpiderItemTO;
-import com.lsb.listProjectBackend.domain.spider.SpiderTestTO;
 import com.lsb.listProjectBackend.entity.dynamic.common.Cookie;
+import com.lsb.listProjectBackend.entity.dynamic.common.Header;
+import com.lsb.listProjectBackend.entity.dynamic.common.Headers;
 import com.lsb.listProjectBackend.entity.dynamic.spider.ExtractionRule;
 import com.lsb.listProjectBackend.entity.dynamic.spider.SpiderItemSetting;
 import com.lsb.listProjectBackend.entity.dynamic.spider.ValuePipelineContext;
 import com.lsb.listProjectBackend.service.common.CookieListService;
+import com.lsb.listProjectBackend.service.common.HeadersService;
 import com.lsb.listProjectBackend.utils.ValuePipelineUtils;
 import com.lsb.listProjectBackend.utils.Global;
 import com.lsb.listProjectBackend.utils.JsonUtils;
@@ -44,6 +47,7 @@ public class SpiderServiceImpl implements SpiderService {
     private final SpiderItemService spiderItemService;
     private final CookieListService cookieListService;
     private final ExtractionRuleService extractionRuleService;
+    private final HeadersService headersService;
 
     @Override
     public String executeByUrl(String spiderId, String url) throws Exception {
@@ -76,13 +80,15 @@ public class SpiderServiceImpl implements SpiderService {
         var setting = req.itemSetting();
         var mode = setting.getMode();
 
+        Map<String, String> headers = getHeadersMapByItemId(req.spiderItemId());
         Map<String, String> cookies = getCookieMapByItemId(req.spiderItemId());
 
         switch (mode) {
             case SELECT ->
-                useCssSelect(setting.getTestData().getHtml(), cookies, null, setting.getExtractionRuleList(), result);
+                useCssSelect(setting.getTestData().getHtml(), cookies, headers, setting.getExtractionRuleList(),
+                        result);
             case JSON_PATH ->
-                useJsonPath(setting.getTestData().getJson(), cookies, null, setting.getExtractionRuleList(), result);
+                useJsonPath(setting.getTestData().getJson(), cookies, headers, setting.getExtractionRuleList(), result);
             default -> throw new LsbException("未知的抽取模式: " + mode);
         }
         return result.jsonString();
@@ -90,11 +96,11 @@ public class SpiderServiceImpl implements SpiderService {
 
     private String runSpiderItemByUrl(List<SpiderItemTO> itemList, String url) throws Exception {
         DocumentContext result = JsonPath.parse("{}");
-        List<String> spiderItemIdsForCookieRef = itemList.stream()
-                .map(SpiderItemTO::spiderItemId).distinct().toList();
-        Map<String, CookieListTO> cookieMap = cookieListService.getMapByRefIdsAndType(spiderItemIdsForCookieRef,
-                Global.CookieListMapType.SPIDER);
         boolean firstConnection = true;
+        var itemIds = itemList.stream().map(SpiderItemTO::spiderItemId).distinct().toList();
+        var cookieMap = cookieListService.getMapByRefIdsAndType(itemIds,
+                Global.CookieListMapType.SPIDER);
+        var headersMap = headersService.getMapByRefIdsAndType(itemIds, Global.HeadersMapType.SPIDER);
         for (SpiderItemTO item : itemList) {
             String currentUrl = "";
             SpiderItemSetting setting = item.itemSetting();
@@ -113,15 +119,8 @@ public class SpiderServiceImpl implements SpiderService {
                 currentUrl = JsonUtils.replaceValueByJsonPath(setting.getUrl(), result.json());
             }
             Connection connection = getConnection(currentUrl);
-            // 判斷是否有cookie設定 有的話要帶入cookie
-            if (cookieMap.containsKey(item.spiderItemId())) {
-                CookieListTO cookieList = cookieMap.get(item.spiderItemId());
-                if (cookieList != null) {
-                    var cookie = getCookieMap(cookieList.list(), result);
-                    connection.cookies(cookie);
-                }
-            }
-
+            setupHeaders(connection, headersMap.get(item.spiderItemId()), result);
+            setupCookies(connection, cookieMap.get(item.spiderItemId()), result);
             useExtraction(connection, setting, result);
         }
         return result.jsonString();
@@ -131,10 +130,10 @@ public class SpiderServiceImpl implements SpiderService {
             throws Exception {
         DocumentContext result = JsonPath.parse("{}");
 
-        List<String> spiderItemIdsForCookieRef = itemList.stream()
-                .map(SpiderItemTO::spiderItemId).distinct().toList();
-        Map<String, CookieListTO> cookieMap = cookieListService.getMapByRefIdsAndType(spiderItemIdsForCookieRef,
+        var itemIds = itemList.stream().map(SpiderItemTO::spiderItemId).distinct().toList();
+        var cookieMap = cookieListService.getMapByRefIdsAndType(itemIds,
                 Global.CookieListMapType.SPIDER);
+        var headersMap = headersService.getMapByRefIdsAndType(itemIds, Global.HeadersMapType.SPIDER);
         for (SpiderItemTO item : itemList) {
             String currentUrl = "";
             SpiderItemSetting setting = item.itemSetting();
@@ -148,15 +147,8 @@ public class SpiderServiceImpl implements SpiderService {
                 continue;
             }
             Connection connection = getConnection(currentUrl);
-            // 判斷是否有cookie設定 有的話要帶入cookie
-            if (cookieMap.containsKey(item.spiderItemId())) {
-                CookieListTO cookieList = cookieMap.get(item.spiderItemId());
-                if (cookieList != null) {
-                    var cookie = getCookieMap(cookieList.list(), result);
-                    connection.cookies(cookie);
-                }
-            }
-
+            setupHeaders(connection, headersMap.get(item.spiderItemId()), result);
+            setupCookies(connection, cookieMap.get(item.spiderItemId()), result);
             useExtraction(connection, setting, result);
         }
         return result.jsonString();
@@ -256,5 +248,38 @@ public class SpiderServiceImpl implements SpiderService {
             cookiesContext.put("$", cookie.getName(), val != null ? String.valueOf(val) : "");
         }
         return cookiesContext.read("$");
+    }
+
+    private Map<String, String> getHeadersMapByItemId(String spiderItemId) {
+        var headersMapTO = headersService.getByRefIdAndType(spiderItemId, Global.HeadersMapType.SPIDER);
+        if (headersMapTO != null) {
+            return getHeadersMap(headersMapTO.list(), null);
+        }
+        return Map.of();
+    }
+
+    private Map<String, String> getHeadersMap(List<Header> list, DocumentContext extraContext) {
+        DocumentContext headersContext = JsonPath.parse("{}");
+        for (Header header : list) {
+            var ctx = ValuePipelineContext.builder().result(headersContext).extraContext(extraContext)
+                    .build();
+            Object val = ValuePipelineUtils.applyPipelines(header.getValuePipelines(), header.getValue(), ctx);
+            headersContext.put("$", header.getName(), val != null ? String.valueOf(val) : "");
+        }
+        return headersContext.read("$");
+    }
+
+    private void setupCookies(Connection connection, CookieListTO to, DocumentContext extraContext) {
+        if (to != null) {
+            Map<String, String> cookieMap = getCookieMap(to.list(), extraContext);
+            connection.cookies(cookieMap);
+        }
+    }
+
+    private void setupHeaders(Connection connection, HeadersTO to, DocumentContext extraContext) {
+        if (to != null) {
+            Map<String, String> headersMap = getHeadersMap(to.list(), extraContext);
+            connection.headers(headersMap);
+        }
     }
 }

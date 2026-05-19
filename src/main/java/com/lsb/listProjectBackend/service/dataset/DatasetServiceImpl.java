@@ -261,7 +261,7 @@ public class DatasetServiceImpl implements DatasetService {
         if (groupDatasetOptional.isPresent() && scrapyConfigTO != null && !targetList.isEmpty()) {
             GroupDatasetConfig groupDatasetConfig = groupDatasetOptional.get().getConfig();
             List<GroupDatasetData> saveGroupDataset = new ArrayList<>();
-            // TODO: 前端可以進行設定時間參數
+
             RateLimiter rateLimiter = RateLimiter.create(2.0);
             for (List<String> target : targetList) {
                 rateLimiter.acquire();

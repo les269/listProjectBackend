@@ -3,7 +3,6 @@ package com.lsb.listProjectBackend.service.spider;
 import java.util.List;
 
 import com.lsb.listProjectBackend.domain.spider.SpiderItemTO;
-import com.lsb.listProjectBackend.domain.spider.SpiderTestTO;
 
 public interface SpiderService {
 

@@ -164,6 +164,22 @@ create TABLE IF NOT EXISTS cookie_list_map (
     PRIMARY KEY (ref_id, type)
 );
 
+create TABLE IF NOT EXISTS headers (
+    headers_id TEXT NOT NULL,
+    list JSONB NOT NULL,
+    description TEXT,
+    updated_time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (headers_id)
+);
+
+create TABLE IF NOT EXISTS headers_map (
+    ref_id TEXT NOT NULL,
+    type TEXT NOT NULL,
+    headers_id TEXT NOT NULL,
+    updated_time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (ref_id, type)
+);
+
 create TABLE IF NOT EXISTS spider_config (
     spider_id TEXT NOT NULL,
     description TEXT NOT NULL,

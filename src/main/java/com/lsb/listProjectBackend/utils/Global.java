@@ -78,6 +78,10 @@ public class Global {
         SPIDER, API
     }
 
+    public enum HeadersMapType {
+        SPIDER, API
+    }
+
     public enum SpiderUrlType {
         BY_PARAMS, BY_PRIME_KEY
     }
