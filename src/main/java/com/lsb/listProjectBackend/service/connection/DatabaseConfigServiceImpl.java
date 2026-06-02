@@ -84,4 +84,34 @@ public class DatabaseConfigServiceImpl implements DatabaseConfigService {
         }
         databaseConfigRepository.deleteById(configId);
     }
+
+    @Override
+    public boolean openLocalFolder(String configId) throws Exception {
+        DatabaseConfigTO config = getById(configId);
+        if (config == null || config.jdbcUrl() == null || config.jdbcUrl().isBlank()) {
+            return false;
+        }
+
+        String jdbcUrl = config.jdbcUrl();
+        if (!Global.DatabaseType.SQLITE.equals(config.databaseType()) && !jdbcUrl.startsWith("jdbc:sqlite:")) {
+            return false;
+        }
+
+        String sqlitePath = jdbcUrl.startsWith("jdbc:sqlite:")
+                ? jdbcUrl.substring("jdbc:sqlite:".length())
+                : jdbcUrl;
+        if (sqlitePath.isBlank() || ":memory:".equalsIgnoreCase(sqlitePath)) {
+            return false;
+        }
+
+        File source = new File(sqlitePath);
+        File absoluteSource = source.getAbsoluteFile();
+        File targetFolder = absoluteSource.isDirectory() ? absoluteSource : absoluteSource.getParentFile();
+        if (targetFolder == null || !targetFolder.exists() || !targetFolder.isDirectory()) {
+            return false;
+        }
+
+        Runtime.getRuntime().exec(new String[] { "explorer", "/n,", targetFolder.getAbsolutePath() });
+        return true;
+    }
 }

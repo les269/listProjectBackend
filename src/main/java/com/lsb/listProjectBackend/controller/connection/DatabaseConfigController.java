@@ -35,4 +35,9 @@ public class DatabaseConfigController {
     public void delete(@RequestParam("configId") String configId) {
         databaseConfigService.delete(configId);
     }
+
+    @GetMapping("/database-config/open-local-folder")
+    public boolean openLocalFolder(@RequestParam("configId") String configId) throws Exception {
+        return databaseConfigService.openLocalFolder(configId);
+    }
 }

@@ -92,11 +92,11 @@ public class DatabaseInitializer {
      */
     public static synchronized void initializeDynamicDatabase(
             DatabaseConfigTO databaseConfigTO) {
-        String databaseType = databaseConfigTO.databaseType();
+        var databaseType = databaseConfigTO.databaseType();
         try {
-            if ("sqlite".equalsIgnoreCase(databaseType)) {
+            if (Global.DatabaseType.SQLITE.equals(databaseType)) {
                 initializeSqliteDatabase(databaseConfigTO.jdbcUrl());
-            } else if ("postgresql".equalsIgnoreCase(databaseType)) {
+            } else if (Global.DatabaseType.POSTGRESQL.equals(databaseType)) {
                 initializePostgresqlDatabase(
                         databaseConfigTO.jdbcUrl(),
                         databaseConfigTO.username(),

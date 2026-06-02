@@ -16,4 +16,6 @@ public interface DatabaseConfigService {
     void save(DatabaseConfigTO to);
 
     void delete(String configId);
+
+    boolean openLocalFolder(String configId) throws Exception;
 }

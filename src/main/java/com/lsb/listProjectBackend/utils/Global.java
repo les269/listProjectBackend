@@ -11,7 +11,6 @@ public class Global {
     public static final String DYNAMIC_POSTGRESQL_SQL_FILE_NAME = "dynamic-postgresql.sql";
     public static final String CURRENT_DYNAMIC_DB_SETTING_NAME = "current_dynamic_database";
     public static final String DEFAULT_DYNAMIC_DB_KEY = "default";
-    public static final String SQLITE_TYPE = "sqlite";
 
     public enum ThemeHeaderType {
         imageList, table
@@ -196,5 +195,9 @@ public class Global {
         public ZoneId toZoneId() {
             return ZoneId.of(this.value);
         }
+    }
+
+    public enum DatabaseType {
+        SQLITE, POSTGRESQL
     }
 }

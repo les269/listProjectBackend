@@ -8,6 +8,8 @@ import lombok.Data;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import com.lsb.listProjectBackend.utils.Global;
+
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -27,7 +29,7 @@ public class DatabaseConfig implements Serializable {
     private String configName;
 
     @Column(name = "database_type", nullable = false)
-    private String databaseType;
+    private Global.DatabaseType databaseType;
 
     @Column(name = "jdbc_url", nullable = false)
     private String jdbcUrl;

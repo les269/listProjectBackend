@@ -98,7 +98,7 @@ public class DynamicDataSourceRefresher {
     /**
      * 判斷資料庫類型是否為 SQLite（不區分大小寫）。
      */
-    private static boolean isSqlite(String type) {
-        return type != null && type.equalsIgnoreCase("SQLite");
+    private static boolean isSqlite(Global.DatabaseType type) {
+        return type != null && type == Global.DatabaseType.SQLITE;
     }
 }

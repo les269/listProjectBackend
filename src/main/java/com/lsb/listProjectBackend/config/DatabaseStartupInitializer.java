@@ -35,7 +35,6 @@ public class DatabaseStartupInitializer implements ApplicationListener<Applicati
     private final DynamicDataSourceRefresher dynamicDataSourceRefresher;
     private final DatabaseConfigMapper databaseConfigMapper;
 
-
     @Override
     public void onApplicationEvent(ApplicationReadyEvent event) {
         ensureDefaultSettingExists();
@@ -60,7 +59,7 @@ public class DatabaseStartupInitializer implements ApplicationListener<Applicati
         DatabaseConfig databaseConfig = new DatabaseConfig();
         databaseConfig.setConfigId(Global.DEFAULT_DYNAMIC_DB_KEY);
         databaseConfig.setConfigName(Global.DEFAULT_DYNAMIC_DB_KEY);
-        databaseConfig.setDatabaseType(Global.SQLITE_TYPE);
+        databaseConfig.setDatabaseType(Global.DatabaseType.SQLITE);
         databaseConfig.setJdbcUrl("jdbc:sqlite:" + Utils.getDefaultFilePath(Global.DYNAMIC_SQLITE_FILE_NAME));
         databaseConfig.setDriverClassName("org.sqlite.JDBC");
         databaseConfig.setEnabled(1);
