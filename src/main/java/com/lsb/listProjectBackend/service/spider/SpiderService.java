@@ -2,6 +2,8 @@ package com.lsb.listProjectBackend.service.spider;
 
 import java.util.List;
 
+import org.springframework.web.multipart.MultipartFile;
+
 import com.lsb.listProjectBackend.domain.spider.SpiderItemTO;
 
 public interface SpiderService {
@@ -32,4 +34,5 @@ public interface SpiderService {
      */
     String previewExtraction(SpiderItemTO req);
 
+    String previewExtractionWithFile(MultipartFile file, SpiderItemTO setting) throws Exception;
 }

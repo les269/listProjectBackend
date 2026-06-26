@@ -4,11 +4,15 @@ import com.lsb.listProjectBackend.domain.spider.SpiderItemTO;
 import com.lsb.listProjectBackend.domain.spider.SpiderReqTO;
 import com.lsb.listProjectBackend.service.spider.SpiderService;
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 @CrossOrigin("*")
 @RestController
@@ -32,4 +36,11 @@ public class SpiderController {
         return spiderService.previewExtraction(req);
     }
 
+    @PostMapping(value = { "/spider/preview-extraction-with-file" }, consumes = {
+            "multipart/form-data" })
+    public String previewExtractionWithFile(
+            @RequestPart("file") MultipartFile file,
+            @RequestPart("setting") SpiderItemTO setting) throws Exception {
+        return spiderService.previewExtractionWithFile(file, setting);
+    }
 }

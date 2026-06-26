@@ -425,6 +425,7 @@ public class ValuePipelineUtils {
                     pipelineValue = cookies.get(fetchCookieName);
                 }
                 break;
+            // 從 request header 中獲取指定名稱的值
             case FETCH_HEADER:
                 var headers = context.getHeaders();
                 var fetchHeaderName = pipeLine.getFetchHeaderName();
@@ -433,6 +434,7 @@ public class ValuePipelineUtils {
                     pipelineValue = headers.get(fetchHeaderName);
                 }
                 break;
+            // 從 Extra result 中讀取指定 key 的值 這是cookie和header使用的
             case FETCH_CURRENT_DATA:
                 var currentDataKeyForFetch = pipeLine.getFetchCurrentDataKey();
                 var extraContext = context.getExtraContext();

@@ -32,6 +32,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -92,6 +93,24 @@ public class SpiderServiceImpl implements SpiderService {
             default -> throw new LsbException("未知的抽取模式: " + mode);
         }
         return result.jsonString();
+    }
+
+    @Override
+    public String previewExtractionWithFile(MultipartFile file, SpiderItemTO setting) throws Exception {
+        // 這裡可以根據需要處理上傳的文件，例如解析文件內容
+        byte[] fileContent = file.getBytes();
+        // 可以將文件內容與設定一起傳遞給相應的處理方法
+        String fileContentString = new String(fileContent);
+        var mode = setting.itemSetting().getMode();
+        var testData = setting.itemSetting().getTestData();
+        switch (mode) {
+            case SELECT ->
+                testData.setHtml(fileContentString);
+            case JSON_PATH ->
+                testData.setJson(fileContentString);
+            default -> throw new LsbException("未知的抽取模式: " + mode);
+        }
+        return previewExtraction(setting);
     }
 
     private String runSpiderItemByUrl(List<SpiderItemTO> itemList, String url) throws Exception {
