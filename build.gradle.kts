@@ -52,58 +52,59 @@ springBoot {
     mainClass.set("com.lsb.listProjectBackend.ListProjectBackendApplication")
 }
 
-tasks.named<org.springframework.boot.gradle.tasks.bundling.BootWar>("bootWar") {
-    archiveFileName.set("${project.name}.war")
-}
+// 暫時:避免更新半成品
+// tasks.named<org.springframework.boot.gradle.tasks.bundling.BootWar>("bootWar") {
+//     archiveFileName.set("${project.name}.war")
+// }
 
-tasks.register<Copy>("copyWarToTomcat") {
-    description = "將生成的 WAR 檔案複製到 Tomcat 的 webapps 目錄"
-    dependsOn(tasks.named("bootWar"))
-    from(layout.buildDirectory.file("libs/${project.name}.war"))
-    into("C:/code/apache-tomcat/webapps")
-}
+// tasks.register<Copy>("copyWarToTomcat") {
+//     description = "將生成的 WAR 檔案複製到 Tomcat 的 webapps 目錄"
+//     dependsOn(tasks.named("bootWar"))
+//     from(layout.buildDirectory.file("libs/${project.name}.war"))
+//     into("C:/code/apache-tomcat/webapps")
+// }
 
-tasks.named("build") {
-    finalizedBy("copyWarToTomcat")
-}
+// tasks.named("build") {
+//     finalizedBy("copyWarToTomcat")
+// }
 
-tasks.withType<Test> {
-    useJUnitPlatform()
-}
+// tasks.withType<Test> {
+//     useJUnitPlatform()
+// }
 
-tasks.withType<JavaCompile>() {
-    options.encoding = "UTF-8"
-}
+// tasks.withType<JavaCompile>() {
+//     options.encoding = "UTF-8"
+// }
 
-tasks.withType<Javadoc>() {
-    options.encoding = "UTF-8"
-}
+// tasks.withType<Javadoc>() {
+//     options.encoding = "UTF-8"
+// }
 
-val deployDir = "C:/code/listProjectBackend-tomcat"
-val serviceExePath = "$deployDir/listProjectBackend-service.exe"
+// val deployDir = "C:/code/listProjectBackend-tomcat"
+// val serviceExePath = "$deployDir/listProjectBackend-service.exe"
 
-tasks.named<org.springframework.boot.gradle.tasks.bundling.BootJar>("bootJar") {
-    archiveFileName.set("listProjectBackend.jar") // 固定產出的檔名
-    finalizedBy("copyJarToDeploy")
-}
+// tasks.named<org.springframework.boot.gradle.tasks.bundling.BootJar>("bootJar") {
+//     archiveFileName.set("listProjectBackend.jar") // 固定產出的檔名
+//     finalizedBy("copyJarToDeploy")
+// }
 
-tasks.register<Exec>("stopServiceForDeploy") {
-    description = "停止 Windows 服務"
-    commandLine(serviceExePath, "stop")
-    isIgnoreExitValue = true
-    onlyIf { System.getProperty("os.name").startsWith("Windows", ignoreCase = true) }
-}
+// tasks.register<Exec>("stopServiceForDeploy") {
+//     description = "停止 Windows 服務"
+//     commandLine(serviceExePath, "stop")
+//     isIgnoreExitValue = true
+//     onlyIf { System.getProperty("os.name").startsWith("Windows", ignoreCase = true) }
+// }
 
-tasks.register<Exec>("startServiceAfterDeploy") {
-    description = "啟動 Windows 服務"
-    commandLine(serviceExePath, "start")
-    onlyIf { System.getProperty("os.name").startsWith("Windows", ignoreCase = true) }
-}
+// tasks.register<Exec>("startServiceAfterDeploy") {
+//     description = "啟動 Windows 服務"
+//     commandLine(serviceExePath, "start")
+//     onlyIf { System.getProperty("os.name").startsWith("Windows", ignoreCase = true) }
+// }
 
-tasks.register<Copy>("copyJarToDeploy") {
-    description = "將新的 JAR 檔案複製到 Windows 部署目錄，前提是已經停止了服務"
-    dependsOn("stopServiceForDeploy")
-    from(tasks.bootJar.get().archiveFile)
-    into(deployDir) // 指向你的 Windows 部署目錄
-    finalizedBy("startServiceAfterDeploy")
-}
+// tasks.register<Copy>("copyJarToDeploy") {
+//     description = "將新的 JAR 檔案複製到 Windows 部署目錄，前提是已經停止了服務"
+//     dependsOn("stopServiceForDeploy")
+//     from(tasks.bootJar.get().archiveFile)
+//     into(deployDir) // 指向你的 Windows 部署目錄
+//     finalizedBy("startServiceAfterDeploy")
+// }
