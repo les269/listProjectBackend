@@ -74,11 +74,11 @@ public class Global {
     }
 
     public enum CookieListMapType {
-        SPIDER, API
+        SPIDER, API, SPIDER_PAGINATION
     }
 
     public enum HeadersMapType {
-        SPIDER, API
+        SPIDER, API, SPIDER_PAGINATION
     }
 
     public enum SpiderUrlType {
@@ -199,5 +199,20 @@ public class Global {
 
     public enum DatabaseType {
         SQLITE, POSTGRESQL
+    }
+
+    public enum ParamType {
+        STATIC_LIST, NUMBER_RANGE, TIME_RANGE
+    }
+
+    public enum TimeStepUnit {
+        YEAR, WEEK, DAY, HOUR, MINUTE, SECOND
+    }
+
+    public enum EndTimeType {
+        FIXED, // 固定時間
+        CURRENT_DATE, // 執行當天的此刻
+        END_CURRENT_YEAR, // 當年的最後一刻 (例如 2026-12-31 23:59:59)
+        RELATIVE_OFFSET // 相對偏移 (當前時間 +- 某個時間量)
     }
 }

@@ -134,14 +134,6 @@ create TABLE IF NOT EXISTS replace_value_map (
     PRIMARY KEY (name)
 );
 
-create TABLE IF NOT EXISTS scrapy_pagination (
-    name TEXT,
-    config TEXT NOT NULL,
-    created_time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    PRIMARY KEY (name)
-);
-
 create TABLE IF NOT EXISTS theme_hidden (
     header_id TEXT NOT NULL,
     updated_time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -206,4 +198,21 @@ create TABLE IF NOT EXISTS spider_item (
     item_setting TEXT NOT NULL,
     updated_time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (spider_item_id)
+);
+
+create TABLE IF NOT EXISTS spider_pagination (
+    spider_pagination_id TEXT,
+    pagination_config TEXT NOT NULL,
+    created_time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (spider_pagination_id)
+);
+
+create TABLE IF NOT EXISTS spider_pagination_data (
+    spider_pagination_id TEXT,
+    data_id TEXT NOT NULL,
+    data TEXT NOT NULL,
+    created_time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (spider_pagination_id, data_id)
 );

@@ -208,3 +208,19 @@ create TABLE IF NOT EXISTS spider_item (
     PRIMARY KEY (spider_item_id)
 );
 
+create TABLE IF NOT EXISTS spider_pagination (
+    spider_pagination_id TEXT,
+    pagination_config JSONB NOT NULL,
+    created_time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (spider_pagination_id)
+);
+
+create TABLE IF NOT EXISTS spider_pagination_data (
+    spider_pagination_id TEXT,
+    data_id TEXT NOT NULL,
+    data JSONB NOT NULL,
+    created_time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (spider_pagination_id, data_id)
+);

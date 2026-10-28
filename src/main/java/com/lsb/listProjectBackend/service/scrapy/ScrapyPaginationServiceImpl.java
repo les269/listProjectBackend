@@ -15,6 +15,7 @@ import org.jsoup.nodes.Document;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.*;
@@ -97,7 +98,7 @@ public class ScrapyPaginationServiceImpl extends ScrapyBase implements ScrapyPag
                     keyRedirectUrlMap.put(keys.get(i), urls.get(i));
                 }
                 config.setKeyRedirectUrlMap(keyRedirectUrlMap);
-                config.setCurrentUpdateDate(new Date());
+                config.setCurrentUpdateDate(new Date().getTime());
                 entity.setConfig(config);
                 scrapyPaginationRepository.save(entity);
             } catch (IOException e) {
@@ -117,11 +118,10 @@ public class ScrapyPaginationServiceImpl extends ScrapyBase implements ScrapyPag
         if (config.getCurrentUpdateDate() == null || config.getLastUpdateDate() == null) {
             return false;
         }
-        if (config.getCurrentUpdateDate().after(config.getLastUpdateDate())) {
+        if (config.getCurrentUpdateDate() > config.getLastUpdateDate()) {
             return false;
         }
-        LocalDate localDate = config.getCurrentUpdateDate().toInstant()
-                .atZone(ZoneId.systemDefault())
+        LocalDate localDate = Instant.ofEpochMilli(config.getCurrentUpdateDate()).atZone(ZoneId.systemDefault())
                 .toLocalDate();
         var localDatePlus = switch (config.getUpdateIntervalType()) {
             case day -> localDate.plusDays(config.getUpdateInterval());

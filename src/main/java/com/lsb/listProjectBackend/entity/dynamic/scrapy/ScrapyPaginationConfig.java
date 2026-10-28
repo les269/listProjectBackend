@@ -4,15 +4,15 @@ import com.lsb.listProjectBackend.entity.dynamic.common.Cookie;
 import com.lsb.listProjectBackend.utils.Global;
 import lombok.Data;
 
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
 @Data
 public class ScrapyPaginationConfig {
     private String startUrl;
-    private Date lastUpdateDate;
-    private Date currentUpdateDate;
+
+    private Long lastUpdateDate;
+    private Long currentUpdateDate;
     private Integer updateInterval;
     private Global.UpdateIntervalType updateIntervalType;
     private List<Cookie> cookie;

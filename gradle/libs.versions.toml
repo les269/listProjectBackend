@@ -6,18 +6,20 @@ com-google-guava-guava = "33.4.0-jre"
 com-jayway-jsonpath-json-path = "3.0.0"
 net-java-dev-jna-jna-platform = "5.15.0"
 org-hibernate-orm-hibernate-community-dialects = "6.5.3.Final"
-org-jsoup-jsoup = "1.18.1"
-org-mapstruct-mapstruct = "1.5.5.Final"
-org-mapstruct-mapstruct-jdk8 = "1.5.5.Final"
-org-mapstruct-mapstruct-processor = "1.5.5.Final"
-org-postgresql-postgresql = "42.7.11"
-org-projectlombok-lombok = "1.18.42"
+org-mapstruct-mapstruct = "1.6.3"
+org-mapstruct-mapstruct-processor = "1.6.3"
+org-postgresql-postgresql = "42.7.14"
+org-projectlombok-lombok = "1.18.48"
 org-projectlombok-lombok-mapstruct-binding = "0.2.0"
-org-springframework-boot-spring-boot-starter-data-jpa = "4.0.5"
-org-springframework-boot-spring-boot-starter-jdbc = "4.0.5"
-org-springframework-boot-spring-boot-starter-test = "4.0.5"
-org-springframework-boot-spring-boot-starter-web = "4.0.5"
-org-xerial-sqlite-jdbc = "3.51.1.0"
+org-springframework-boot-spring-boot-starter-data-jpa = "4.1.1"
+org-springframework-boot-spring-boot-starter-jdbc = "4.1.1"
+org-springframework-boot-spring-boot-starter-test = "4.1.1"
+org-springframework-boot-spring-boot-starter-web = "4.1.1"
+org-xerial-sqlite-jdbc = "3.53.4.0"
+org-jsoup-jsoup = "1.23.2"
+org-eclipse-yasson-yasson = "3.0.5"
+com-github-houbb-opencc4j = "1.14.0"
+org-apache-fesod-fesod-sheet = "2.1.0-incubating"
 
 [libraries]
 com-google-guava-guava = { module = "com.google.guava:guava", version.ref = "com-google-guava-guava" }
@@ -26,7 +28,6 @@ net-java-dev-jna-jna-platform = { module = "net.java.dev.jna:jna-platform", vers
 org-hibernate-orm-hibernate-community-dialects = { module = "org.hibernate.orm:hibernate-community-dialects", version.ref = "org-hibernate-orm-hibernate-community-dialects" }
 org-jsoup-jsoup = { module = "org.jsoup:jsoup", version.ref = "org-jsoup-jsoup" }
 org-mapstruct-mapstruct = { module = "org.mapstruct:mapstruct", version.ref = "org-mapstruct-mapstruct" }
-org-mapstruct-mapstruct-jdk8 = { module = "org.mapstruct:mapstruct-jdk8", version.ref = "org-mapstruct-mapstruct-jdk8" }
 org-mapstruct-mapstruct-processor = { module = "org.mapstruct:mapstruct-processor", version.ref = "org-mapstruct-mapstruct-processor" }
 org-postgresql-postgresql = { module = "org.postgresql:postgresql", version.ref = "org-postgresql-postgresql" }
 org-projectlombok-lombok = { module = "org.projectlombok:lombok", version.ref = "org-projectlombok-lombok" }
@@ -37,3 +38,6 @@ org-springframework-boot-spring-boot-starter-test = { module = "org.springframew
 org-springframework-boot-spring-boot-starter-web = { module = "org.springframework.boot:spring-boot-starter-web", version.ref = "org-springframework-boot-spring-boot-starter-web" }
 org-springframework-spring-expression = { module = "org.springframework:spring-expression" }
 org-xerial-sqlite-jdbc = { module = "org.xerial:sqlite-jdbc", version.ref = "org-xerial-sqlite-jdbc" }
+org-eclipse-yasson-yasson = { module = "org.eclipse.yasson:yasson", version.ref = "org-eclipse-yasson-yasson" }
+com-github-houbb-opencc4j = { module = "com.github.houbb:opencc4j", version.ref = "com-github-houbb.opencc4j" }
+org-apache-fesod-fesod-sheet = { module = "org.apache.fesod:fesod-sheet", version.ref = "org-apache-fesod-fesod-sheet" }

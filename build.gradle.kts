@@ -1,9 +1,9 @@
 plugins {
     java
     war
-    kotlin("jvm") version "2.1.20"
-    kotlin("plugin.spring") version "2.1.20"
-    id("org.springframework.boot") version "4.0.5"
+    kotlin("jvm") version "2.4.21"
+    kotlin("plugin.spring") version "2.4.21"
+    id("org.springframework.boot") version "4.1.1"
     id("io.spring.dependency-management") version "1.1.7"
 }
 
@@ -18,16 +18,20 @@ dependencies {
     implementation(libs.org.springframework.spring.expression)
     implementation(libs.org.xerial.sqlite.jdbc)
     implementation(libs.org.postgresql.postgresql)
+    // Source: https://mvnrepository.com/artifact/org.mapstruct/mapstruct
     implementation(libs.org.mapstruct.mapstruct)
-    implementation(libs.org.mapstruct.mapstruct.jdk8)
     implementation(libs.org.hibernate.orm.hibernate.community.dialects)
+    // Source: https://mvnrepository.com/artifact/org.jsoup/jsoup
     implementation(libs.org.jsoup.jsoup)
     implementation(libs.net.java.dev.jna.jna.platform)
     implementation(libs.com.google.guava.guava)
     implementation(libs.com.jayway.jsonpath.json.path)
-    implementation("org.eclipse:yasson:3.0.4")
+    // Source: https://mvnrepository.com/artifact/org.eclipse.yasson/yasson
+    implementation(libs.org.eclipse.yasson.yasson)
     // Source: https://mvnrepository.com/artifact/com.github.houbb/opencc4j
-    implementation("com.github.houbb:opencc4j:1.14.0")
+    implementation(libs.com.github.houbb.opencc4j)
+    // Source: https://mvnrepository.com/artifact/org.apache.fesod/fesod-sheet
+    implementation(libs.org.apache.fesod.fesod.sheet)
 
     compileOnly(libs.org.projectlombok.lombok)
     
@@ -41,8 +45,8 @@ dependencies {
 group = "com.lsb"
 version = "0.0.1-SNAPSHOT"
 description = "listProjectBackend"
-java.sourceCompatibility = JavaVersion.VERSION_21
-java.targetCompatibility = JavaVersion.VERSION_21
+java.sourceCompatibility = JavaVersion.VERSION_27
+java.targetCompatibility = JavaVersion.VERSION_27
 
 springBoot {
     mainClass.set("com.lsb.listProjectBackend.ListProjectBackendApplication")
@@ -53,6 +57,7 @@ tasks.named<org.springframework.boot.gradle.tasks.bundling.BootWar>("bootWar") {
 }
 
 tasks.register<Copy>("copyWarToTomcat") {
+    description = "將生成的 WAR 檔案複製到 Tomcat 的 webapps 目錄"
     dependsOn(tasks.named("bootWar"))
     from(layout.buildDirectory.file("libs/${project.name}.war"))
     into("C:/code/apache-tomcat/webapps")
