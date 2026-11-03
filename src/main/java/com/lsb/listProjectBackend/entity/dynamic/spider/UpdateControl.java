@@ -11,14 +11,14 @@ import lombok.Data;
 @Data
 public class UpdateControl {
     @Enumerated(EnumType.STRING)
-    private Global.UpdateControlMode lastUpdateMode;
+    private Global.LastUpdateMode lastUpdateMode;
     private LocalDateTime lastUpdateDate;
     private String lastUpdateParamKey;
 
     @Enumerated(EnumType.STRING)
-    private Global.UpdateControlMode updateIntervalMode;
+    private Global.UpdateIntervalMode updateIntervalMode;
     private Integer updateInterval;
     @Enumerated(EnumType.STRING)
-    private Global.UpdateIntervalUnit updateIntervalUnit;
+    private Global.TimeUnit updateIntervalUnit;
     private String updateIntervalParamKey;
 }

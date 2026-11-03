@@ -11,7 +11,7 @@ import lombok.Data;
 @Data
 public class SpiderPaginationConfig {
     private String dataIdTemplate;
-    private List<ParamSetting> perStartParams;
+    private List<ParamSetting> paramSettings;
     private String startUrl;
     private String nextPageUrlKey; // 當資料為空時即終止
     @Enumerated(EnumType.STRING)
