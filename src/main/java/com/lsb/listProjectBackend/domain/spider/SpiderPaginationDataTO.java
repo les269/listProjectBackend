@@ -4,5 +4,5 @@ import java.time.LocalDateTime;
 import java.util.Map;
 
 public record SpiderPaginationDataTO(String spiderPaginationId, String dataId, Map<String, Object> data,
-        LocalDateTime createdTime, LocalDateTime updatedTime) {
+        LocalDateTime createdTime, LocalDateTime updatedTime, LocalDateTime lastSuccessTime) {
 }

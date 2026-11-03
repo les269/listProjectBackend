@@ -12,6 +12,7 @@ repositories {
 }
 
 dependencies {
+    implementation(libs.org.springdoc.openapi.starter.webmvc.api)
     implementation(libs.org.springframework.boot.spring.boot.starter.web)
     implementation(libs.org.springframework.boot.spring.boot.starter.jdbc)
     implementation(libs.org.springframework.boot.spring.boot.starter.data.jpa)
@@ -45,18 +46,16 @@ dependencies {
 group = "com.lsb"
 version = "0.0.1-SNAPSHOT"
 description = "listProjectBackend"
-java.sourceCompatibility = JavaVersion.VERSION_27
-java.targetCompatibility = JavaVersion.VERSION_27
 
 springBoot {
     mainClass.set("com.lsb.listProjectBackend.ListProjectBackendApplication")
 }
 
-// 暫時:避免更新半成品
-// tasks.named<org.springframework.boot.gradle.tasks.bundling.BootWar>("bootWar") {
-//     archiveFileName.set("${project.name}.war")
-// }
 
+ tasks.named<org.springframework.boot.gradle.tasks.bundling.BootWar>("bootWar") {
+     archiveFileName.set("${project.name}.war")
+ }
+// 暫時:避免更新半成品
 // tasks.register<Copy>("copyWarToTomcat") {
 //     description = "將生成的 WAR 檔案複製到 Tomcat 的 webapps 目錄"
 //     dependsOn(tasks.named("bootWar"))
@@ -68,17 +67,17 @@ springBoot {
 //     finalizedBy("copyWarToTomcat")
 // }
 
-// tasks.withType<Test> {
-//     useJUnitPlatform()
-// }
+ tasks.withType<Test> {
+     useJUnitPlatform()
+ }
 
-// tasks.withType<JavaCompile>() {
-//     options.encoding = "UTF-8"
-// }
+ tasks.withType<JavaCompile>() {
+     options.encoding = "UTF-8"
+ }
 
-// tasks.withType<Javadoc>() {
-//     options.encoding = "UTF-8"
-// }
+ tasks.withType<Javadoc>() {
+     options.encoding = "UTF-8"
+ }
 
 // val deployDir = "C:/code/listProjectBackend-tomcat"
 // val serviceExePath = "$deployDir/listProjectBackend-service.exe"

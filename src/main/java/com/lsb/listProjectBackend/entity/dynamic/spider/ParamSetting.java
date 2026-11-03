@@ -6,7 +6,9 @@ import com.lsb.listProjectBackend.utils.Global;
 
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import lombok.Data;
 
+@Data
 public class ParamSetting {
     private String paramKey; // 置換的標記，如 {code}, {time}
     @Enumerated(EnumType.STRING)

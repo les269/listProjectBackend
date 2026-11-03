@@ -40,4 +40,7 @@ public class SpiderConfig implements Serializable {
     @UpdateTimestamp
     @Column(name = "updated_time", nullable = false)
     private LocalDateTime updatedTime;
+
+    @Column(name = "request_interval_ms", nullable = false)
+    private Long requestIntervalMs;
 }

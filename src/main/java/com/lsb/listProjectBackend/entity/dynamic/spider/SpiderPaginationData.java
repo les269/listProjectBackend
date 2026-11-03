@@ -43,4 +43,7 @@ public class SpiderPaginationData implements Serializable {
     @UpdateTimestamp
     @Column(name = "updated_time", nullable = false)
     private LocalDateTime updatedTime;
+
+    @Column(name = "last_success_time")
+    private LocalDateTime lastSuccessTime;
 }

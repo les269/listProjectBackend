@@ -205,6 +205,14 @@ public class Global {
         STATIC_LIST, NUMBER_RANGE, TIME_RANGE
     }
 
+    public enum UpdateControlMode {
+        NONE, FIXED, USE_PARAM
+    }
+
+    public enum UpdateIntervalUnit {
+        year, month, day, hour, minute, second, millisecond
+    }
+
     public enum TimeStepUnit {
         YEAR, WEEK, DAY, HOUR, MINUTE, SECOND
     }

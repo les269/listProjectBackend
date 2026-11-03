@@ -176,6 +176,7 @@ create TABLE IF NOT EXISTS spider_config (
     spider_id TEXT NOT NULL,
     description TEXT NOT NULL,
     prime_key_size INTEGER NOT NULL,
+    request_interval_ms BIGINT NOT NULL DEFAULT 0,
     test_data TEXT NOT NULL,
     is_url_based INTEGER NOT NULL DEFAULT 0,
     updated_time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -214,5 +215,6 @@ create TABLE IF NOT EXISTS spider_pagination_data (
     data TEXT NOT NULL,
     created_time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    last_success_time TIMESTAMP,
     PRIMARY KEY (spider_pagination_id, data_id)
 );
