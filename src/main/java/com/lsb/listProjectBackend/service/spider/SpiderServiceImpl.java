@@ -3,42 +3,26 @@ package com.lsb.listProjectBackend.service.spider;
 import com.jayway.jsonpath.DocumentContext;
 import com.jayway.jsonpath.JsonPath;
 import com.lsb.listProjectBackend.aop.UseDynamic;
-import com.lsb.listProjectBackend.domain.common.CookieListTO;
-import com.lsb.listProjectBackend.domain.common.HeadersTO;
 import com.lsb.listProjectBackend.domain.common.LsbException;
 import com.lsb.listProjectBackend.domain.spider.SpiderConfigTO;
 import com.lsb.listProjectBackend.domain.spider.SpiderItemTO;
-import com.lsb.listProjectBackend.entity.dynamic.common.Cookie;
-import com.lsb.listProjectBackend.entity.dynamic.common.Header;
-import com.lsb.listProjectBackend.entity.dynamic.spider.ExtractionRule;
+import com.lsb.listProjectBackend.domain.spider.SpiderPaginationDataTO;
 import com.lsb.listProjectBackend.entity.dynamic.spider.SpiderItemSetting;
-import com.lsb.listProjectBackend.entity.dynamic.spider.ValuePipelineContext;
 import com.lsb.listProjectBackend.service.common.CookieListService;
 import com.lsb.listProjectBackend.service.common.HeadersService;
-import com.lsb.listProjectBackend.utils.ValuePipelineUtils;
 import com.lsb.listProjectBackend.utils.Global;
 import com.lsb.listProjectBackend.utils.JsonUtils;
 import com.lsb.listProjectBackend.utils.Utils;
 import com.lsb.listProjectBackend.utils.Global.SpiderUrlType;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 
-import org.jsoup.Connection;
-import org.jsoup.Connection.Request;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@Slf4j
 @UseDynamic
 @Service
 @RequiredArgsConstructor
@@ -46,8 +30,19 @@ public class SpiderServiceImpl implements SpiderService {
     private final SpiderConfigService spiderConfigService;
     private final SpiderItemService spiderItemService;
     private final CookieListService cookieListService;
-    private final ExtractionRuleService extractionRuleService;
+    private final SpiderExecutionService spiderExecutionService;
     private final HeadersService headersService;
+    private final SpiderPaginationExecutionService paginationExecutionService;
+
+    @Override
+    public List<SpiderPaginationDataTO> executePagination(String spiderPaginationId) throws Exception {
+        return executePagination(spiderPaginationId, false);
+    }
+
+    @Override
+    public List<SpiderPaginationDataTO> executePagination(String spiderPaginationId, boolean force) throws Exception {
+        return paginationExecutionService.execute(spiderPaginationId, force);
+    }
 
     @Override
     public String executeByUrl(String spiderId, String url) throws Exception {
@@ -57,7 +52,7 @@ public class SpiderServiceImpl implements SpiderService {
         }
         List<SpiderItemTO> itemList = spiderItemService.getBySpiderId(spiderId);
 
-        return runSpiderItemByUrl(itemList, url);
+        return runSpiderItemByUrl(itemList, url, config.requestIntervalMs());
     }
 
     @Override
@@ -71,7 +66,7 @@ public class SpiderServiceImpl implements SpiderService {
         }
         List<SpiderItemTO> itemList = spiderItemService.getBySpiderId(spiderId);
 
-        return runSpiderItemByPrimeKeyList(itemList, primeKeyList);
+        return runSpiderItemByPrimeKeyList(itemList, primeKeyList, config.requestIntervalMs());
     }
 
     @Override
@@ -80,15 +75,15 @@ public class SpiderServiceImpl implements SpiderService {
         var setting = req.itemSetting();
         var mode = setting.getMode();
 
-        Map<String, String> headers = getHeadersMapByItemId(req.spiderItemId());
-        Map<String, String> cookies = getCookieMapByItemId(req.spiderItemId());
+        Map<String, String> headers = spiderExecutionService.getHeadersMapByRefId(req.spiderItemId(), Global.HeadersMapType.SPIDER);
+        Map<String, String> cookies = spiderExecutionService.getCookieMapByRefId(req.spiderItemId(), Global.CookieListMapType.SPIDER);
 
         switch (mode) {
             case SELECT ->
-                useCssSelect(setting.getTestData().getHtml(), cookies, headers, setting.getExtractionRuleList(),
+                spiderExecutionService.useCssSelect(setting.getTestData().getHtml(), cookies, headers, setting.getExtractionRuleList(),
                         result);
             case JSON_PATH ->
-                useJsonPath(setting.getTestData().getJson(), cookies, headers, setting.getExtractionRuleList(), result);
+                spiderExecutionService.useJsonPath(setting.getTestData().getJson(), cookies, headers, setting.getExtractionRuleList(), result);
             default -> throw new LsbException("未知的抽取模式: " + mode);
         }
         return result.jsonString();
@@ -112,9 +107,10 @@ public class SpiderServiceImpl implements SpiderService {
         return previewExtraction(setting);
     }
 
-    private String runSpiderItemByUrl(List<SpiderItemTO> itemList, String url) throws Exception {
+    private String runSpiderItemByUrl(List<SpiderItemTO> itemList, String url, Long requestIntervalMs) throws Exception {
         DocumentContext result = JsonPath.parse("{}");
         boolean firstConnection = true;
+        boolean hasRequested = false;
         var itemIds = itemList.stream().map(SpiderItemTO::spiderItemId).distinct().toList();
         var cookieMap = cookieListService.getMapByRefIdsAndType(itemIds,
                 Global.CookieListMapType.SPIDER);
@@ -136,17 +132,19 @@ public class SpiderServiceImpl implements SpiderService {
             } else {
                 currentUrl = JsonUtils.replaceValueByJsonPath(setting.getUrl(), result.json());
             }
-            Connection connection = getConnection(currentUrl);
-            setupHeaders(connection, headersMap.get(item.spiderItemId()), result);
-            setupCookies(connection, cookieMap.get(item.spiderItemId()), result);
-            useExtraction(connection, setting, result);
+            spiderExecutionService.executeRequest(currentUrl, setting.getMode(), setting.getExtractionRuleList(),
+                    headersMap.get(item.spiderItemId()), cookieMap.get(item.spiderItemId()), result,
+                    hasRequested ? requestIntervalMs : null);
+            hasRequested = true;
         }
         return result.jsonString();
     }
 
-    private String runSpiderItemByPrimeKeyList(List<SpiderItemTO> itemList, List<String> primeKeyList)
+    private String runSpiderItemByPrimeKeyList(List<SpiderItemTO> itemList, List<String> primeKeyList,
+            Long requestIntervalMs)
             throws Exception {
         DocumentContext result = JsonPath.parse("{}");
+        boolean hasRequested = false;
 
         var itemIds = itemList.stream().map(SpiderItemTO::spiderItemId).distinct().toList();
         var cookieMap = cookieListService.getMapByRefIdsAndType(itemIds,
@@ -164,140 +162,12 @@ public class SpiderServiceImpl implements SpiderService {
             if (Utils.isBlank(currentUrl)) {
                 continue;
             }
-            Connection connection = getConnection(currentUrl);
-            setupHeaders(connection, headersMap.get(item.spiderItemId()), result);
-            setupCookies(connection, cookieMap.get(item.spiderItemId()), result);
-            useExtraction(connection, setting, result);
+            spiderExecutionService.executeRequest(currentUrl, setting.getMode(), setting.getExtractionRuleList(),
+                    headersMap.get(item.spiderItemId()), cookieMap.get(item.spiderItemId()), result,
+                    hasRequested ? requestIntervalMs : null);
+            hasRequested = true;
         }
         return result.jsonString();
     }
 
-    public void useExtraction(Connection connection, SpiderItemSetting setting, DocumentContext result)
-            throws IOException {
-        Document doc;
-        Request req;
-        switch (setting.getMode()) {
-            case Global.ExtractionRuleMode.SELECT:
-                doc = connection.get();
-                req = connection.request();
-                useCssSelect(doc.html(), req.cookies(), req.headers(), setting.getExtractionRuleList(), result);
-                break;
-            case Global.ExtractionRuleMode.JSON_PATH:
-                connection.ignoreContentType(true).get();
-                doc = connection.ignoreContentType(true).get();
-                req = connection.request();
-                useJsonPath(doc.text(), req.cookies(), req.headers(), setting.getExtractionRuleList(), result);
-                break;
-        }
-    }
-
-    public void useCssSelect(String html, Map<String, String> cookies, Map<String, String> headers,
-            List<ExtractionRule> extractionRules,
-            DocumentContext result) {
-        try {
-            Document doc = Jsoup.parse(html);
-            for (ExtractionRule extractionRule : extractionRuleService.sortedRules(extractionRules)) {
-                if (!extractionRuleService.checkCondition(extractionRule, result)) {
-                    continue;
-                }
-                var pipelines = extractionRule.getPipelines();
-                Elements elements = Utils.isNotBlank(extractionRule.getSelector())
-                        ? doc.select(extractionRule.getSelector())
-                        : null;
-                var context = ValuePipelineContext.builder()
-                        .result(result)
-                        .elements(elements)
-                        .cookies(cookies != null ? cookies : new HashMap<>())
-                        .headers(headers != null ? headers : new HashMap<>())
-                        .build();
-                Object pipelineValue = ValuePipelineUtils.applyPipelines(pipelines, null, context);
-                if (elements != null && !ValuePipelineUtils.hasEnabledPipelines(pipelines)) {
-                    pipelineValue = elements.stream().map(Element::text).toList();
-                }
-                JsonUtils.putValue(result, extractionRule.getKey(),
-                        ValuePipelineUtils.normalizeExtractedValue(pipelineValue));
-            }
-        } catch (Exception e) {
-            log.error("css select error:", e);
-            throw new LsbException(e.getMessage(), e);
-        }
-    }
-
-    public void useJsonPath(String json, Map<String, String> cookies, Map<String, String> headers,
-            List<ExtractionRule> extractionRules,
-            DocumentContext result) {
-        for (ExtractionRule extractionRule : extractionRuleService.sortedRules(extractionRules)) {
-            if (!extractionRuleService.checkCondition(extractionRule, result)) {
-                continue;
-            }
-            var pipelines = extractionRule.getPipelines();
-            Object pipelineValue = JsonPath.read(json, extractionRule.getJsonPath());
-            log.info("pipeline value before pipeline: {}", pipelineValue);
-            var context = ValuePipelineContext.builder()
-                    .result(result)
-                    .cookies(cookies != null ? cookies : new HashMap<>())
-                    .headers(headers != null ? headers : new HashMap<>())
-                    .build();
-            pipelineValue = ValuePipelineUtils.applyPipelines(pipelines, pipelineValue, context);
-            JsonUtils.putValue(result, extractionRule.getKey(),
-                    ValuePipelineUtils.normalizeExtractedValue(pipelineValue));
-        }
-    }
-
-    protected Connection getConnection(String url) {
-        return Jsoup.connect(url).header("Accept-Language", "zh-TW,zh;q=0.9,en-US;q=0.8,en;q=0.7,zh-CN;q=0.6,ja;q=0.5")
-                .header("Accept", "*/*").header("Content-Type", "text/html; charset=UTF-8");
-    }
-
-    private Map<String, String> getCookieMapByItemId(String spiderItemId) {
-        var cookieListTO = cookieListService.getByRefIdAndType(spiderItemId, Global.CookieListMapType.SPIDER);
-        if (cookieListTO != null) {
-            return getCookieMap(cookieListTO.list(), null);
-        }
-        return Map.of();
-    }
-
-    private Map<String, String> getCookieMap(List<Cookie> list, DocumentContext extraContext) {
-        DocumentContext cookiesContext = JsonPath.parse("{}");
-        for (Cookie cookie : list) {
-            var ctx = ValuePipelineContext.builder().result(cookiesContext).extraContext(extraContext)
-                    .build();
-            Object val = ValuePipelineUtils.applyPipelines(cookie.getValuePipelines(), cookie.getValue(), ctx);
-            cookiesContext.put("$", cookie.getName(), val != null ? String.valueOf(val) : "");
-        }
-        return cookiesContext.read("$");
-    }
-
-    private Map<String, String> getHeadersMapByItemId(String spiderItemId) {
-        var headersMapTO = headersService.getByRefIdAndType(spiderItemId, Global.HeadersMapType.SPIDER);
-        if (headersMapTO != null) {
-            return getHeadersMap(headersMapTO.list(), null);
-        }
-        return Map.of();
-    }
-
-    private Map<String, String> getHeadersMap(List<Header> list, DocumentContext extraContext) {
-        DocumentContext headersContext = JsonPath.parse("{}");
-        for (Header header : list) {
-            var ctx = ValuePipelineContext.builder().result(headersContext).extraContext(extraContext)
-                    .build();
-            Object val = ValuePipelineUtils.applyPipelines(header.getValuePipelines(), header.getValue(), ctx);
-            headersContext.put("$", header.getName(), val != null ? String.valueOf(val) : "");
-        }
-        return headersContext.read("$");
-    }
-
-    private void setupCookies(Connection connection, CookieListTO to, DocumentContext extraContext) {
-        if (to != null) {
-            Map<String, String> cookieMap = getCookieMap(to.list(), extraContext);
-            connection.cookies(cookieMap);
-        }
-    }
-
-    private void setupHeaders(Connection connection, HeadersTO to, DocumentContext extraContext) {
-        if (to != null) {
-            Map<String, String> headersMap = getHeadersMap(to.list(), extraContext);
-            connection.headers(headersMap);
-        }
-    }
 }

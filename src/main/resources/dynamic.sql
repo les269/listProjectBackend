@@ -211,10 +211,11 @@ create TABLE IF NOT EXISTS spider_pagination (
 
 create TABLE IF NOT EXISTS spider_pagination_data (
     spider_pagination_id TEXT,
+    group_id TEXT NOT NULL,
     data_id TEXT NOT NULL,
     data TEXT NOT NULL,
     created_time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     last_success_time TIMESTAMP,
-    PRIMARY KEY (spider_pagination_id, data_id)
+    PRIMARY KEY (spider_pagination_id, group_id, data_id)
 );

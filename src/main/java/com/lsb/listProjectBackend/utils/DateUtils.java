@@ -10,6 +10,22 @@ import java.time.temporal.TemporalAccessor;
 
 public class DateUtils {
 
+    public static LocalDateTime addTime(LocalDateTime value, long interval, Global.TimeUnit unit) {
+        if (unit == null) {
+            throw new IllegalArgumentException("Time unit is required");
+        }
+        return switch (unit) {
+            case YEAR -> value.plusYears(interval);
+            case MONTH -> value.plusMonths(interval);
+            case WEEK -> value.plusWeeks(interval);
+            case DAY -> value.plusDays(interval);
+            case HOUR -> value.plusHours(interval);
+            case MINUTE -> value.plusMinutes(interval);
+            case SECOND -> value.plusSeconds(interval);
+            case MILLI_SECOND -> value.plusNanos(Math.multiplyExact(interval, 1_000_000L));
+        };
+    }
+
     /**
      * 取得目前時間字串，依指定時區與格式輸出。
      * <p>

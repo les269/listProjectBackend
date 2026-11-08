@@ -1,6 +1,8 @@
 package com.lsb.listProjectBackend.controller.spider;
 
 import com.lsb.listProjectBackend.domain.spider.SpiderItemTO;
+import com.lsb.listProjectBackend.domain.spider.SpiderPaginationDataTO;
+import java.util.List;
 import com.lsb.listProjectBackend.domain.spider.SpiderReqTO;
 import com.lsb.listProjectBackend.service.spider.SpiderService;
 import lombok.RequiredArgsConstructor;
@@ -10,6 +12,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -19,6 +22,13 @@ import org.springframework.web.multipart.MultipartFile;
 @RequiredArgsConstructor
 public class SpiderController {
     private final SpiderService spiderService;
+
+    @PostMapping("/spider/execute-pagination")
+    public List<SpiderPaginationDataTO> executePagination(
+            @RequestParam("spiderPaginationId") String spiderPaginationId,
+            @RequestParam(value = "force", defaultValue = "false") boolean force) throws Exception {
+        return spiderService.executePagination(spiderPaginationId, force);
+    }
 
     @PostMapping("/spider/use-url")
     public String executeByUrl(@RequestBody SpiderReqTO req) throws Exception {

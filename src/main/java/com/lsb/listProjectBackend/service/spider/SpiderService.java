@@ -5,8 +5,13 @@ import java.util.List;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.lsb.listProjectBackend.domain.spider.SpiderItemTO;
+import com.lsb.listProjectBackend.domain.spider.SpiderPaginationDataTO;
 
 public interface SpiderService {
+
+    List<SpiderPaginationDataTO> executePagination(String spiderPaginationId) throws Exception;
+
+    List<SpiderPaginationDataTO> executePagination(String spiderPaginationId, boolean force) throws Exception;
 
     /**
      * 執行爬蟲流程 - 基於 URL

@@ -32,6 +32,18 @@ public class JsonUtils {
         }
     }
 
+    /** 讀取指定路徑；路徑為空或不存在時回傳 null。 */
+    public static Object getValueOrNull(DocumentContext ctx, String fullPath) {
+        if (Utils.isBlank(fullPath)) {
+            return null;
+        }
+        try {
+            return ctx.read(ensurePrefix(fullPath));
+        } catch (PathNotFoundException e) {
+            return null;
+        }
+    }
+
     /**
      * 將值寫入 DocumentContext 的指定路徑，若中間節點不存在會自動建立。
      * <p>

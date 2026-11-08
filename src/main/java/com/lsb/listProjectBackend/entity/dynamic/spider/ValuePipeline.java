@@ -19,6 +19,7 @@ public class ValuePipeline {
     private String fixedJsonValue;
     private String currentDataKey;
     private String attributeName;
+    private ExtractObjectsConfig extractObjectsConfig;
     private String pattern;
     private String replacement;
     private String separator;

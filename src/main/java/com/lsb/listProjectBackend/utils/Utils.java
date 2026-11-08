@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
 import java.io.IOException;
+import java.math.BigInteger;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
@@ -16,6 +17,23 @@ import java.util.stream.IntStream;
 
 @Slf4j
 public class Utils {
+
+    public static boolean isNull(Object obj) {
+        return obj == null;
+    }
+
+    public static boolean isNull(Object... objs) {
+        for (Object obj : objs) {
+            if (obj == null) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static boolean isNotNull(Object obj) {
+        return obj != null;
+    }
 
     /**
      * 判斷字串是否為 null 或空白（含只有空白字元的情況）。
@@ -331,5 +349,9 @@ public class Utils {
         sb.insert(toIndex, targetChar);
 
         return sb.toString();
+    }
+
+    public static boolean isNegative(BigInteger value) {
+        return value.signum() < 0;
     }
 }

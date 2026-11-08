@@ -34,8 +34,9 @@ public class SpiderPaginationDataController {
 
     @GetMapping("/spider-pagination-data")
     public SpiderPaginationDataTO getById(@RequestParam("spiderPaginationId") String spiderPaginationId,
+            @RequestParam("groupId") String groupId,
             @RequestParam("dataId") String dataId) {
-        return spiderPaginationDataService.getById(spiderPaginationId, dataId);
+        return spiderPaginationDataService.getById(spiderPaginationId, groupId, dataId);
     }
 
     @PostMapping("/spider-pagination-data/update")
@@ -45,8 +46,9 @@ public class SpiderPaginationDataController {
 
     @DeleteMapping("/spider-pagination-data/delete")
     public void delete(@RequestParam("spiderPaginationId") String spiderPaginationId,
+            @RequestParam("groupId") String groupId,
             @RequestParam("dataId") String dataId) {
-        spiderPaginationDataService.delete(spiderPaginationId, dataId);
+        spiderPaginationDataService.delete(spiderPaginationId, groupId, dataId);
     }
 
     @DeleteMapping("/spider-pagination-data/delete-by-spider-pagination-id")
@@ -56,7 +58,8 @@ public class SpiderPaginationDataController {
 
     @GetMapping("/spider-pagination-data/in-use")
     public boolean inUse(@RequestParam("spiderPaginationId") String spiderPaginationId,
+            @RequestParam("groupId") String groupId,
             @RequestParam("dataId") String dataId) {
-        return spiderPaginationDataService.exists(spiderPaginationId, dataId);
+        return spiderPaginationDataService.exists(spiderPaginationId, groupId, dataId);
     }
 }

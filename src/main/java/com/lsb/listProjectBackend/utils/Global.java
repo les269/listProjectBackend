@@ -107,6 +107,7 @@ public class Global {
         CURRENT_DATA_KEY,
         EXTRACT_ATTR,
         EXTRACT_OWN_TEXT,
+        EXTRACT_OBJECTS,
         REPLACE_REGULAR,
         SPLIT_TEXT,
         JOIN_ARRAY_TO_STRING,

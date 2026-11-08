@@ -29,6 +29,10 @@ public class SpiderPaginationData implements Serializable {
     private String spiderPaginationId;
 
     @Id
+    @Column(name = "group_id", nullable = false)
+    private String groupId;
+
+    @Id
     @Column(name = "data_id", nullable = false)
     private String dataId;
 

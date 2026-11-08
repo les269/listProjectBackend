@@ -15,5 +15,6 @@ public class SpiderPaginationDataPK implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private String spiderPaginationId;
+    private String groupId;
     private String dataId;
 }

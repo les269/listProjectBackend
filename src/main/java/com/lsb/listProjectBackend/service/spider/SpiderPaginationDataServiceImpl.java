@@ -1,6 +1,7 @@
 package com.lsb.listProjectBackend.service.spider;
 
 import com.lsb.listProjectBackend.aop.UseDynamic;
+import com.lsb.listProjectBackend.aop.UseDynamicTx;
 import com.lsb.listProjectBackend.domain.spider.SpiderPaginationDataTO;
 import com.lsb.listProjectBackend.entity.dynamic.spider.SpiderPaginationData;
 import com.lsb.listProjectBackend.entity.dynamic.spider.SpiderPaginationDataPK;
@@ -34,8 +35,8 @@ public class SpiderPaginationDataServiceImpl implements SpiderPaginationDataServ
     }
 
     @Override
-    public SpiderPaginationDataTO getById(String spiderPaginationId, String dataId) {
-        SpiderPaginationDataPK pk = new SpiderPaginationDataPK(spiderPaginationId, dataId);
+    public SpiderPaginationDataTO getById(String spiderPaginationId, String groupId, String dataId) {
+        SpiderPaginationDataPK pk = new SpiderPaginationDataPK(spiderPaginationId, groupId, dataId);
         return spiderPaginationDataMapper.toDomain(spiderPaginationDataRepository.findById(pk).orElse(null));
     }
 
@@ -49,8 +50,29 @@ public class SpiderPaginationDataServiceImpl implements SpiderPaginationDataServ
     }
 
     @Override
-    public void delete(String spiderPaginationId, String dataId) {
-        SpiderPaginationDataPK pk = new SpiderPaginationDataPK(spiderPaginationId, dataId);
+    public List<SpiderPaginationDataTO> updateAll(List<SpiderPaginationDataTO> records) {
+        var entities = spiderPaginationDataMapper.toEntityList(records);
+        entities.forEach(entity -> {
+            if (entity.getData() == null) {
+                entity.setData(new HashMap<>());
+            }
+        });
+        return spiderPaginationDataMapper.toDomainList(spiderPaginationDataRepository.saveAllAndFlush(entities));
+    }
+
+    @Override
+    @UseDynamicTx
+    public List<SpiderPaginationDataTO> synchronize(List<SpiderPaginationDataTO> records,
+            List<SpiderPaginationDataPK> idsToDelete) {
+        if (!idsToDelete.isEmpty()) {
+            spiderPaginationDataRepository.deleteAllByIdInBatch(idsToDelete);
+        }
+        return updateAll(records);
+    }
+
+    @Override
+    public void delete(String spiderPaginationId, String groupId, String dataId) {
+        SpiderPaginationDataPK pk = new SpiderPaginationDataPK(spiderPaginationId, groupId, dataId);
         spiderPaginationDataRepository.deleteById(pk);
     }
 
@@ -61,8 +83,8 @@ public class SpiderPaginationDataServiceImpl implements SpiderPaginationDataServ
     }
 
     @Override
-    public boolean exists(String spiderPaginationId, String dataId) {
-        SpiderPaginationDataPK pk = new SpiderPaginationDataPK(spiderPaginationId, dataId);
+    public boolean exists(String spiderPaginationId, String groupId, String dataId) {
+        SpiderPaginationDataPK pk = new SpiderPaginationDataPK(spiderPaginationId, groupId, dataId);
         return spiderPaginationDataRepository.existsById(pk);
     }
 }

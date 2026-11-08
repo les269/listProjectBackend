@@ -9,12 +9,17 @@ import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.PathNotFoundException;
 import com.lsb.listProjectBackend.entity.dynamic.spider.ValuePipeline;
 import com.lsb.listProjectBackend.entity.dynamic.spider.ValuePipelineContext;
+import com.lsb.listProjectBackend.entity.dynamic.spider.ExtractObjectField;
+import com.lsb.listProjectBackend.entity.dynamic.spider.ExtractObjectsConfig;
 
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -97,6 +102,10 @@ public class ValuePipelineUtils {
      */
     public static Object normalizeExtractedValue(Object pipelineValue) {
         if (pipelineValue instanceof List) {
+            // Identical rows are still separate records; never deduplicate object arrays.
+            if (((List<?>) pipelineValue).stream().anyMatch(Map.class::isInstance)) {
+                return pipelineValue;
+            }
             return ((List<?>) pipelineValue).stream().filter(Objects::nonNull)
                     .map(item -> (item instanceof String) ? ((String) item).trim() : item).filter(item -> {
                         if (item instanceof String) {
@@ -111,7 +120,99 @@ public class ValuePipelineUtils {
         return pipelineValue;
     }
 
-    /** 過濾出已啟用的 pipeline，並依 {@code seq} 升冪排序。 */
+    /** 將外層選出的資料逐筆轉成物件，每筆再依欄位設定執行子 Pipelines。 */
+    private static List<Map<String, Object>> extractObjects(ExtractObjectsConfig config, Object value,
+            ValuePipelineContext parent) {
+        List<ExtractObjectField> fields = sortedObjectFields(config);
+        List<?> sources = objectSources(config.getMode(), value, parent);
+        var result = new ArrayList<Map<String, Object>>();
+        for (Object source : sources) {
+            result.add(extractObject(source, config.getMode(), fields, parent));
+        }
+        return result;
+    }
+
+    /** 檢查欄位名稱，並依 seq 決定執行順序，讓後面的欄位能引用前面的結果。 */
+    private static List<ExtractObjectField> sortedObjectFields(ExtractObjectsConfig config) {
+        if (config == null || config.getMode() == null || config.getFields() == null) {
+            throw new IllegalArgumentException("EXTRACT_OBJECTS requires mode and fields");
+        }
+        List<ExtractObjectField> fields = config.getFields().stream()
+                .sorted(Comparator.comparing(ExtractObjectField::getSeq, Comparator.nullsLast(Integer::compareTo)))
+                .toList();
+        var keys = new HashSet<String>();
+        for (ExtractObjectField field : fields) {
+            if (field.getKey() == null || field.getKey().isBlank() || !keys.add(field.getKey())) {
+                throw new IllegalArgumentException("Object field keys must be nonblank and unique");
+            }
+        }
+        return fields;
+    }
+
+    /** SELECT 使用外層 Elements；JSON_PATH 使用目前值，單一物件也視為一筆。 */
+    private static List<?> objectSources(Global.ExtractionRuleMode mode, Object value, ValuePipelineContext parent) {
+        if (mode == Global.ExtractionRuleMode.SELECT) {
+            Elements selected = parent == null ? null : parent.getElements();
+            return selected == null ? List.of() : selected;
+        }
+        if (value instanceof List<?> list) {
+            return list;
+        }
+        return value == null ? List.of() : List.of(value);
+    }
+
+    /** 處理單筆來源。result 屬於這一筆物件，extraContext 則指向上一層結果。 */
+    private static Map<String, Object> extractObject(Object source, Global.ExtractionRuleMode mode,
+            List<ExtractObjectField> fields, ValuePipelineContext parent) {
+        DocumentContext row = JsonPath.parse(new LinkedHashMap<String, Object>());
+        DocumentContext json = mode == Global.ExtractionRuleMode.JSON_PATH && source != null
+                ? JsonPath.parse(source)
+                : null;
+        ValuePipelineContext child = ValuePipelineContext.builder()
+                .result(row)
+                .extraContext(parent == null ? null : parent.getResult())
+                .cookies(parent == null ? null : parent.getCookies())
+                .headers(parent == null ? null : parent.getHeaders())
+                .build();
+        for (ExtractObjectField field : fields) {
+            Object fieldValue = extractObjectField(field, source, json, mode, child);
+            // 不做正規化，保留該筆資料的空值；即使物件相同，也保留每一筆來源。
+            row.put("$", field.getKey(), fieldValue);
+        }
+        return row.read("$");
+    }
+
+    /** 在單筆來源內取出欄位，再套用該欄位自己的 Pipelines。 */
+    private static Object extractObjectField(ExtractObjectField field, Object source, DocumentContext json,
+            Global.ExtractionRuleMode mode, ValuePipelineContext child) {
+        Object value;
+        if (mode == Global.ExtractionRuleMode.SELECT) {
+            Element root = (Element) source;
+            // 空 selector 代表來源元素本身，否則只在這筆元素內選取。
+            Elements selected = Utils.isBlank(field.getSelector()) ? new Elements(root)
+                    : root.select(field.getSelector());
+            child.setElements(selected);
+            value = objectFieldText(selected, hasEnabledPipelines(field.getPipelines()));
+        } else {
+            String path = Utils.isBlank(field.getJsonPath()) ? "$" : JsonUtils.ensurePrefix(field.getJsonPath());
+            value = safeRead(json, path);
+        }
+        return applyPipelines(field.getPipelines(), value, child);
+    }
+
+    /** 有 Pipelines 時以文字陣列作為初始值；沒有時，單節點回傳字串，缺欄位回傳 null。 */
+    private static Object objectFieldText(Elements selected, boolean hasPipelines) {
+        List<String> texts = selected.stream().map(Element::text).toList();
+        if (hasPipelines) {
+            return texts;
+        }
+        if (texts.isEmpty()) {
+            return null;
+        }
+        return texts.size() == 1 ? texts.getFirst() : texts;
+    }
+
+    /** 過濾出已啟用的 pipeline，並依 seq 升冪排序。 */
     private static List<ValuePipeline> enabledPipelines(List<ValuePipeline> pipelines) {
         if (pipelines == null || pipelines.isEmpty()) {
             return List.of();
@@ -128,6 +229,9 @@ public class ValuePipelineUtils {
             ValuePipelineContext context,
             Elements elements) {
         switch (pipeLine.getType()) {
+            case EXTRACT_OBJECTS:
+                pipelineValue = extractObjects(pipeLine.getExtractObjectsConfig(), pipelineValue, context);
+                break;
             // 強制以固定字串取代當前值
             case FIXED_VALUE:
                 pipelineValue = Utils.isBlank(pipeLine.getFixedValue()) ? "" : pipeLine.getFixedValue();
@@ -182,7 +286,7 @@ public class ValuePipelineUtils {
                 break;
             // 將當前值包裝為單元素 List
             case CONVERT_TO_ARRAY:
-                pipelineValue = List.of(pipelineValue);
+                pipelineValue = java.util.Collections.singletonList(pipelineValue);
                 break;
             // 取清單第一個元素（若值為 null 則改取 elements 第一個節點文字）
             case FIRST_VALUE:
