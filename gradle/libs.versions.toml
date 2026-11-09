@@ -2,6 +2,7 @@
 # https://docs.gradle.org/current/userguide/version_catalogs.html#sec::toml-dependencies-format
 
 [versions]
+com-microsoft-playwright = "1.64.0"
 org-springdoc-openapi = "3.2.0"
 com-google-guava-guava = "33.4.0-jre"
 com-jayway-jsonpath-json-path = "3.0.0"
@@ -23,7 +24,8 @@ com-github-houbb-opencc4j = "1.14.0"
 org-apache-fesod-fesod-sheet = "2.1.0-incubating"
 
 [libraries]
-org-springdoc-openapi-starter-webmvc-api = { module = "org.springdoc:springdoc-openapi-starter-webmvc-api", version.ref = "org-springdoc-openapi" }
+com-microsoft-playwright = { module = "com.microsoft.playwright:playwright", version.ref = "com-microsoft-playwright" }
+org-springdoc-openapi-starter-webmvc-ui = { module = "org.springdoc:springdoc-openapi-starter-webmvc-ui", version.ref = "org-springdoc-openapi" }
 com-google-guava-guava = { module = "com.google.guava:guava", version.ref = "com-google-guava-guava" }
 com-jayway-jsonpath-json-path = { module = "com.jayway.jsonpath:json-path", version.ref = "com-jayway-jsonpath-json-path" }
 net-java-dev-jna-jna-platform = { module = "net.java.dev.jna:jna-platform", version.ref = "net-java-dev-jna-jna-platform" }

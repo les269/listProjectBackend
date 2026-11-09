@@ -12,7 +12,8 @@ repositories {
 }
 
 dependencies {
-    implementation(libs.org.springdoc.openapi.starter.webmvc.api)
+    implementation(libs.com.microsoft.playwright)
+    implementation(libs.org.springdoc.openapi.starter.webmvc.ui)
     implementation(libs.org.springframework.boot.spring.boot.starter.web)
     implementation(libs.org.springframework.boot.spring.boot.starter.jdbc)
     implementation(libs.org.springframework.boot.spring.boot.starter.data.jpa)
@@ -41,6 +42,14 @@ dependencies {
     annotationProcessor(libs.org.projectlombok.lombok.mapstruct.binding)
     
     testImplementation(libs.org.springframework.boot.spring.boot.starter.test)
+}
+
+tasks.register<JavaExec>("installPlaywrightChromium") {
+    group = "playwright"
+    description = "Install the Chromium version bundled with Playwright"
+    classpath = sourceSets["main"].runtimeClasspath
+    mainClass.set("com.microsoft.playwright.CLI")
+    args("install", "chromium")
 }
 
 group = "com.lsb"

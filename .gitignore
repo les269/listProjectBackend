@@ -37,3 +37,6 @@ build/
 .gradle
 .kotlin
 bin
+
+# Browser profiles contain cookies and local storage.
+.browser-verification/
