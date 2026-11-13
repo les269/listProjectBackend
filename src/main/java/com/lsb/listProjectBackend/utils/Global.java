@@ -37,6 +37,22 @@ public class Global {
         get, post, delete, put
     }
 
+    public enum ApiRequestBodyType {
+        none("none"), formData("form-data"), formUrlEncoded("x-www-form-urlencoded"),
+        text("text"), javascript("javascript"), json("json"), html("html"), xml("xml");
+
+        private final String value;
+
+        ApiRequestBodyType(String value) {
+            this.value = value;
+        }
+
+        @com.fasterxml.jackson.annotation.JsonValue
+        public String getValue() {
+            return value;
+        }
+    }
+
     public enum ScrapyPageType {
         redirect, scrapyData
     }

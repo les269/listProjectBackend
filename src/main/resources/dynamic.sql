@@ -68,16 +68,13 @@ create TABLE IF NOT EXISTS share_tag_map (
     PRIMARY KEY (share_tag_id, theme_header_id)
 );
 
-create TABLE IF NOT EXISTS api_config (
-    api_name TEXT NOT NULL,
-    http_method TEXT NOT NULL,  -- 如 'GET', 'POST', 'PUT', 'DELETE'
-    endpoint_url TEXT NOT NULL, -- API 的端點 URL
-    request_body TEXT, -- 請求體，這裡假設是 JSON 格式
-    http_params TEXT,
-    http_headers TEXT,
-    success_message TEXT,
-    updated_time TEXT, -- 更新時間
-    PRIMARY KEY (api_name)
+create TABLE IF NOT EXISTS api_request_config (
+    api_id TEXT NOT NULL,
+    description TEXT NOT NULL,
+    config TEXT NOT NULL,
+    created_time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (api_id)
 );
 
 create TABLE IF NOT EXISTS scrapy_config (

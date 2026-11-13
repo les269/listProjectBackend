@@ -1,6 +1,5 @@
 package com.lsb.listProjectBackend.entity.dynamic.theme;
 
-import com.lsb.listProjectBackend.entity.dynamic.common.ApiConfig;
 import com.lsb.listProjectBackend.utils.Global;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -15,5 +14,6 @@ public class ThemeTopCustom {
     private String label;
     private int seq;
     private String openUrl;
-    private ApiConfig apiConfig;
+    private Global.OpenWindowTargetType openWindowsTarget;
+    private String apiId;
 }

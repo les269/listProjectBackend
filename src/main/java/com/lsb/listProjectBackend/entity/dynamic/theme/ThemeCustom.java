@@ -1,6 +1,5 @@
 package com.lsb.listProjectBackend.entity.dynamic.theme;
 
-import com.lsb.listProjectBackend.entity.dynamic.common.ApiConfig;
 import com.lsb.listProjectBackend.utils.Global;
 import jakarta.persistence.*;
 import lombok.Data;
@@ -22,7 +21,7 @@ public class ThemeCustom {
     private String buttonIconFillColor;
     private String buttonIconTrue;
     private String buttonIconFalse;
-    private ApiConfig apiConfig;
+    private String apiId;
     private String deleteFile;
     private String filePathForMoveTo;
     private String moveTo;
