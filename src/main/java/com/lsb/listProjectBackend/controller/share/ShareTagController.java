@@ -11,53 +11,53 @@ import java.util.List;
 
 @CrossOrigin("*")
 @RestController
-@RequestMapping("api")
+@RequestMapping("/api/share-tag")
 @RequiredArgsConstructor
 public class ShareTagController {
     private final ShareTagService shareTagService;
 
-    @GetMapping("/share-tag/all")
+    @GetMapping("/all")
     List<ShareTagTO> getAllTag() {
         return shareTagService.getAllTag();
     }
 
-    @PostMapping("/share-tag/add")
+    @PostMapping("/add")
     void addTag(@RequestBody ShareTagTO req) {
         shareTagService.addTag(req);
     }
 
-    @DeleteMapping("/share-tag/delete")
+    @DeleteMapping("/delete")
     void deleteTag(@RequestParam("shareTagId") String shareTagId) {
         shareTagService.deleteTag(shareTagId);
     }
 
-    @GetMapping("/share-tag/in-use")
+    @GetMapping("/in-use")
     List<String> getThemeHeaderIdsByShareTagId(@RequestParam("shareTagId") String shareTagId) {
         return shareTagService.getThemeHeaderIdsByShareTagId(shareTagId);
     }
 
-    @PostMapping("/share-tag/value/by-ids")
+    @PostMapping("/value/by-ids")
     List<ShareTagValueTO> getShareTagValues(@RequestBody List<String> shareTagIds) {
         return shareTagService.findShareTagValues(shareTagIds);
     }
 
-    @GetMapping("/share-tag/value/id")
+    @GetMapping("/value/id")
     List<ShareTagValueTO> getShareTagValueById(@RequestParam("shareTagId") String shareTagId) {
         return shareTagService.findShareTagValueById(shareTagId);
     }
 
-    @PostMapping("/share-tag/value/add")
+    @PostMapping("/value/add")
     void addShareTagValue(@RequestBody ShareTagValueTO req) {
         shareTagService.addShareTagValue(req);
     }
 
-    @DeleteMapping("/share-tag/value/delete")
+    @DeleteMapping("/value/delete")
     void deleteShareTagValue(@RequestParam("shareTagId") String shareTagId,
             @RequestParam("value") String value) {
         shareTagService.deleteShareTagValue(shareTagId, value);
     }
 
-    @DeleteMapping("/share-tag/value/delete-list")
+    @DeleteMapping("/value/delete-list")
     void deleteShareTagValueList(@RequestBody ShareTagValueDeleteListTO req) {
         shareTagService.deleteShareTagValueList(req);
     }

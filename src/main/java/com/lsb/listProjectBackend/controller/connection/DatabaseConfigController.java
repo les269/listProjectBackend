@@ -11,32 +11,32 @@ import java.util.List;
 
 @CrossOrigin("*")
 @RestController
-@RequestMapping("api")
+@RequestMapping("/api/database-config")
 @RequiredArgsConstructor
 public class DatabaseConfigController {
     private final DatabaseConfigService databaseConfigService;
 
-    @GetMapping("/database-config/all")
+    @GetMapping("/all")
     public List<DatabaseConfigTO> getAll() {
         return databaseConfigService.getAll();
     }
 
-    @PostMapping("/database-config/test-connection")
+    @PostMapping("/test-connection")
     public ConnectionTestResultTO testConnection(@RequestBody ConnectionTestReqTO to) {
         return databaseConfigService.testConnection(to);
     }
 
-    @PostMapping("/database-config/save")
+    @PostMapping("/save")
     public void save(@RequestBody DatabaseConfigTO to) {
         databaseConfigService.save(to);
     }
 
-    @DeleteMapping("/database-config/delete")
+    @DeleteMapping("/delete")
     public void delete(@RequestParam("configId") String configId) {
         databaseConfigService.delete(configId);
     }
 
-    @GetMapping("/database-config/open-local-folder")
+    @GetMapping("/open-local-folder")
     public boolean openLocalFolder(@RequestParam("configId") String configId) throws Exception {
         return databaseConfigService.openLocalFolder(configId);
     }

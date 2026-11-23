@@ -11,7 +11,7 @@ import java.util.List;
 
 @CrossOrigin("*")
 @RestController
-@RequestMapping("api/search-bookmark")
+@RequestMapping("/api/search-bookmark")
 @RequiredArgsConstructor
 public class SearchBookmarkController {
     private final SearchBookmarkService service;

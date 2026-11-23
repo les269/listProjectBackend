@@ -16,32 +16,32 @@ import java.util.List;
 
 @CrossOrigin("*")
 @RestController
-@RequestMapping("api")
+@RequestMapping("/api/spider-pagination")
 @RequiredArgsConstructor
 public class SpiderPaginationController {
     private final SpiderPaginationService spiderPaginationService;
 
-    @GetMapping("/spider-pagination/all")
+    @GetMapping("/all")
     public List<SpiderPaginationTO> getAll() {
         return spiderPaginationService.getAll();
     }
 
-    @GetMapping("/spider-pagination")
+    @GetMapping
     public SpiderPaginationTO getById(@RequestParam("spiderPaginationId") String spiderPaginationId) {
         return spiderPaginationService.getById(spiderPaginationId);
     }
 
-    @PostMapping("/spider-pagination/update")
+    @PostMapping("/update")
     public void update(@RequestBody SpiderPaginationTO req) {
         spiderPaginationService.update(req);
     }
 
-    @DeleteMapping("/spider-pagination/delete")
+    @DeleteMapping("/delete")
     public void delete(@RequestParam("spiderPaginationId") String spiderPaginationId) {
         spiderPaginationService.delete(spiderPaginationId);
     }
 
-    @GetMapping("/spider-pagination/in-use")
+    @GetMapping("/in-use")
     public boolean inUse(@RequestParam("spiderPaginationId") String spiderPaginationId) {
         return spiderPaginationService.exists(spiderPaginationId);
     }

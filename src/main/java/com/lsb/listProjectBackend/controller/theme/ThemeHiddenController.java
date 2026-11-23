@@ -9,22 +9,22 @@ import java.util.List;
 
 @CrossOrigin("*")
 @RestController
-@RequestMapping("api")
+@RequestMapping("/api/theme-hidden")
 @RequiredArgsConstructor
 public class ThemeHiddenController {
     private final ThemeHiddenService themeHiddenService;
 
-    @GetMapping("/theme-hidden/all")
+    @GetMapping("/all")
     List<ThemeHiddenTO> getAll() {
         return themeHiddenService.getAll();
     }
 
-    @PostMapping("/theme-hidden/save")
+    @PostMapping("/save")
     void save(@RequestBody ThemeHiddenTO req) {
         themeHiddenService.save(req);
     }
 
-    @DeleteMapping("/theme-hidden/delete")
+    @DeleteMapping("/delete")
     void delete(@RequestParam("headerId") String headerId) {
         themeHiddenService.delete(headerId);
     }

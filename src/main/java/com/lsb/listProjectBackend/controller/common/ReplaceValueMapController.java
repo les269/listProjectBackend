@@ -9,32 +9,32 @@ import java.util.List;
 
 @CrossOrigin("*")
 @RestController
-@RequestMapping("api")
+@RequestMapping("/api/replace-value-map")
 @RequiredArgsConstructor
 public class ReplaceValueMapController {
     private final ReplaceValueMapService replaceValueMapService;
 
-    @GetMapping("/replace-value-map/name-list")
+    @GetMapping("/name-list")
     List<ReplaceValueMapTO> getNameList() {
         return replaceValueMapService.getNameList();
     }
 
-    @GetMapping("/replace-value-map/exist")
+    @GetMapping("/exist")
     boolean existMap(@RequestParam("name") String name) {
         return replaceValueMapService.existMap(name);
     }
 
-    @GetMapping("/replace-value-map/get")
+    @GetMapping("/get")
     ReplaceValueMapTO getByName(@RequestParam("name") String name) {
         return replaceValueMapService.getByName(name);
     }
 
-    @PostMapping("/replace-value-map/update")
+    @PostMapping("/update")
     void update(@RequestBody ReplaceValueMapTO to) {
         replaceValueMapService.update(to);
     }
 
-    @DeleteMapping("/replace-value-map/delete")
+    @DeleteMapping("/delete")
     void deleteByName(@RequestParam("name") String name) {
         replaceValueMapService.deleteByName(name);
     }

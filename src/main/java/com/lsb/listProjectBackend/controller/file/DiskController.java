@@ -9,27 +9,27 @@ import java.util.List;
 
 @CrossOrigin("*")
 @RestController
-@RequestMapping("api")
+@RequestMapping("/api/disk")
 @RequiredArgsConstructor
 public class DiskController {
     private final DiskService diskService;
 
-    @GetMapping("/disk/all")
+    @GetMapping("/all")
     public List<DiskTO> getAll() {
         return diskService.getAll();
     }
 
-    @PostMapping("/disk/add")
+    @PostMapping("/add")
     public void add(@RequestBody String disk) {
         diskService.add(disk);
     }
 
-    @PostMapping("/disk/delete")
+    @PostMapping("/delete")
     public void delete(@RequestBody String disk) {
         diskService.delete(disk);
     }
 
-    @GetMapping("/disk/refresh")
+    @GetMapping("/refresh")
     public void refresh() {
         diskService.refresh();
     }

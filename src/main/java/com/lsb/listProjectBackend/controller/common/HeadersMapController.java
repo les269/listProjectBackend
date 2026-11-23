@@ -10,45 +10,45 @@ import java.util.List;
 
 @CrossOrigin("*")
 @RestController
-@RequestMapping("api")
+@RequestMapping("/api/headers/map")
 @RequiredArgsConstructor
 public class HeadersMapController {
     private final HeadersMapService headersMapService;
 
-    @GetMapping("/headers/map/by-id-and-type")
+    @GetMapping("/by-id-and-type")
     public HeadersMapTO getMapByIdAndType(@RequestParam("refId") String refId,
             @RequestParam("type") Global.HeadersMapType type) {
         return headersMapService.getMapByIdAndType(refId, type);
     }
 
-    @GetMapping("/headers/map/by-ref-id")
+    @GetMapping("/by-ref-id")
     public List<HeadersMapTO> getMapByRefId(@RequestParam("refId") String refId) {
         return headersMapService.getMapByRefId(refId);
     }
 
-    @GetMapping("/headers/map/by-type")
+    @GetMapping("/by-type")
     public List<HeadersMapTO> getMapByType(@RequestParam("type") Global.HeadersMapType type) {
         return headersMapService.getMapByType(type);
     }
 
-    @PostMapping("/headers/map/update")
+    @PostMapping("/update")
     public void updateMap(@RequestBody HeadersMapTO req) {
         headersMapService.updateMap(req);
     }
 
-    @DeleteMapping("/headers/map/delete")
+    @DeleteMapping("/delete")
     public void deleteMap(@RequestParam("refId") String refId,
             @RequestParam("type") Global.HeadersMapType type) {
         headersMapService.deleteMap(refId, type);
     }
 
-    @GetMapping("/headers/map/in-use")
+    @GetMapping("/in-use")
     public boolean isInUseMap(@RequestParam("headersId") String headersId,
             @RequestParam("type") Global.HeadersMapType type) {
         return headersMapService.isInUseMap(headersId, type);
     }
 
-    @GetMapping("/headers/map/headers-in-use")
+    @GetMapping("/headers-in-use")
     public boolean headersIsInUse(@RequestParam("headersId") String headersId) {
         return headersMapService.headersIsInUse(headersId);
     }

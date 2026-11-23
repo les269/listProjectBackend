@@ -10,77 +10,77 @@ import java.util.Map;
 
 @CrossOrigin("*")
 @RestController
-@RequestMapping("api")
+@RequestMapping("/api/theme")
 @RequiredArgsConstructor
 public class ThemeController {
     private final ThemeService themeService;
 
-    @GetMapping("/theme/all")
+    @GetMapping("/all")
     List<ThemeHeaderTO> getAllTheme() {
         return themeService.getAllTheme();
     }
 
-    @GetMapping("/theme/id")
+    @GetMapping("/id")
     ThemeHeaderTO getByHeaderId(@RequestParam("headerId") String headerId) {
         return themeService.getByHeaderId(headerId);
     }
 
-    @PostMapping("/theme/one")
+    @PostMapping("/one")
     ThemeHeaderTO findTheme(@RequestBody ThemeHeaderTO headerTO) {
         return themeService.findTheme(headerTO);
     }
 
-    @PostMapping("/theme/exist")
+    @PostMapping("/exist")
     boolean existTheme(@RequestBody ThemeHeaderTO headerTO) {
         return themeService.existTheme(headerTO);
     }
 
-    @PostMapping("/theme/update")
+    @PostMapping("/update")
     void updateTheme(@RequestBody ThemeHeaderTO theme) throws Exception {
         themeService.updateTheme(theme);
     }
 
-    @PostMapping("/theme/delete")
+    @PostMapping("/delete")
     void deleteTheme(@RequestBody ThemeHeaderTO headerTO) throws Exception {
         themeService.deleteTheme(headerTO);
     }
 
-    @PostMapping("/theme/copy")
+    @PostMapping("/copy")
     void copyTheme(@RequestBody CopyThemeReqTO copyThemeRequest) throws Exception {
         themeService.copyTheme(copyThemeRequest);
     }
 
-    @PostMapping("/theme/custom/value")
+    @PostMapping("/custom/value")
     Map<String, Map<String, String>> findCustomValue(@RequestBody ThemeCustomValueReqTO request) throws Exception {
         return themeService.findCustomValue(request);
     }
 
-    @PostMapping("/theme/custom/update")
+    @PostMapping("/custom/update")
     void updateCustomValue(@RequestBody ThemeCustomValueTO customValueTO) {
         themeService.updateCustomValue(customValueTO);
     }
 
-    @PostMapping("/theme/tag/update")
+    @PostMapping("/tag/update")
     void updateTagValue(@RequestBody List<ThemeTagValueTO> list) {
         themeService.updateTagValue(list);
     }
 
-    @PostMapping("/theme/tag/update/single")
+    @PostMapping("/tag/update/single")
     void updateSingleTagValue(@RequestBody ThemeTagValueTO to) {
         themeService.updateSingleTagValue(to);
     }
 
-    @GetMapping("/theme/tag/value")
+    @GetMapping("/tag/value")
     List<ThemeTagValueTO> getTagValueList(@RequestParam("headerId") String headerId) {
         return themeService.getTagValueList(headerId);
     }
 
-    @GetMapping("/theme/top-custom/value")
+    @GetMapping("/top-custom/value")
     Map<String, String> findTopCustomValue(@RequestParam("headerId") String headerId) {
         return themeService.findTopCustomValue(headerId);
     }
 
-    @PostMapping("/theme/top-custom/update")
+    @PostMapping("/top-custom/update")
     void updateTopCustomValue(@RequestBody ThemeTopCustomValueTO topCustomValueTO) {
         themeService.updateTopCustomValue(topCustomValueTO);
     }

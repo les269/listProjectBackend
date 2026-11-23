@@ -11,42 +11,42 @@ import java.util.Map;
 
 @CrossOrigin("*")
 @RestController
-@RequestMapping("api")
+@RequestMapping("/api/scrapy-pagination")
 @RequiredArgsConstructor
 public class ScrapyPaginationController {
     private final ScrapyPaginationService scrapyPaginationService;
 
-    @GetMapping("/scrapy-pagination/get")
+    @GetMapping("/get")
     ScrapyPaginationTO get(@RequestParam("name") String name) {
         return scrapyPaginationService.get(name);
     }
 
-    @GetMapping("/scrapy-pagination/exist")
+    @GetMapping("/exist")
     boolean exist(@RequestParam("name") String name) {
         return scrapyPaginationService.exist(name);
     }
 
-    @GetMapping("/scrapy-pagination/all")
+    @GetMapping("/all")
     List<ScrapyPaginationTO> getAll() {
         return scrapyPaginationService.getAll();
     }
 
-    @PostMapping("/scrapy-pagination/update")
+    @PostMapping("/update")
     void update(@RequestBody ScrapyPaginationTO req) {
         scrapyPaginationService.update(req);
     }
 
-    @DeleteMapping("/scrapy-pagination/delete")
+    @DeleteMapping("/delete")
     void delete(@RequestParam("name") String name) {
         scrapyPaginationService.delete(name);
     }
 
-    @PostMapping("/scrapy-pagination/test/html")
+    @PostMapping("/test/html")
     public Map<String, Object> testHtml(@RequestBody ScrapyPaginationTestTO req) throws Exception {
         return scrapyPaginationService.testHtml(req);
     }
 
-    @GetMapping("/scrapy-pagination/update-redirect-data")
+    @GetMapping("/update-redirect-data")
     public ScrapyPaginationTO updateRedirectData(@RequestParam("name") String name) throws Exception {
         return scrapyPaginationService.updateRedirectData(name);
     }

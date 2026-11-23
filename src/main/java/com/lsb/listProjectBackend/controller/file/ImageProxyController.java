@@ -11,9 +11,9 @@ import java.util.concurrent.TimeUnit;
 
 @CrossOrigin("*")
 @RestController
-@RequestMapping("api")
+@RequestMapping("/api/proxy-image")
 public class ImageProxyController {
-    @GetMapping("/proxy-image")
+    @GetMapping
     public ResponseEntity<byte[]> getImage(@RequestParam String url) {
         RestTemplate restTemplate = new RestTemplate();
         try {

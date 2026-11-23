@@ -10,28 +10,28 @@ import java.util.List;
 
 @CrossOrigin("*")
 @RestController
-@RequestMapping("api")
+@RequestMapping("/api/theme/item/map")
 @RequiredArgsConstructor
 public class ThemeItemMapController {
     private final ThemeItemService themeItemService;
 
-    @GetMapping("/theme/item/map/by-type")
+    @GetMapping("/by-type")
     List<ThemeItemMapTO> getThemeItemMapByType(@RequestParam("type") Global.ThemeItemType type) {
         return themeItemService.getAllThemeItemMapByType(type);
     }
 
-    @PostMapping("/theme/item/map/update")
+    @PostMapping("/update")
     void updateThemeItemMap(@RequestBody ThemeItemMapTO req) {
         themeItemService.updateThemeItemMap(req);
     }
 
-    @DeleteMapping("/theme/item/map/delete")
+    @DeleteMapping("/delete")
     void deleteThemeItemMap(@RequestParam("type") Global.ThemeItemType type,
             @RequestParam("headerId") String headerId) {
         themeItemService.deleteThemeItemMap(type, headerId);
     }
 
-    @GetMapping("/theme/item/map/in-use")
+    @GetMapping("/in-use")
     boolean themeItemMapInUse(@RequestParam("type") Global.ThemeItemType type,
             @RequestParam("itemId") String itemId) {
         return themeItemService.themeItemMapInUse(type, itemId);

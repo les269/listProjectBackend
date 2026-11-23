@@ -11,43 +11,43 @@ import java.util.List;
 
 @CrossOrigin("*")
 @RestController
-@RequestMapping("api")
+@RequestMapping("/api/theme/item")
 @RequiredArgsConstructor
 public class ThemeItemController {
     private final ThemeItemService themeItemService;
 
-    @GetMapping("/theme/item")
+    @GetMapping
     ThemeItemTO getThemeItemById(@RequestParam("type") Global.ThemeItemType type,
             @RequestParam("itemId") String itemId) {
         return themeItemService.getThemeItemById(type, itemId);
     }
 
-    @GetMapping("/theme/item/all")
+    @GetMapping("/all")
     List<ThemeItemTO> getAllThemeItem(@RequestParam("type") Global.ThemeItemType type) {
         return themeItemService.getAllThemeItem(type);
     }
 
-    @GetMapping("/theme/item/by-type")
+    @GetMapping("/by-type")
     List<ThemeItemTO> getThemeItemByType(@RequestParam("type") Global.ThemeItemType type) {
         return themeItemService.getAllThemeItem(type);
     }
 
-    @GetMapping("/theme/item/header-id")
+    @GetMapping("/header-id")
     List<ThemeItemTO> getItemsByHeaderId(@RequestParam("headerId") String headerId) {
         return themeItemService.getItemsByHeaderId(headerId);
     }
 
-    @PostMapping("/theme/item/update")
+    @PostMapping("/update")
     void updateThemeItem(@RequestBody ThemeItemTO req) {
         themeItemService.updateThemeItem(req);
     }
 
-    @PostMapping("/theme/item/copy")
+    @PostMapping("/copy")
     void copyThemeItem(@RequestBody CopyThemeItemReqTO req) {
         themeItemService.copyThemeItem(req);
     }
 
-    @DeleteMapping("/theme/item/delete")
+    @DeleteMapping("/delete")
     void deleteThemeItem(@RequestParam("type") Global.ThemeItemType type, @RequestParam("itemId") String itemId) {
         themeItemService.deleteThemeItem(type, itemId);
     }

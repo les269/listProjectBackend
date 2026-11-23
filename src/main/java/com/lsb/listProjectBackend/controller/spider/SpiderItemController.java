@@ -16,42 +16,42 @@ import java.util.List;
 
 @CrossOrigin("*")
 @RestController
-@RequestMapping("api")
+@RequestMapping("/api/spider-item")
 @RequiredArgsConstructor
 public class SpiderItemController {
     private final SpiderItemService spiderItemService;
 
-    @GetMapping("/spider-item/all")
+    @GetMapping("/all")
     public List<SpiderItemTO> getAllItem() {
         return spiderItemService.getAll();
     }
 
-    @GetMapping("/spider-item")
+    @GetMapping
     public SpiderItemTO getItem(@RequestParam("spiderItemId") String spiderItemId) {
         return spiderItemService.getById(spiderItemId);
     }
 
-    @GetMapping("/spider-item/by-spider-id")
+    @GetMapping("/by-spider-id")
     public List<SpiderItemTO> getItemBySpiderId(@RequestParam("spiderId") String spiderId) {
         return spiderItemService.getBySpiderId(spiderId);
     }
 
-    @PostMapping("/spider-item/update")
+    @PostMapping("/update")
     public void updateItem(@RequestBody SpiderItemTO req) {
         spiderItemService.update(req);
     }
 
-    @DeleteMapping("/spider-item/delete")
+    @DeleteMapping("/delete")
     public void deleteItem(@RequestParam("spiderItemId") String spiderItemId) {
         spiderItemService.delete(spiderItemId);
     }
 
-    @GetMapping("/spider-item/in-use")
+    @GetMapping("/in-use")
     public boolean isItemInUse(@RequestParam("spiderItemId") String spiderItemId) {
         return spiderItemService.exists(spiderItemId);
     }
 
-    @PostMapping("/spider-item/by-id-list")
+    @PostMapping("/by-id-list")
     public List<SpiderItemTO> getItemByIdList(@RequestBody List<String> spiderItemIdList) {
         return spiderItemService.getByIdList(spiderItemIdList);
     }

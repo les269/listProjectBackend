@@ -16,47 +16,47 @@ import java.util.List;
 
 @CrossOrigin("*")
 @RestController
-@RequestMapping("api")
+@RequestMapping("/api/spider-pagination-data")
 @RequiredArgsConstructor
 public class SpiderPaginationDataController {
     private final SpiderPaginationDataService spiderPaginationDataService;
 
-    @GetMapping("/spider-pagination-data/all")
+    @GetMapping("/all")
     public List<SpiderPaginationDataTO> getAll() {
         return spiderPaginationDataService.getAll();
     }
 
-    @GetMapping("/spider-pagination-data/by-spider-pagination-id")
+    @GetMapping("/by-spider-pagination-id")
     public List<SpiderPaginationDataTO> getBySpiderPaginationId(
             @RequestParam("spiderPaginationId") String spiderPaginationId) {
         return spiderPaginationDataService.getBySpiderPaginationId(spiderPaginationId);
     }
 
-    @GetMapping("/spider-pagination-data")
+    @GetMapping
     public SpiderPaginationDataTO getById(@RequestParam("spiderPaginationId") String spiderPaginationId,
             @RequestParam("groupId") String groupId,
             @RequestParam("dataId") String dataId) {
         return spiderPaginationDataService.getById(spiderPaginationId, groupId, dataId);
     }
 
-    @PostMapping("/spider-pagination-data/update")
+    @PostMapping("/update")
     public void update(@RequestBody SpiderPaginationDataTO req) {
         spiderPaginationDataService.update(req);
     }
 
-    @DeleteMapping("/spider-pagination-data/delete")
+    @DeleteMapping("/delete")
     public void delete(@RequestParam("spiderPaginationId") String spiderPaginationId,
             @RequestParam("groupId") String groupId,
             @RequestParam("dataId") String dataId) {
         spiderPaginationDataService.delete(spiderPaginationId, groupId, dataId);
     }
 
-    @DeleteMapping("/spider-pagination-data/delete-by-spider-pagination-id")
+    @DeleteMapping("/delete-by-spider-pagination-id")
     public void deleteBySpiderPaginationId(@RequestParam("spiderPaginationId") String spiderPaginationId) {
         spiderPaginationDataService.deleteBySpiderPaginationId(spiderPaginationId);
     }
 
-    @GetMapping("/spider-pagination-data/in-use")
+    @GetMapping("/in-use")
     public boolean inUse(@RequestParam("spiderPaginationId") String spiderPaginationId,
             @RequestParam("groupId") String groupId,
             @RequestParam("dataId") String dataId) {

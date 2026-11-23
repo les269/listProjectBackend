@@ -9,32 +9,32 @@ import java.util.List;
 
 @CrossOrigin("*")
 @RestController
-@RequestMapping("api")
+@RequestMapping("/api/setting")
 @RequiredArgsConstructor
 public class SettingController {
     private final SettingService settingService;
 
-    @GetMapping("/setting/all")
+    @GetMapping("/all")
     List<SettingTO> getAll() {
         return settingService.getAll();
     }
 
-    @PostMapping("/setting/update")
+    @PostMapping("/update")
     void update(@RequestBody SettingTO req) {
         settingService.update(req);
     }
 
-    @PostMapping("/setting/update/all")
+    @PostMapping("/update/all")
     void update(@RequestBody List<SettingTO> req) {
         settingService.updateAll(req);
     }
 
-    @GetMapping("/setting/get-by-name")
+    @GetMapping("/get-by-name")
     SettingTO getByName(@RequestParam("name") String name){
         return settingService.getByName(name);
     }
 
-    @PostMapping("/setting/changeDatabase")
+    @PostMapping("/changeDatabase")
     void changeDatabase(@RequestBody SettingTO req) {
         settingService.changeDatabase(req);
     }

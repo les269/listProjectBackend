@@ -14,7 +14,7 @@ import com.lsb.listProjectBackend.config.datasource.DynamicDataSourceRefresher;
 
 @CrossOrigin("*")
 @RestController
-@RequestMapping("api")
+@RequestMapping("/api/sys")
 @RequiredArgsConstructor
 public class SysController {
     private final JdbcTemplate jdbcTemplate;
@@ -24,7 +24,7 @@ public class SysController {
      * 檢查 local DB（local.sqlite）是否存活。
      * 使用預設 JdbcTemplate，綁定 @Primary 的 local DataSource。
      */
-    @GetMapping("/sys/is-alive")
+    @GetMapping("/is-alive")
     public ResponseEntity<String> isAlive() {
         try {
             jdbcTemplate.queryForObject("SELECT 1", Integer.class);
@@ -38,7 +38,7 @@ public class SysController {
      * 依 local DB 的 {@code database_config} 重新註冊 dynamic 資料庫 targets。
      * {@code database_config} 變動後可呼叫此 API 進行 refresh。
      */
-    @PostMapping("/sys/refresh-dynamic-datasource")
+    @PostMapping("/refresh-dynamic-datasource")
     public ResponseEntity<String> refreshDynamicDatasource() {
         try {
             dynamicDataSourceRefresher.refresh();

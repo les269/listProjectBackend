@@ -16,32 +16,32 @@ import java.util.List;
 
 @CrossOrigin("*")
 @RestController
-@RequestMapping("api")
+@RequestMapping("/api/spider-config")
 @RequiredArgsConstructor
 public class SpiderConfigController {
     private final SpiderConfigService spiderConfigService;
 
-    @GetMapping("/spider-config/all")
+    @GetMapping("/all")
     public List<SpiderConfigTO> getAllConfig() {
         return spiderConfigService.getAll();
     }
 
-    @GetMapping("/spider-config")
+    @GetMapping
     public SpiderConfigTO getConfig(@RequestParam("spiderId") String spiderId) {
         return spiderConfigService.getById(spiderId);
     }
 
-    @PostMapping("/spider-config/update")
+    @PostMapping("/update")
     public void updateConfig(@RequestBody SpiderConfigTO req) {
         spiderConfigService.update(req);
     }
 
-    @DeleteMapping("/spider-config/delete")
+    @DeleteMapping("/delete")
     public void deleteConfig(@RequestParam("spiderId") String spiderId) {
         spiderConfigService.delete(spiderId);
     }
 
-    @GetMapping("/spider-config/in-use")
+    @GetMapping("/in-use")
     public boolean isConfigInUse(@RequestParam("spiderId") String spiderId) {
         return spiderConfigService.exists(spiderId);
     }

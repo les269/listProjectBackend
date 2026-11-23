@@ -12,59 +12,59 @@ import java.util.Map;
 
 @CrossOrigin("*")
 @RestController
-@RequestMapping("api")
+@RequestMapping("/api/dataset")
 @RequiredArgsConstructor
 public class DatasetController {
     private final DatasetService datasetService;
 
-    @GetMapping("/dataset/get")
+    @GetMapping("/get")
     DatasetTO getDataset(@RequestParam("name") String name) {
         return datasetService.getDataset(name);
     }
 
-    @GetMapping("/dataset/get-data")
+    @GetMapping("/get-data")
     DatasetDataTO getDatasetDataByName(@RequestParam("name") String name) {
         return datasetService.getDatasetDataByName(name);
     }
 
-    @GetMapping("/dataset/exist")
+    @GetMapping("/exist")
     boolean existDataset(@RequestParam("name") String name) {
         return datasetService.existDataset(name);
     }
 
-    @GetMapping("/dataset/all")
+    @GetMapping("/all")
     List<DatasetTO> getAllDataset() {
         return datasetService.getAllDataset();
     }
 
-    @PostMapping("/dataset/update")
+    @PostMapping("/update")
     void updateDataset(@RequestBody DatasetTO req) {
         datasetService.updateDataset(req);
     }
 
-    @DeleteMapping("/dataset/delete")
+    @DeleteMapping("/delete")
     void deleteDataset(@RequestParam("name") String name) {
         datasetService.deleteDataset(name);
     }
 
-    @GetMapping("/dataset/refresh")
+    @GetMapping("/refresh")
     void refreshData(@RequestParam("name") String name) throws Exception {
         datasetService.refreshData(name);
     }
 
-    @PostMapping("/dataset/name-list/refresh")
+    @PostMapping("/name-list/refresh")
     void refreshDataByNameList(@RequestBody List<String> nameList) throws Exception {
         for (var name : nameList.stream().distinct().toList()) {
             datasetService.refreshData(name);
         }
     }
 
-    @PostMapping("/dataset/name-list/get-data")
+    @PostMapping("/name-list/get-data")
     List<DatasetDataTO> getDatasetDataByNameList(@RequestBody List<String> nameList)  {
         return datasetService.getDatasetDataByNameList(nameList.stream().distinct().toList());
     }
 
-    @PostMapping("/dataset/quick-refresh")
+    @PostMapping("/quick-refresh")
     Map<String,Object> quickRefresh(@RequestBody DatasetQuickRefreshTO to) throws Exception {
         return datasetService.quickRefresh(to);
     }

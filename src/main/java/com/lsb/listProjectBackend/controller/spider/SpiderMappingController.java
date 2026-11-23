@@ -16,49 +16,49 @@ import java.util.List;
 
 @CrossOrigin("*")
 @RestController
-@RequestMapping("api")
+@RequestMapping("/api/spider-mapping")
 @RequiredArgsConstructor
 public class SpiderMappingController {
     private final SpiderMappingService spiderMappingService;
 
-    @GetMapping("/spider-mapping/all")
+    @GetMapping("/all")
     public List<SpiderMappingTO> getAllMapping() {
         return spiderMappingService.getAll();
     }
 
-    @GetMapping("/spider-mapping/by-spider-id")
+    @GetMapping("/by-spider-id")
     public List<SpiderMappingTO> getMappingBySpiderId(@RequestParam("spiderId") String spiderId) {
         return spiderMappingService.getBySpiderId(spiderId);
     }
 
-    @GetMapping("/spider-mapping")
+    @GetMapping
     public SpiderMappingTO getMapping(@RequestParam("spiderId") String spiderId,
             @RequestParam("executionOrder") Integer executionOrder) {
         return spiderMappingService.getById(spiderId, executionOrder);
     }
 
-    @PostMapping("/spider-mapping/update")
+    @PostMapping("/update")
     public void updateMapping(@RequestBody SpiderMappingTO req) {
         spiderMappingService.update(req);
     }
 
-    @PostMapping("/spider-mapping/update-list")
+    @PostMapping("/update-list")
     public void updateMappingList(@RequestBody List<SpiderMappingTO> req) {
         spiderMappingService.updateList(req);
     }
 
-    @DeleteMapping("/spider-mapping/delete")
+    @DeleteMapping("/delete")
     public void deleteMapping(@RequestParam("spiderId") String spiderId,
             @RequestParam("executionOrder") Integer executionOrder, @RequestParam("spiderItemId") String spiderItemId) {
         spiderMappingService.delete(spiderId, executionOrder, spiderItemId);
     }
 
-    @DeleteMapping("/spider-mapping/delete-by-spider-id")
+    @DeleteMapping("/delete-by-spider-id")
     public void deleteMappingBySpiderId(@RequestParam("spiderId") String spiderId) {
         spiderMappingService.deleteBySpiderId(spiderId);
     }
 
-    @GetMapping("/spider-mapping/in-use-by-spider-item-id")
+    @GetMapping("/in-use-by-spider-item-id")
     public boolean inUseBySpiderItemId(@RequestParam("spiderItemId") String spiderItemId) {
         return spiderMappingService.inUseBySpiderItemId(spiderItemId);
     }

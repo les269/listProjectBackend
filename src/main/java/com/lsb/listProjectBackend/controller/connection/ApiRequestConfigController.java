@@ -11,42 +11,42 @@ import tools.jackson.databind.JsonNode;
 
 @CrossOrigin("*")
 @RestController
-@RequestMapping("api")
+@RequestMapping("/api/api-config")
 @RequiredArgsConstructor
 public class ApiRequestConfigController {
     private final ApiRequestConfigService apiRequestConfigService;
 
-    @GetMapping("/api-config/exist")
+    @GetMapping("/exist")
     public boolean isExist(@RequestParam("apiId") String apiId){
         return this.apiRequestConfigService.isExist(apiId);
     }
 
-    @GetMapping("/api-config/all")
+    @GetMapping("/all")
     public List<ApiRequestConfigTO> getAll(){
         return this.apiRequestConfigService.getAll();
     }
 
-    @PostMapping("/api-config/all/id")
+    @PostMapping("/all/id")
     public List<ApiRequestConfigTO> getListById(@RequestBody List<String> apiIds){
         return this.apiRequestConfigService.getListById(apiIds);
     }
 
-    @GetMapping("/api-config/id")
+    @GetMapping("/id")
     public ApiRequestConfigTO getById(@RequestParam("apiId") String apiId){
         return this.apiRequestConfigService.getById(apiId);
     }
 
-    @PostMapping("/api-config/update")
+    @PostMapping("/update")
     public void update(@RequestBody ApiRequestConfigTO apiRequestConfigTO){
         this.apiRequestConfigService.update(apiRequestConfigTO);
     }
 
-    @PostMapping("/api-config/singalCallApi")
+    @PostMapping("/singalCallApi")
     public JsonNode singalCallApi(@RequestBody SingalCallApiReqTO request) throws Exception {
         return this.apiRequestConfigService.singalCallApi(request);
     }
 
-    @PostMapping("/api-config/delete")
+    @PostMapping("/delete")
     public void delete(@RequestBody ApiRequestConfigTO apiRequestConfigTO){
         this.apiRequestConfigService.delete(apiRequestConfigTO);
     }

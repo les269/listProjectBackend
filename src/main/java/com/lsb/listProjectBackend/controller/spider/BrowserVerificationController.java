@@ -11,7 +11,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("api/spider/browser-verification")
+@RequestMapping("/api/spider/browser-verification")
 @CrossOrigin(origins = "${spider.browser-verification.frontend-origin:http://localhost:5173}")
 @RequiredArgsConstructor
 @Tag(name = "Browser verification", description = "持久化 profile 人工驗證：開窗 → 查詢瀏覽器狀態 → 測試 Jsoup → 儲存。視窗開在後端電腦。")

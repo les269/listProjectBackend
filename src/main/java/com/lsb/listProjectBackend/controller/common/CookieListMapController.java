@@ -17,45 +17,45 @@ import java.util.List;
 
 @CrossOrigin("*")
 @RestController
-@RequestMapping("api")
+@RequestMapping("/api/cookie-list/map")
 @RequiredArgsConstructor
 public class CookieListMapController {
     private final CookieListMapService cookieListMapService;
 
-    @GetMapping("/cookie-list/map/by-id-and-type")
+    @GetMapping("/by-id-and-type")
     public CookieListMapTO getMapByIdAndType(@RequestParam("refId") String refId,
             @RequestParam("type") Global.CookieListMapType type) {
         return cookieListMapService.getMapByIdAndType(refId, type);
     }
 
-    @GetMapping("/cookie-list/map/by-ref-id")
+    @GetMapping("/by-ref-id")
     public List<CookieListMapTO> getMapByRefId(@RequestParam("refId") String refId) {
         return cookieListMapService.getMapByRefId(refId);
     }
 
-    @GetMapping("/cookie-list/map/by-type")
+    @GetMapping("/by-type")
     public List<CookieListMapTO> getMapByType(@RequestParam("type") Global.CookieListMapType type) {
         return cookieListMapService.getMapByType(type);
     }
 
-    @PostMapping("/cookie-list/map/update")
+    @PostMapping("/update")
     public void updateMap(@RequestBody CookieListMapTO req) {
         cookieListMapService.updateMap(req);
     }
 
-    @DeleteMapping("/cookie-list/map/delete")
+    @DeleteMapping("/delete")
     public void deleteMap(@RequestParam("refId") String refId,
             @RequestParam("type") Global.CookieListMapType type) {
         cookieListMapService.deleteMap(refId, type);
     }
 
-    @GetMapping("/cookie-list/map/in-use")
+    @GetMapping("/in-use")
     public boolean isInUseMap(@RequestParam("cookieId") String cookieId,
             @RequestParam("type") Global.CookieListMapType type) {
         return cookieListMapService.isInUseMap(cookieId, type);
     }
 
-    @GetMapping("/cookie-list/map/cookie-in-use")
+    @GetMapping("/cookie-in-use")
     public boolean cookieIsInUse(@RequestParam("cookieId") String cookieId) {
         return cookieListMapService.cookieIsInUse(cookieId);
     }

@@ -9,37 +9,37 @@ import java.util.List;
 
 @CrossOrigin("*")
 @RestController
-@RequestMapping("api")
+@RequestMapping("/api/group-dataset")
 @RequiredArgsConstructor
 public class GroupDatasetController {
     private final GroupDatasetService groupDatasetService;
 
-    @GetMapping("/group-dataset/get")
+    @GetMapping("/get")
     GroupDatasetTO getGroupDataset(@RequestParam("groupName") String groupName) {
         return groupDatasetService.getGroupDataset(groupName);
     }
 
-    @GetMapping("/group-dataset/exist")
+    @GetMapping("/exist")
     boolean existGroupDataset(@RequestParam("groupName") String groupName) {
         return groupDatasetService.existGroupDataset(groupName);
     }
 
-    @GetMapping("/group-dataset/all")
+    @GetMapping("/all")
     List<GroupDatasetTO> getAllGroupDataset() {
         return groupDatasetService.getAllGroupDataset();
     }
 
-    @PostMapping("/group-dataset/update")
+    @PostMapping("/update")
     void updateGroupDataset(@RequestBody GroupDatasetTO req) {
         groupDatasetService.updateGroupDataset(req);
     }
 
 
-    @DeleteMapping("/group-dataset/delete")
+    @DeleteMapping("/delete")
     void deleteGroupDataset(@RequestParam("groupName") String groupName) {
         groupDatasetService.deleteGroupDataset(groupName);
     }
-    @GetMapping("/group-dataset/refresh")
+    @GetMapping("/refresh")
     void refreshGroupDataset(@RequestParam("groupName") String groupName) {
         groupDatasetService.refreshGroupDataset(groupName);
     }

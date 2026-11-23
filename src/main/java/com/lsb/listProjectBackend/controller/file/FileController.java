@@ -18,10 +18,10 @@ import java.util.stream.Collectors;
 
 @CrossOrigin("*")
 @RestController
-@RequestMapping("api")
+@RequestMapping("/api/file")
 public class FileController {
 
-    @PostMapping("/file/delete")
+    @PostMapping("/delete")
     public boolean delete(@RequestBody FileReqTO fileRequest) throws Exception {
         File file = new File(fileRequest.path());
         if (fileRequest.path().startsWith("\\\\")) {
@@ -35,7 +35,7 @@ public class FileController {
         }
     }
 
-    @PostMapping("/file/move-to")
+    @PostMapping("/move-to")
     public boolean moveTo(@RequestBody FileReqTO fileRequest) {
         File file = new File(fileRequest.path());
         File moveTo = new File(fileRequest.moveTo());
@@ -48,7 +48,7 @@ public class FileController {
         return file.renameTo(new File(fileRequest.moveTo() + "\\" + file.getName()));
     }
 
-    @PostMapping("/file/file-exist")
+    @PostMapping("/file-exist")
     public Map<String, Boolean> fileExist(@RequestBody List<FileExistReqTO> fileExistRequestList) {
         if (fileExistRequestList == null || fileExistRequestList.isEmpty()) {
             return Collections.emptyMap();
@@ -61,7 +61,7 @@ public class FileController {
                         (a, b) -> a));
     }
 
-    @PostMapping("/file/open-file")
+    @PostMapping("/open-file")
     public boolean openHGame(@RequestBody FileReqTO request) throws Exception {
         File directory = new File(request.path());
         if (directory.isDirectory()) {
