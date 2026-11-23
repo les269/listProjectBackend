@@ -5,7 +5,6 @@ import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.springframework.stereotype.Service;
 
-import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
@@ -38,7 +37,6 @@ public class ImageServiceImpl implements ImageService {
 
             SSLContext sslContext = SSLContext.getInstance("TLS");
             sslContext.init(null, trustAllCerts, new SecureRandom());
-            HttpsURLConnection.setDefaultSSLSocketFactory(sslContext.getSocketFactory());
             var uri = new URI(url);
             Connection connection = Jsoup.connect(url)
                     .ignoreContentType(true)
@@ -49,7 +47,7 @@ public class ImageServiceImpl implements ImageService {
                     .header("User-Agent",
                             "Mozilla/5.0 (Linux; Android 4.2.1; Nexus 7 Build/JOP40D) AppleWebKit/535.19 (KHTML, like Gecko) Chrome/18.0.1025.166  Safari/535.19");
             if (url.startsWith("https://")) {
-                connection.sslSocketFactory(HttpsURLConnection.getDefaultSSLSocketFactory());
+                connection.sslContext(sslContext);
             }
             if (cookie != null) {
                 connection.cookies(cookie);
