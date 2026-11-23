@@ -66,6 +66,9 @@ public class DatabaseConfigServiceImpl implements DatabaseConfigService {
         try (Connection conn = "sqlite".equalsIgnoreCase(type)
                 ? DriverManager.getConnection(jdbcUrl)
                 : DriverManager.getConnection(jdbcUrl, to.username(), to.password())) {
+            if (!conn.isValid(5)) {
+                return new ConnectionTestResultTO(false, "Connection validation failed");
+            }
             return new ConnectionTestResultTO(true, "Connection successful");
         } catch (SQLException e) {
             return new ConnectionTestResultTO(false, e.getMessage());
