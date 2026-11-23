@@ -7,6 +7,8 @@ import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 import com.lsb.listProjectBackend.entity.local.Setting;
@@ -34,6 +36,8 @@ import com.lsb.listProjectBackend.utils.Global;
  */
 @Aspect
 @Component
+// Set the routing key before transaction advice acquires a connection.
+@Order(Ordered.HIGHEST_PRECEDENCE + 10)
 public class DynamicDatabaseAspect {
 
     private static final Logger log = LoggerFactory.getLogger(DynamicDatabaseAspect.class);
@@ -53,7 +57,7 @@ public class DynamicDatabaseAspect {
      * @param pjp 被攔截方法的執行點，呼叫 {@code pjp.proceed()} 才會真正執行原始方法
      * @return 原始方法的回傳值
      */
-    @Around("@within(com.lsb.listProjectBackend.aop.UseDynamic) || @annotation(com.lsb.listProjectBackend.aop.UseDynamic) || @annotation(com.lsb.listProjectBackend.aop.UseDynamicTx)")
+    @Around("@within(com.lsb.listProjectBackend.aop.UseDynamic) || @within(com.lsb.listProjectBackend.aop.UseDynamicTx) || @annotation(com.lsb.listProjectBackend.aop.UseDynamic) || @annotation(com.lsb.listProjectBackend.aop.UseDynamicTx)")
     public Object switchDatabase(ProceedingJoinPoint pjp) throws Throwable {
         String dbKey = resolveCurrentDatabaseKey();
         DynamicDataSourceContextHolder.setDataSourceKey(dbKey);

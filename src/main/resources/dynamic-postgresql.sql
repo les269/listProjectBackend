@@ -1,3 +1,21 @@
+create TABLE IF NOT EXISTS search_bookmark (
+    id TEXT NOT NULL,
+    name TEXT NOT NULL,
+    created_time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (id)
+);
+
+create TABLE IF NOT EXISTS search_bookmark_item (
+    id TEXT NOT NULL,
+    value TEXT NOT NULL,
+    seq INTEGER,
+    created_time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (id, value),
+    FOREIGN KEY (id) REFERENCES search_bookmark(id)
+);
+
 create TABLE IF NOT EXISTS theme_header (
     header_id TEXT NOT NULL,
     name TEXT NOT NULL,

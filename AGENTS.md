@@ -21,6 +21,11 @@ On Unix, substitute `./gradlew` for `.\gradlew.bat`.
 ## Coding Style & Naming Conventions
 Use UTF-8, four-space indentation, `PascalCase` class names, and `camelCase` methods and fields. Follow nearby formatting. Use established suffixes: `Controller`, `Service`/`ServiceImpl`, `Repository`, `Mapper`, and `TO`. Prefer constructor injection, matching existing Lombok `@RequiredArgsConstructor` usage. Keep persistence mapping in MapStruct mappers. No formatter or lint task is configured.
 
+## Database Operations in Loops
+- 禁止在任何迴圈結構中操作資料庫，包含 `for`、enhanced `for`、`while`、`do-while`、`forEach`、Stream／平行 Stream 的回呼，以及迴圈內呼叫的方法所間接執行的 DB 操作。
+- 禁止將 DB 查詢放在迴圈的初始化、條件、更新或資料來源運算式中（例如 `for (var item : repository.findAll())`）。所有查詢必須先在迴圈外完成，再以記憶體中的資料進行迭代。
+- 迴圈內僅處理記憶體資料；需要新增、修改或刪除資料時，先收集變更，再於迴圈外使用批次操作。避免在迴圈內觸發 JPA lazy loading 等隱含查詢。
+
 ## Testing Guidelines
 Tests use JUnit Jupiter, Spring Boot Test, and Mockito. Name classes `*Test` and methods after observable behavior. Cover changed behavior, mapping contracts, and relevant edge cases; no coverage threshold is configured. Keep tests independent of developer databases and external services. Browser smoke tests require installed Google Chrome and PowerShell `$env:PLAYWRIGHT_SMOKE_TEST='true'` before running tests.
 

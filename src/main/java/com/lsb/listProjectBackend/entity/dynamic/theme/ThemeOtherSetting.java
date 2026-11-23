@@ -17,4 +17,5 @@ public class ThemeOtherSetting {
     private String quickRefresh;
     private Global.QuickRefreshType quickRefreshType;
     private String useSpider;
+    private String searchBookmarkId;
 }
