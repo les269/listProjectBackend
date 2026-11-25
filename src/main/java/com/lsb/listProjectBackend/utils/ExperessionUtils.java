@@ -36,6 +36,8 @@ public class ExperessionUtils {
 
     static {
         try {
+            registerFn("nowMillis");
+            registerFn("nowSeconds");
             registerFn("abs", Object.class);
             registerFn("max", Object.class, Object.class);
             registerFn("min", Object.class, Object.class);

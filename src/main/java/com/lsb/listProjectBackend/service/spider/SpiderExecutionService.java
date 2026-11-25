@@ -44,11 +44,27 @@ public class SpiderExecutionService {
     public void executeRequest(String url, Global.ExtractionRuleMode mode, List<ExtractionRule> extractionRules,
             HeadersTO headers, CookieListTO cookies, DocumentContext result, Long requestIntervalMs)
             throws IOException, InterruptedException {
+        executeRequest(url, mode, extractionRules, headers, cookies, result, requestIntervalMs, List.of());
+    }
+
+    public void executeRequest(String url, Global.ExtractionRuleMode mode, List<ExtractionRule> extractionRules,
+            HeadersTO headers, CookieListTO cookies, DocumentContext result, Long requestIntervalMs,
+            List<String> initialKeys) throws IOException, InterruptedException {
+        if (Utils.isBlank(url)) {
+            Map<String, String> headerMap = headers == null ? Map.of() : getHeadersMap(headers.list(), result);
+            Map<String, String> cookieMap = cookies == null ? Map.of() : getCookieMap(cookies.list(), result);
+            switch (mode) {
+                case SELECT -> useCssSelect("<html><head></head><body></body></html>", cookieMap, headerMap,
+                        extractionRules, result, initialKeys);
+                case JSON_PATH -> useJsonPath("{}", cookieMap, headerMap, extractionRules, result, initialKeys);
+            }
+            return;
+        }
         Connection connection = getConnection(url);
         setupHeaders(connection, headers, result);
         setupCookies(connection, cookies, result);
         waitForRequestInterval(requestIntervalMs);
-        useExtraction(connection, mode, extractionRules, result);
+        useExtraction(connection, mode, extractionRules, result, initialKeys);
     }
 
     public void waitForRequestInterval(Long requestIntervalMs) throws InterruptedException {
@@ -65,18 +81,23 @@ public class SpiderExecutionService {
 
     public void useExtraction(Connection connection, Global.ExtractionRuleMode mode,
             List<ExtractionRule> extractionRules, DocumentContext result) throws IOException {
+        useExtraction(connection, mode, extractionRules, result, List.of());
+    }
+
+    public void useExtraction(Connection connection, Global.ExtractionRuleMode mode,
+            List<ExtractionRule> extractionRules, DocumentContext result, List<String> initialKeys) throws IOException {
         Document doc;
         Request req;
         switch (mode) {
             case Global.ExtractionRuleMode.SELECT:
                 doc = connection.get();
                 req = connection.request();
-                useCssSelect(doc.html(), req.cookies(), req.headers(), extractionRules, result);
+                useCssSelect(doc.html(), req.cookies(), req.headers(), extractionRules, result, initialKeys);
                 break;
             case Global.ExtractionRuleMode.JSON_PATH:
                 doc = connection.ignoreContentType(true).get();
                 req = connection.request();
-                useJsonPath(doc.text(), req.cookies(), req.headers(), extractionRules, result);
+                useJsonPath(doc.text(), req.cookies(), req.headers(), extractionRules, result, initialKeys);
                 break;
         }
     }
@@ -84,6 +105,11 @@ public class SpiderExecutionService {
     public void useCssSelect(String html, Map<String, String> cookies, Map<String, String> headers,
             List<ExtractionRule> extractionRules,
             DocumentContext result) {
+        useCssSelect(html, cookies, headers, extractionRules, result, List.of());
+    }
+
+    public void useCssSelect(String html, Map<String, String> cookies, Map<String, String> headers,
+            List<ExtractionRule> extractionRules, DocumentContext result, List<String> initialKeys) {
         try {
             Document doc = Jsoup.parse(html);
             for (ExtractionRule extractionRule : extractionRuleService.sortedRules(extractionRules)) {
@@ -97,6 +123,7 @@ public class SpiderExecutionService {
                 var context = ValuePipelineContext.builder()
                         .result(result)
                         .elements(elements)
+                        .initialKeys(initialKeys)
                         .cookies(cookies != null ? cookies : new HashMap<>())
                         .headers(headers != null ? headers : new HashMap<>())
                         .build();
@@ -116,15 +143,22 @@ public class SpiderExecutionService {
     public void useJsonPath(String json, Map<String, String> cookies, Map<String, String> headers,
             List<ExtractionRule> extractionRules,
             DocumentContext result) {
+        useJsonPath(json, cookies, headers, extractionRules, result, List.of());
+    }
+
+    public void useJsonPath(String json, Map<String, String> cookies, Map<String, String> headers,
+            List<ExtractionRule> extractionRules, DocumentContext result, List<String> initialKeys) {
         for (ExtractionRule extractionRule : extractionRuleService.sortedRules(extractionRules)) {
             if (!extractionRuleService.checkCondition(extractionRule, result)) {
                 continue;
             }
+            var ctx = JsonPath.parse(json);
             var pipelines = extractionRule.getPipelines();
-            Object pipelineValue = JsonPath.read(json, extractionRule.getJsonPath());
+            Object pipelineValue = JsonUtils.getValueOrNull(ctx, extractionRule.getJsonPath());
             log.info("pipeline value before pipeline: {}", pipelineValue);
             var context = ValuePipelineContext.builder()
                     .result(result)
+                    .initialKeys(initialKeys)
                     .cookies(cookies != null ? cookies : new HashMap<>())
                     .headers(headers != null ? headers : new HashMap<>())
                     .build();

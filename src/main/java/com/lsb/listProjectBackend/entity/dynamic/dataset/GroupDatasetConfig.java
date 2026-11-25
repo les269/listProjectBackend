@@ -13,7 +13,7 @@ public class GroupDatasetConfig {
     private String imageSaveFolder;
     @Enumerated(EnumType.STRING)
     private Global.GroupDatasetConfigType type;
-    private List<GroupDatasetScrapy> groupDatasetScrapyList;
+    private List<GroupDatasetSpider> groupDatasetSpiderList;
     private List<GroupDatasetField> groupDatasetFieldList;
     private List<GroupDatasetApi> groupDatasetApiList;
 }

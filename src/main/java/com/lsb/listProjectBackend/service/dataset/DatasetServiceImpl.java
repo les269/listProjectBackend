@@ -1,10 +1,7 @@
 package com.lsb.listProjectBackend.service.dataset;
 
-import com.google.common.util.concurrent.RateLimiter;
 import com.lsb.listProjectBackend.aop.UseDynamic;
 import com.lsb.listProjectBackend.domain.dataset.*;
-import com.lsb.listProjectBackend.domain.scrapy.ScrapyConfigTO;
-import com.lsb.listProjectBackend.domain.scrapy.ScrapyReqTO;
 import com.lsb.listProjectBackend.entity.dynamic.common.ReplaceValueMap;
 import com.lsb.listProjectBackend.entity.dynamic.dataset.Dataset;
 import com.lsb.listProjectBackend.entity.dynamic.dataset.DatasetConfig;
@@ -12,8 +9,13 @@ import com.lsb.listProjectBackend.entity.dynamic.dataset.DatasetData;
 import com.lsb.listProjectBackend.entity.dynamic.dataset.GroupDataset;
 import com.lsb.listProjectBackend.entity.dynamic.dataset.GroupDatasetConfig;
 import com.lsb.listProjectBackend.entity.dynamic.dataset.GroupDatasetData;
+import com.lsb.listProjectBackend.entity.dynamic.dataset.GroupDatasetDataPK;
 import com.lsb.listProjectBackend.entity.dynamic.dataset.GroupDatasetField;
-import com.lsb.listProjectBackend.entity.dynamic.dataset.GroupDatasetScrapy;
+import com.lsb.listProjectBackend.entity.dynamic.dataset.GroupDatasetSpider;
+import com.lsb.listProjectBackend.domain.spider.SpiderReqTO;
+import com.lsb.listProjectBackend.service.spider.SpiderService;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.core.type.TypeReference;
 import com.lsb.listProjectBackend.mapper.dataset.DatasetDataMapper;
 import com.lsb.listProjectBackend.mapper.dataset.DatasetMapper;
 import com.lsb.listProjectBackend.mapper.dataset.GroupDatasetDataMapper;
@@ -24,7 +26,6 @@ import com.lsb.listProjectBackend.repository.dynamic.dataset.GroupDatasetReposit
 import com.lsb.listProjectBackend.repository.dynamic.common.ReplaceValueMapRepository;
 import com.lsb.listProjectBackend.service.file.ImageService;
 import com.lsb.listProjectBackend.service.scrapy.ScrapyPaginationService;
-import com.lsb.listProjectBackend.service.scrapy.ScrapyService;
 import com.lsb.listProjectBackend.utils.Global;
 import com.lsb.listProjectBackend.utils.Utils;
 import lombok.RequiredArgsConstructor;
@@ -42,11 +43,12 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class DatasetServiceImpl implements DatasetService {
+    private static final ObjectMapper objectMapper = new ObjectMapper();
     private final DatasetRepository datasetRepository;
     private final GroupDatasetDataRepository groupDatasetDataRepository;
     private final GroupDatasetRepository groupDatasetRepository;
     private final GroupDatasetService groupDatasetService;
-    private final ScrapyService scrapyService;
+    private final SpiderService spiderService;
     private final ScrapyPaginationService scrapyPaginationService;
     private final DatasetDataRepository datasetDataRepository;
     private final ImageService imageService;
@@ -104,15 +106,16 @@ public class DatasetServiceImpl implements DatasetService {
         // all 把當前group所擁有資料放入資料集
         switch (configDatasetType) {
             case all -> {
+                var groupConfig = getGroupDatasetConfig(groupName);
                 var data = groupDatasetDataRepository.findByGroupName(groupName)
                         .stream()
-                        .map(GroupDatasetData::getJson).toList();
+                        .map(row -> datasetRowJson(row, groupConfig)).toList();
                 DatasetData datasetData = new DatasetData();
                 datasetData.setDatasetName(dataset.getName());
                 datasetData.setData(data);
                 datasetDataRepository.save(datasetData);
             }
-            case file, folder, text, pagination -> doScrapy(name, datasetConfig, configDatasetType);
+            case file, folder, text, pagination -> doSpider(name, datasetConfig, configDatasetType);
         }
 
         endTime = System.currentTimeMillis();
@@ -137,20 +140,35 @@ public class DatasetServiceImpl implements DatasetService {
         if (dataset == null) {
             return null;
         }
-        ScrapyReqTO scrapyReqTO = new ScrapyReqTO(to.scrapyName(), to.params(), to.url());
-
         // 1.爬蟲獲取資料
-        Map<String, Object> json;
-        if (Global.QuickRefreshType.url.equals(to.quickRefreshType())) {
-            json = scrapyService.scrapyByUrl(scrapyReqTO);
-        } else {
-            json = scrapyService.scrapyByJson(scrapyReqTO);
+        if (Utils.isBlank(to.spiderId())) {
+            throw new IllegalArgumentException("spiderId is required");
+        }
+        var groupName = dataset.getConfig().getGroupName();
+        var groupConfig = getGroupDatasetConfig(groupName);
+        if (groupConfig == null || Utils.isBlank(groupConfig.getByKey())
+                || !groupConfig.getByKey().equals(byKey) || Utils.isBlank(primeKey)) {
+            throw new IllegalArgumentException("A valid primeKey and the group's byKey are required");
+        }
+        String response = Global.QuickRefreshType.url.equals(to.quickRefreshType())
+                ? spiderService.executeByUrl(to.spiderId(), to.url())
+                : spiderService.executeByPrimeKeyList(to.spiderId(), to.params());
+        Map<String, Object> responseJson = objectMapper.readValue(response, new TypeReference<Map<String, Object>>() {});
+        if (responseJson == null) {
+            throw new IllegalArgumentException("Spider response must be a JSON object");
         }
 
         // 2.根據primeKey跟group name去更新 group_dataset_data
-        GroupDatasetData groupDatasetData = new GroupDatasetData();
-        groupDatasetData.setGroupName(dataset.getConfig().getGroupName());
-        groupDatasetData.setPrimeValue(to.primeKey());
+        GroupDatasetData groupDatasetData = groupDatasetDataRepository
+                .findById(new GroupDatasetDataPK(groupName, primeKey)).orElseGet(GroupDatasetData::new);
+        Map<String, Object> json = new LinkedHashMap<>();
+        if (groupDatasetData.getJson() != null) {
+            json.putAll(groupDatasetData.getJson());
+        }
+        json.putAll(responseJson);
+        json.put(byKey, primeKey);
+        groupDatasetData.setGroupName(groupName);
+        groupDatasetData.setPrimeValue(primeKey);
         groupDatasetData.setJson(json);
         groupDatasetDataRepository.save(groupDatasetData);
 
@@ -191,7 +209,7 @@ public class DatasetServiceImpl implements DatasetService {
         }
     }
 
-    private void doScrapy(String datasetName, DatasetConfig datasetConfig, Global.DatasetConfigType type)
+    private void doSpider(String datasetName, DatasetConfig datasetConfig, Global.DatasetConfigType type)
             throws Exception {
         // 群組名稱
         String groupName = datasetConfig.getGroupName();
@@ -255,30 +273,36 @@ public class DatasetServiceImpl implements DatasetService {
                     .filter(x -> keys.contains(x.getPrimeValue()))
                     .toList());
         }
-        // 檢查是否有這 GroupDataset, 並判斷該 GroupDataset 的 Scrapy 是否有可預設使用的爬蟲
+        // 使用群組設定中的預設 Spider。
         var groupDatasetOptional = groupDatasetRepository.findById(groupName);
-        ScrapyConfigTO scrapyConfigTO = getDefaultScrapy(groupName);
-        if (groupDatasetOptional.isPresent() && scrapyConfigTO != null && !targetList.isEmpty()) {
+        GroupDatasetConfig config = groupDatasetOptional.map(GroupDataset::getConfig).orElse(null);
+        GroupDatasetSpider spider = config != null && config.getType() == Global.GroupDatasetConfigType.spider
+                ? getDefaultSpider(config) : null;
+        if (spider != null && !targetList.isEmpty()) {
             GroupDatasetConfig groupDatasetConfig = groupDatasetOptional.get().getConfig();
             List<GroupDatasetData> saveGroupDataset = new ArrayList<>();
 
-            RateLimiter rateLimiter = RateLimiter.create(2.0);
+            String spiderId = spider.getSpiderId();
+            var requests = targetList.stream()
+                    .map(target -> new SpiderReqTO(spiderId,
+                            type == Global.DatasetConfigType.pagination ? target.getLast() : null, target))
+                    .toList();
+            List<String> spiderResults = spiderService.executeBatch(spiderId, requests);
+
+            int resultIndex = 0;
             for (List<String> target : targetList) {
-                rateLimiter.acquire();
+                log.info("spider key is {}", target.getFirst());
+                Map<String, Object> spiderResult = objectMapper.readValue(spiderResults.get(resultIndex++),
+                        new TypeReference<Map<String, Object>>() {});
 
-                log.info("scrapy key is {}", target.getFirst());
-                Map<String, Object> scrapyResult = type == Global.DatasetConfigType.pagination
-                        ? scrapyService.doScrapyByUrl(target.getLast(), scrapyConfigTO.data())
-                        : scrapyService.doScrapyByJson(target, scrapyConfigTO.data());
-
-                scrapyResult.put(groupDatasetConfig.getByKey(), target.getFirst());
+                spiderResult.put(groupDatasetConfig.getByKey(), target.getFirst());
                 if (type == Global.DatasetConfigType.pagination) {
-                    scrapyResult.put("__item_url", target.getLast());
+                    spiderResult.put("__item_url", target.getLast());
                 }
                 GroupDatasetData groupDatasetData = new GroupDatasetData();
                 groupDatasetData.setGroupName(groupName);
                 groupDatasetData.setPrimeValue(target.getFirst());
-                groupDatasetData.setJson(scrapyResult);
+                groupDatasetData.setJson(spiderResult);
                 saveGroupDataset.add(groupDatasetData);
             }
             groupDatasetDataRepository.saveAll(saveGroupDataset);
@@ -295,8 +319,19 @@ public class DatasetServiceImpl implements DatasetService {
         // 保存資料至 DatasetData
         DatasetData datasetData = new DatasetData();
         datasetData.setDatasetName(datasetName);
-        datasetData.setData(groupDatasetDataList.stream().map(GroupDatasetData::getJson).toList());
+        datasetData.setData(groupDatasetDataList.stream().map(row -> datasetRowJson(row, config)).toList());
         datasetDataRepository.save(datasetData);
+    }
+
+    private Map<String, Object> datasetRowJson(GroupDatasetData row, GroupDatasetConfig config) {
+        Map<String, Object> json = new LinkedHashMap<>();
+        if (row.getJson() != null) {
+            json.putAll(row.getJson());
+        }
+        if (config != null && Utils.isNotBlank(config.getByKey())) {
+            json.put(config.getByKey(), row.getPrimeValue());
+        }
+        return json;
     }
 
     private void setCustomDataForFiles(List<GroupDatasetData> groupDatasetDataList, DatasetConfig datasetConfig) {
@@ -383,17 +418,12 @@ public class DatasetServiceImpl implements DatasetService {
         return null;
     }
 
-    private ScrapyConfigTO getDefaultScrapy(String groupName) {
-        GroupDatasetConfig groupDatasetConfig = getGroupDatasetConfig(groupName);
-        var groupDatasetScrapyOptional = groupDatasetConfig.getGroupDatasetScrapyList()
-                .stream()
-                .filter(GroupDatasetScrapy::isDefault)
-                .findFirst();
-        if (groupDatasetScrapyOptional.isPresent()) {
-            GroupDatasetScrapy groupDatasetScrapy = groupDatasetScrapyOptional.get();
-            return scrapyService.getConfig(groupDatasetScrapy.getName());
+    private GroupDatasetSpider getDefaultSpider(GroupDatasetConfig config) {
+        if (config.getGroupDatasetSpiderList() == null) {
+            return null;
         }
-        return null;
+        return config.getGroupDatasetSpiderList().stream()
+                .filter(GroupDatasetSpider::isDefault).findFirst().orElse(null);
     }
 
     private List<File> getAllFile(DatasetConfig datasetConfig) {

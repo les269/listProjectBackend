@@ -10,6 +10,26 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class ExperessionUtilsTest {
 
+    @Test
+    void nowMillisSupportsArithmeticAndCannotBeOverriddenByVariables() {
+        long before = System.currentTimeMillis() + 60000;
+        Object result = ExperessionUtils.calculateExpression("#nowMillis() + 60000", Map.of("nowMillis", 0));
+        long after = System.currentTimeMillis() + 60000;
+
+        assertInstanceOf(Long.class, result);
+        assertTrue((long) result >= before && (long) result <= after);
+    }
+
+    @Test
+    void nowSecondsReturnsCurrentUnixSeconds() {
+        long before = java.time.Instant.now().getEpochSecond();
+        Object result = ExperessionUtils.calculateExpression("#nowSeconds()", null);
+        long after = java.time.Instant.now().getEpochSecond();
+
+        assertInstanceOf(Long.class, result);
+        assertTrue((long) result >= before && (long) result <= after);
+    }
+
     // ---------- 基本加減乘除 ----------
 
     @Test

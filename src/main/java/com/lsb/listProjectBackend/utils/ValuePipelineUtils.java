@@ -173,6 +173,7 @@ public class ValuePipelineUtils {
                 .extraContext(parent == null ? null : parent.getResult())
                 .cookies(parent == null ? null : parent.getCookies())
                 .headers(parent == null ? null : parent.getHeaders())
+                .initialKeys(parent == null ? null : parent.getInitialKeys())
                 .build();
         for (ExtractObjectField field : fields) {
             Object fieldValue = extractObjectField(field, source, json, mode, child);
@@ -229,6 +230,10 @@ public class ValuePipelineUtils {
             ValuePipelineContext context,
             Elements elements) {
         switch (pipeLine.getType()) {
+            case INITIAL_KEYS:
+                pipelineValue = context == null || context.getInitialKeys() == null
+                        ? List.of() : new ArrayList<>(context.getInitialKeys());
+                break;
             case EXTRACT_OBJECTS:
                 pipelineValue = extractObjects(pipeLine.getExtractObjectsConfig(), pipelineValue, context);
                 break;
@@ -271,6 +276,9 @@ public class ValuePipelineUtils {
                 break;
             // 以模板字串將 List 組合為單一字串
             case COMBINE_TO_STRING:
+                if (pipelineValue == null && elements != null && !elements.isEmpty()) {
+                    pipelineValue = elements.stream().map(Element::text).toList();
+                }
                 var combineToString = pipeLine.getCombineToString();
                 if (pipelineValue instanceof List && Utils.isNotBlank(combineToString)) {
                     pipelineValue = JsonUtils.replaceValueByJsonPath(combineToString, pipelineValue);
@@ -507,7 +515,8 @@ public class ValuePipelineUtils {
                 if (calculateConfig != null && Utils.isNotBlank(calculateConfig.getExpression())) {
                     var expression = calculateConfig.getExpression();
                     var defaultValue = calculateConfig.getDefaultValue();
-                    Map<String, Object> variables = calculateConfig.getVariablePaths().stream()
+                    var variablePaths = calculateConfig.getVariablePaths();
+                    Map<String, Object> variables = variablePaths == null ? Map.of() : variablePaths.stream()
                             .filter(x -> Utils.isNotBlank(x.getKey()) || Utils.isNotBlank(x.getValue()))
                             .collect(
                                     HashMap::new,

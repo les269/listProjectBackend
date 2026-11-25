@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import org.jsoup.select.Elements;
 
 import java.util.Map;
+import java.util.List;
 
 @Data
 @Builder
@@ -19,4 +20,5 @@ public class ValuePipelineContext {
     private Elements elements;
     private Map<String, String> cookies;
     private Map<String, String> headers;
+    private List<String> initialKeys;
 }

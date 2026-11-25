@@ -4,9 +4,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 @Data
-public class GroupDatasetScrapy {
+public class GroupDatasetSpider {
     private Integer seq;
-    private String name;
+    private String spiderId;
     private String label;
     private boolean visibleJson;
     private boolean visibleUrl;

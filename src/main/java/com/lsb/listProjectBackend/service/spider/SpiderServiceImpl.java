@@ -7,6 +7,9 @@ import com.lsb.listProjectBackend.domain.common.LsbException;
 import com.lsb.listProjectBackend.domain.spider.SpiderConfigTO;
 import com.lsb.listProjectBackend.domain.spider.SpiderItemTO;
 import com.lsb.listProjectBackend.domain.spider.SpiderPaginationDataTO;
+import com.lsb.listProjectBackend.domain.spider.SpiderReqTO;
+import com.lsb.listProjectBackend.domain.common.CookieListTO;
+import com.lsb.listProjectBackend.domain.common.HeadersTO;
 import com.lsb.listProjectBackend.entity.dynamic.spider.SpiderItemSetting;
 import com.lsb.listProjectBackend.service.common.CookieListService;
 import com.lsb.listProjectBackend.service.common.HeadersService;
@@ -16,14 +19,17 @@ import com.lsb.listProjectBackend.utils.Utils;
 import com.lsb.listProjectBackend.utils.Global.SpiderUrlType;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Map;
+import java.util.ArrayList;
 
 @UseDynamic
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class SpiderServiceImpl implements SpiderService {
@@ -33,6 +39,34 @@ public class SpiderServiceImpl implements SpiderService {
     private final SpiderExecutionService spiderExecutionService;
     private final HeadersService headersService;
     private final SpiderPaginationExecutionService paginationExecutionService;
+
+    @Override
+    public List<String> executeBatch(String spiderId, List<SpiderReqTO> requests) throws Exception {
+        if (requests.isEmpty()) {
+            return List.of();
+        }
+        SpiderConfigTO config = spiderConfigService.getById(spiderId);
+        if (config == null) {
+            throw new LsbException("該爬蟲配置不存在: " + spiderId, org.springframework.http.HttpStatus.NOT_FOUND);
+        }
+        List<SpiderItemTO> items = spiderItemService.getBySpiderId(spiderId);
+        var itemIds = items.stream().map(SpiderItemTO::spiderItemId).distinct().toList();
+        var cookies = cookieListService.getMapByRefIdsAndType(itemIds, Global.CookieListMapType.SPIDER);
+        var headers = headersService.getMapByRefIdsAndType(itemIds, Global.HeadersMapType.SPIDER);
+        var results = new ArrayList<String>();
+        for (SpiderReqTO request : requests) {
+            if (!results.isEmpty()) {
+                spiderExecutionService.waitForRequestInterval(config.requestIntervalMs());
+            }
+            if (Boolean.TRUE.equals(config.isUrlBased()) && Utils.isNotBlank(request.url())) {
+                results.add(runSpiderItemByUrl(items, request.url(), config.requestIntervalMs(), cookies, headers));
+            } else {
+                results.add(runSpiderItemByPrimeKeyList(items, request.primeKeyList(), config.requestIntervalMs(),
+                        cookies, headers));
+            }
+        }
+        return results;
+    }
 
     @Override
     public List<SpiderPaginationDataTO> executePagination(String spiderPaginationId) throws Exception {
@@ -75,15 +109,19 @@ public class SpiderServiceImpl implements SpiderService {
         var setting = req.itemSetting();
         var mode = setting.getMode();
 
-        Map<String, String> headers = spiderExecutionService.getHeadersMapByRefId(req.spiderItemId(), Global.HeadersMapType.SPIDER);
-        Map<String, String> cookies = spiderExecutionService.getCookieMapByRefId(req.spiderItemId(), Global.CookieListMapType.SPIDER);
+        Map<String, String> headers = spiderExecutionService.getHeadersMapByRefId(req.spiderItemId(),
+                Global.HeadersMapType.SPIDER);
+        Map<String, String> cookies = spiderExecutionService.getCookieMapByRefId(req.spiderItemId(),
+                Global.CookieListMapType.SPIDER);
 
         switch (mode) {
             case SELECT ->
-                spiderExecutionService.useCssSelect(setting.getTestData().getHtml(), cookies, headers, setting.getExtractionRuleList(),
+                spiderExecutionService.useCssSelect(setting.getTestData().getHtml(), cookies, headers,
+                        setting.getExtractionRuleList(),
                         result);
             case JSON_PATH ->
-                spiderExecutionService.useJsonPath(setting.getTestData().getJson(), cookies, headers, setting.getExtractionRuleList(), result);
+                spiderExecutionService.useJsonPath(setting.getTestData().getJson(), cookies, headers,
+                        setting.getExtractionRuleList(), result);
             default -> throw new LsbException("未知的抽取模式: " + mode);
         }
         return result.jsonString();
@@ -107,14 +145,20 @@ public class SpiderServiceImpl implements SpiderService {
         return previewExtraction(setting);
     }
 
-    private String runSpiderItemByUrl(List<SpiderItemTO> itemList, String url, Long requestIntervalMs) throws Exception {
-        DocumentContext result = JsonPath.parse("{}");
-        boolean firstConnection = true;
-        boolean hasRequested = false;
+    private String runSpiderItemByUrl(List<SpiderItemTO> itemList, String url, Long requestIntervalMs)
+            throws Exception {
         var itemIds = itemList.stream().map(SpiderItemTO::spiderItemId).distinct().toList();
         var cookieMap = cookieListService.getMapByRefIdsAndType(itemIds,
                 Global.CookieListMapType.SPIDER);
         var headersMap = headersService.getMapByRefIdsAndType(itemIds, Global.HeadersMapType.SPIDER);
+        return runSpiderItemByUrl(itemList, url, requestIntervalMs, cookieMap, headersMap);
+    }
+
+    private String runSpiderItemByUrl(List<SpiderItemTO> itemList, String url, Long requestIntervalMs,
+            Map<String, CookieListTO> cookieMap, Map<String, HeadersTO> headersMap) throws Exception {
+        DocumentContext result = JsonPath.parse("{}");
+        boolean firstConnection = true;
+        boolean hasRequested = false;
         for (SpiderItemTO item : itemList) {
             String currentUrl = "";
             SpiderItemSetting setting = item.itemSetting();
@@ -132,10 +176,9 @@ public class SpiderServiceImpl implements SpiderService {
             } else {
                 currentUrl = JsonUtils.replaceValueByJsonPath(setting.getUrl(), result.json());
             }
-            spiderExecutionService.executeRequest(currentUrl, setting.getMode(), setting.getExtractionRuleList(),
-                    headersMap.get(item.spiderItemId()), cookieMap.get(item.spiderItemId()), result,
-                    hasRequested ? requestIntervalMs : null);
-            hasRequested = true;
+            executeItemSafely(item, currentUrl, headersMap.get(item.spiderItemId()),
+                    cookieMap.get(item.spiderItemId()), result, hasRequested ? requestIntervalMs : null, null);
+            hasRequested = hasRequested || Utils.isNotBlank(currentUrl);
         }
         return result.jsonString();
     }
@@ -143,13 +186,18 @@ public class SpiderServiceImpl implements SpiderService {
     private String runSpiderItemByPrimeKeyList(List<SpiderItemTO> itemList, List<String> primeKeyList,
             Long requestIntervalMs)
             throws Exception {
-        DocumentContext result = JsonPath.parse("{}");
-        boolean hasRequested = false;
-
         var itemIds = itemList.stream().map(SpiderItemTO::spiderItemId).distinct().toList();
         var cookieMap = cookieListService.getMapByRefIdsAndType(itemIds,
                 Global.CookieListMapType.SPIDER);
         var headersMap = headersService.getMapByRefIdsAndType(itemIds, Global.HeadersMapType.SPIDER);
+        return runSpiderItemByPrimeKeyList(itemList, primeKeyList, requestIntervalMs, cookieMap, headersMap);
+    }
+
+    private String runSpiderItemByPrimeKeyList(List<SpiderItemTO> itemList, List<String> primeKeyList,
+            Long requestIntervalMs, Map<String, CookieListTO> cookieMap, Map<String, HeadersTO> headersMap)
+            throws Exception {
+        DocumentContext result = JsonPath.parse("{}");
+        boolean hasRequested = false;
         for (SpiderItemTO item : itemList) {
             String currentUrl = "";
             SpiderItemSetting setting = item.itemSetting();
@@ -159,15 +207,32 @@ public class SpiderServiceImpl implements SpiderService {
             } else if (SpiderUrlType.BY_PARAMS.equals(setting.getUrlType())) {
                 currentUrl = JsonUtils.replaceValueByJsonPath(setting.getUrl(), result.json());
             }
-            if (Utils.isBlank(currentUrl)) {
-                continue;
-            }
-            spiderExecutionService.executeRequest(currentUrl, setting.getMode(), setting.getExtractionRuleList(),
-                    headersMap.get(item.spiderItemId()), cookieMap.get(item.spiderItemId()), result,
-                    hasRequested ? requestIntervalMs : null);
-            hasRequested = true;
+            executeItemSafely(item, currentUrl, headersMap.get(item.spiderItemId()),
+                    cookieMap.get(item.spiderItemId()), result, hasRequested ? requestIntervalMs : null, primeKeyList);
+            hasRequested = hasRequested || Utils.isNotBlank(currentUrl);
         }
         return result.jsonString();
+    }
+
+    /** 單一步驟失敗時保留已擷取的資料，繼續後續步驟與批次中的其他筆資料。 */
+    private void executeItemSafely(SpiderItemTO item, String url, HeadersTO headers, CookieListTO cookies,
+            DocumentContext result, Long requestIntervalMs, List<String> initialKeys) throws InterruptedException {
+        var setting = item.itemSetting();
+        try {
+            if (initialKeys == null) {
+                spiderExecutionService.executeRequest(url, setting.getMode(), setting.getExtractionRuleList(),
+                        headers, cookies, result, requestIntervalMs);
+            } else {
+                spiderExecutionService.executeRequest(url, setting.getMode(), setting.getExtractionRuleList(),
+                        headers, cookies, result, requestIntervalMs, initialKeys);
+            }
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw e;
+        } catch (java.io.IOException | RuntimeException e) {
+            log.warn("Spider item failed; continuing with collected data. itemId={}, url={}",
+                    item.spiderItemId(), url, e);
+        }
     }
 
 }

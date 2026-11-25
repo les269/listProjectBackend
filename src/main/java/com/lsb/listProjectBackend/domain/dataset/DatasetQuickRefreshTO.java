@@ -7,7 +7,7 @@ import java.util.List;
 public record DatasetQuickRefreshTO(
         String byKey,
         String primeKey,
-        String scrapyName,
+        String spiderId,
         String datasetName,
         String url,
         Global.QuickRefreshType quickRefreshType,

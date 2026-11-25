@@ -164,7 +164,14 @@
 | POST | `/api/dataset/name-list/get-data` | 查詢資料 (`getDatasetDataByNameList`) | `Body: nameList: List<String>` | `List<DatasetDataTO>` |
 | POST | `/api/dataset/quick-refresh` | 快速更新 (`quickRefresh`) | `Body: to: DatasetQuickRefreshTO` | `Map<String,Object>` |
 
+快速刷新將爬蟲回傳物件合併至既有群組資料：同名頂層欄位更新，未回傳欄位保留，
+`{}` 不會清空舊資料。`byKey` 須符合群組設定，`primeKey` 不可為空；主鍵欄位固定使用
+請求指定的 `primeKey`，爬蟲不能覆蓋。重新整理清單時，主鍵欄位也會從群組資料的
+`primeValue` 補正，自訂欄位不能改變清單的主鍵。
+
 ### GroupDatasetController
+
+Spider 設定與既有資料升級方式見 [GroupDataset Spider 設定](group-dataset-spider.md)。
 
 [Controller 原始碼](../src/main/java/com/lsb/listProjectBackend/controller/dataset/GroupDatasetController.java)
 
@@ -313,6 +320,14 @@
 
 ### SpiderController
 
+單筆與批次明細爬蟲的步驟遇到無效 URL（含未替換的模板）、連線逾時、HTTP 請求或擷取錯誤時，僅記錄 log 並保留該筆目前已擷取的資料，繼續後續步驟與其他筆資料，不將此類錯誤拋至前端。每筆請求仍依原順序回傳一份結果；沒有取得任何欄位時回傳 `{}`，Dataset 批次更新仍會補上原始主鍵。設定不存在、請求設定不合法及執行緒中斷仍依原有錯誤處理。
+
+`INITIAL_KEYS` pipeline 直接取得本次請求最初傳入的 `SpiderReqTO.primeKeyList` 陣列，不需要額外設定欄位：`{"type":"INITIAL_KEYS","enabled":true,"seq":1}`。所有爬蟲步驟（含空 URL）及 `EXTRACT_OBJECTS` 子欄位均可使用；未傳入 key 的 URL 執行與預覽會得到 `[]`。可接 `FIRST_VALUE` 取第一個 key，或接 `COMBINE_TO_STRING`，例如模板 `{{$[0]}}-{{$[1]}}`。此類型讀取初始參數，`CURRENT_DATA_KEY` 則讀取目前的擷取結果。擷取結果寫入時仍適用既有的字串清單正規化規則。
+
+`CALCULATE` 的 `calculateConfig.expression` 支援 `#nowMillis()`（目前 Unix 毫秒時間戳記）與 `#nowSeconds()`（目前 Unix 秒時間戳記），皆無引數且不受時區影響，可直接參與運算，例如 `#nowMillis() + 60000`。不需要變數時可省略 `variablePaths` 或傳入 `[]`；pipeline 結果為整數字串。將擷取規則的 key 設為 `time` 後，後續 URL 可使用 `?time={{$.time}}`。每次呼叫會各自取得當下時間；需要共用同一時刻時，先儲存至欄位，再透過變數引用。
+
+爬蟲步驟解析後的 URL 為 null、空字串或空白時，仍執行擷取規則與 pipeline：SELECT 使用空的 HTML 文件（`<html><head></head><body></body></html>`），JSON_PATH 使用 `{}`。此步驟不發送 HTTP 請求、不等待請求間隔，也不計入已發送請求；結果可供後續步驟的 URL 模板使用。JSON 路徑為空或不存在時，以 null 繼續執行 pipeline。既有的步驟跳過條件仍適用。
+
 [Controller 原始碼](../src/main/java/com/lsb/listProjectBackend/controller/spider/SpiderController.java)
 
 | 方法 | 路徑 | 用途／處理方法 | 輸入參數 | 回傳型別 |
@@ -351,6 +366,8 @@
 | DELETE | `/api/spider-mapping/delete` | 刪除資料 (`deleteMapping`) | `Query: spiderId: String`<br>`Query: executionOrder: Integer`<br>`Query: spiderItemId: String` | `void` |
 | DELETE | `/api/spider-mapping/delete-by-spider-id` | 刪除資料 (`deleteMappingBySpiderId`) | `Query: spiderId: String` | `void` |
 | GET | `/api/spider-mapping/in-use-by-spider-item-id` | 檢查使用狀態 (`inUseBySpiderItemId`) | `Query: spiderItemId: String` | `boolean` |
+
+`/api/spider-mapping/delete` 僅在三個參數皆符合指定 mapping 時刪除，並將同一 `spiderId` 的剩餘項目依原執行順序從 0 連續編排 `executionOrder`。找不到指定 mapping 時不變更資料；刪除與重排在同一筆交易內完成。
 
 ### SpiderPaginationController
 

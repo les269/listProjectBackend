@@ -69,8 +69,9 @@ public class Global {
         string, stringArray, number, date
     }
 
+    // TODO 在完成全面轉移後移除scrapy
     public enum GroupDatasetConfigType {
-        scrapy, api
+        spider, api, scrapy
     }
 
     public enum OpenWindowTargetType {
@@ -145,7 +146,8 @@ public class Global {
         CALCULATE,
         FETCH_COOKIE,
         FETCH_HEADER,
-        FETCH_CURRENT_DATA
+        FETCH_CURRENT_DATA,
+        INITIAL_KEYS
     }
 
     public enum PositionType {

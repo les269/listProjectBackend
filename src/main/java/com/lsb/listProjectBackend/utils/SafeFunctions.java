@@ -3,9 +3,20 @@ package com.lsb.listProjectBackend.utils;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
+import java.time.Instant;
 import java.util.List;
 
 public class SafeFunctions {
+
+    /** 目前的 Unix 毫秒時間戳記，不受時區影響。 */
+    public static long nowMillis() {
+        return System.currentTimeMillis();
+    }
+
+    /** 目前的 Unix 秒時間戳記，不受時區影響。 */
+    public static long nowSeconds() {
+        return Instant.now().getEpochSecond();
+    }
 
     // ---------- 基本 ----------
 

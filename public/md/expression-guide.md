@@ -42,6 +42,41 @@
 
 ## 內建函式一覽
 
+### 目前時間
+
+#### `#nowMillis()` — 目前的 Unix 毫秒時間戳記
+
+不需要引數，回傳自 1970-01-01 00:00:00 UTC 起算的整數毫秒數，等同 Java 的 `System.currentTimeMillis()`，不受時區影響。
+
+```text
+#nowMillis()           → 目前的毫秒時間戳記（例如 1795550130713）
+#nowMillis() + 60000   → 一分鐘後的毫秒時間戳記
+```
+
+#### `#nowSeconds()` — 目前的 Unix 秒時間戳記
+
+不需要引數，回傳自 1970-01-01 00:00:00 UTC 起算的整數秒數，不受時區影響。
+
+```text
+#nowSeconds()          → 目前的秒時間戳記（例如 1795550130）
+#nowSeconds() + 3600   → 一小時後的秒時間戳記
+```
+
+每次呼叫會各自取得當下時間。需要共用同一時刻時，先將時間戳記儲存至欄位，再透過變數引用。
+
+在爬蟲的 `CALCULATE` pipeline 中，可將 `calculateConfig` 設為：
+
+```json
+{
+  "expression": "#nowMillis()",
+  "variablePaths": []
+}
+```
+
+不需要變數時也可省略 `variablePaths`。pipeline 會將結果轉為整數字串；將擷取規則的 key 設為 `time` 後，下一步 URL 可使用 `https://example.com/api?time={{$.time}}`。
+
+---
+
 ### 基本數學
 
 #### `#abs(value)` — 絕對值

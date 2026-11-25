@@ -6,8 +6,12 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.lsb.listProjectBackend.domain.spider.SpiderItemTO;
 import com.lsb.listProjectBackend.domain.spider.SpiderPaginationDataTO;
+import com.lsb.listProjectBackend.domain.spider.SpiderReqTO;
 
 public interface SpiderService {
+
+    /** Loads configuration once before executing requests in order without database access in the loop. */
+    List<String> executeBatch(String spiderId, List<SpiderReqTO> requests) throws Exception;
 
     List<SpiderPaginationDataTO> executePagination(String spiderPaginationId) throws Exception;
 

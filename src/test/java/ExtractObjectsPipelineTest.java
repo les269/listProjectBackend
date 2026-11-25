@@ -12,6 +12,17 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class ExtractObjectsPipelineTest {
     @Test
+    void childFieldsCanReadInitialKeys() {
+        var keys = field("keys", null, "missing");
+        keys.setPipelines(List.of(pipeline(Global.ValuePipelineType.INITIAL_KEYS)));
+        var context = ValuePipelineContext.builder().initialKeys(List.of("123", "news")).build();
+
+        var result = extract(Global.ExtractionRuleMode.JSON_PATH, List.of(keys), List.of(Map.of()), context);
+
+        assertEquals(List.of("123", "news"), result.getFirst().get("keys"));
+    }
+
+    @Test
     void extractsRowsWithChildPipelinesAndKeepsMissingAndIdenticalRows() {
         var name = field("name", "a", null);
         var url = field("url", "a", null);
