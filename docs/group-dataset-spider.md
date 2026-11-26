@@ -2,6 +2,9 @@
 
 對應 [前端 issue #66](https://github.com/les269/list-project-angular/issues/66)。
 
+`config.groupDatasetFieldList` 的欄位設定支援 `required: boolean`，省略時為 `false`。
+此欄位記錄必填標記，目前不會自動驗證資料內容。
+
 `POST /api/group-dataset/update` 的 `config` 改為 `type: "spider"` 與
 `groupDatasetSpiderList`。每筆使用 `spiderId` 指向 `spider_config.spider_id`：
 
