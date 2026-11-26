@@ -31,7 +31,7 @@ class GroupDatasetSpiderRefreshTest {
     private final SpiderService spiders = mock(SpiderService.class);
     private final GroupDatasetDataMapper copies = mock(GroupDatasetDataMapper.class);
     private final DatasetServiceImpl service = new DatasetServiceImpl(datasets, rows, groups, groupService,
-            spiders, null, datasetRows, null, null, null, null, copies);
+            spiders, null, datasetRows, null, null, null, copies);
     private final GroupDatasetConfig config = new GroupDatasetConfig();
 
     @BeforeEach

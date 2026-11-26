@@ -55,7 +55,7 @@ public class ValuePipelineUtils {
      *
      * @param pipelines     pipeline 清單
      * @param pipelineValue 初始值
-     * @param context       執行期上下文（result、elements、replaceValueMapList 等）
+     * @param context       執行期上下文（result、elements、replaceValueMaps 等）
      * @return 經所有 pipeline 處理後的最終值
      */
     public static Object applyPipelines(List<ValuePipeline> pipelines, Object pipelineValue,
@@ -69,7 +69,7 @@ public class ValuePipelineUtils {
     /**
      * 套用單一 pipeline。
      * <p>
-     * 從 {@code context} 解構出 result、elements、replaceValueMapList，
+     * 從 {@code context} 取得 result、elements、replaceValueMaps，
      * 再委派給 {@link #applyPipelineInternal} 處理。
      * </p>
      *
@@ -174,6 +174,7 @@ public class ValuePipelineUtils {
                 .cookies(parent == null ? null : parent.getCookies())
                 .headers(parent == null ? null : parent.getHeaders())
                 .initialKeys(parent == null ? null : parent.getInitialKeys())
+                .replaceValueMaps(parent == null ? null : parent.getReplaceValueMaps())
                 .build();
         for (ExtractObjectField field : fields) {
             Object fieldValue = extractObjectField(field, source, json, mode, child);
@@ -213,6 +214,21 @@ public class ValuePipelineUtils {
         return texts.size() == 1 ? texts.getFirst() : texts;
     }
 
+    /** 替換表沿用小寫 key；未命中、空替換值及非文字資料保留原值。 */
+    private static Object replaceValue(Object value, Map<String, Object> replacements) {
+        if (replacements == null || replacements.isEmpty()) {
+            return value;
+        }
+        if (value instanceof List<?> list) {
+            return list.stream().map(item -> replaceValue(item, replacements)).toList();
+        }
+        if (value instanceof String text) {
+            Object replacement = replacements.get(text.toLowerCase(java.util.Locale.ROOT));
+            return replacement != null && Utils.isNotBlank(replacement.toString()) ? replacement : value;
+        }
+        return value;
+    }
+
     /** 過濾出已啟用的 pipeline，並依 seq 升冪排序。 */
     private static List<ValuePipeline> enabledPipelines(List<ValuePipeline> pipelines) {
         if (pipelines == null || pipelines.isEmpty()) {
@@ -230,6 +246,12 @@ public class ValuePipelineUtils {
             ValuePipelineContext context,
             Elements elements) {
         switch (pipeLine.getType()) {
+            case REPLACE_VALUE_MAP:
+                var maps = context == null ? null : context.getReplaceValueMaps();
+                var replacements = maps == null || Utils.isBlank(pipeLine.getUseReplaceValueMap())
+                        ? null : maps.get(pipeLine.getUseReplaceValueMap());
+                pipelineValue = replaceValue(pipelineValue, replacements);
+                break;
             case INITIAL_KEYS:
                 pipelineValue = context == null || context.getInitialKeys() == null
                         ? List.of() : new ArrayList<>(context.getInitialKeys());

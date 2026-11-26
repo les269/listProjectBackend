@@ -21,4 +21,6 @@ public class ValuePipelineContext {
     private Map<String, String> cookies;
     private Map<String, String> headers;
     private List<String> initialKeys;
+    // 整批執行前載入，以替換表名稱索引；各次爬蟲與巢狀 pipeline 共用並只讀。
+    private Map<String, Map<String, Object>> replaceValueMaps;
 }

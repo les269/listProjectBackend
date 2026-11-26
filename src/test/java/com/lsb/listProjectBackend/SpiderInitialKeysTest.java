@@ -31,7 +31,8 @@ class SpiderInitialKeysTest {
         var items = mock(SpiderItemService.class);
         var cookies = mock(CookieListService.class);
         var headers = mock(HeadersService.class);
-        var execution = spy(new SpiderExecutionService(cookies, new ExtractionRuleServiceImpl(), headers));
+        var execution = spy(new SpiderExecutionService(cookies, new ExtractionRuleServiceImpl(), headers,
+                    new ReplaceValueMapLoader(mock(com.lsb.listProjectBackend.repository.dynamic.common.ReplaceValueMapRepository.class))));
         var service = new SpiderServiceImpl(configs, items, cookies, execution, headers, null);
         when(configs.getById("spider"))
                 .thenReturn(new SpiderConfigTO("spider", "", 1, null, false, null, 15L));

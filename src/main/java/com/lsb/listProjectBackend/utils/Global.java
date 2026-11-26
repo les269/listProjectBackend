@@ -66,7 +66,7 @@ public class Global {
     }
 
     public enum GroupDatasetFieldType {
-        string, stringArray, number, date
+        string, stringArray, number, date, jsonObject, jsonArray
     }
 
     // TODO 在完成全面轉移後移除scrapy
@@ -119,6 +119,7 @@ public class Global {
     }
 
     public enum ValuePipelineType {
+        REPLACE_VALUE_MAP,
         FIXED_VALUE,
         FIXED_JSON_VALUE,
         CURRENT_DATA_KEY,

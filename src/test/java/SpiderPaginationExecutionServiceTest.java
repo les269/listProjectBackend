@@ -79,7 +79,7 @@ class SpiderPaginationExecutionServiceTest {
         doAnswer(call -> {
             call.<DocumentContext>getArgument(5).put("$", "id", "new");
             return null;
-        }).when(requests).executeRequest(anyString(), any(), anyList(), any(), any(), any(), nullable(Long.class));
+        }).when(requests).executeRequest(anyString(), any(), anyList(), any(), any(), any(), nullable(Long.class), anyList(), anyMap());
 
         service.execute("test");
         assertTrue(stored.containsKey(List.of("test", "anime-2026", "old")));
@@ -103,7 +103,7 @@ class SpiderPaginationExecutionServiceTest {
             verify(data, never()).synchronize(anyList(), anyList());
             call.<DocumentContext>getArgument(5).put("$", "id", "new");
             return null;
-        }).when(requests).executeRequest(anyString(), any(), anyList(), any(), any(), any(), nullable(Long.class));
+        }).when(requests).executeRequest(anyString(), any(), anyList(), any(), any(), any(), nullable(Long.class), anyList(), anyMap());
 
         assertEquals("new", service.execute("test").getFirst().dataId());
         assertFalse(stored.containsKey(List.of("test", "anime-2026", "old")));
@@ -125,7 +125,8 @@ class SpiderPaginationExecutionServiceTest {
 
         assertTrue(service.execute("test").isEmpty());
         assertTrue(stored.containsKey(List.of("test", "anime-2026", "old")));
-        verifyNoInteractions(requests);
+        verify(requests).loadReplaceValueMaps(anyList(), anyList(), anyList());
+        verifyNoMoreInteractions(requests);
         verify(data, never()).synchronize(anyList(), anyList());
     }
 
@@ -142,7 +143,7 @@ class SpiderPaginationExecutionServiceTest {
             result.put("$", "id", "new");
             result.put("$", "next", "https://example.test/page/2");
             return null;
-        }).when(requests).executeRequest(anyString(), any(), anyList(), any(), any(), any(), nullable(Long.class));
+        }).when(requests).executeRequest(anyString(), any(), anyList(), any(), any(), any(), nullable(Long.class), anyList(), anyMap());
 
         assertThrows(IllegalStateException.class, () -> service.execute("test"));
         assertTrue(stored.containsKey(List.of("test", "anime-2026", "old")));
@@ -164,14 +165,14 @@ class SpiderPaginationExecutionServiceTest {
             result.put("$", "title", "complete extracted data");
             if (url.endsWith("/1")) result.put("$", "next", "https://example.test/page/2");
             return null;
-        }).when(requests).executeRequest(anyString(), any(), anyList(), any(), any(), any(), nullable(Long.class));
+        }).when(requests).executeRequest(anyString(), any(), anyList(), any(), any(), any(), nullable(Long.class), anyList(), anyMap());
         var result = service.execute("test");
         assertEquals(List.of("a", "b"), result.stream().map(SpiderPaginationDataTO::dataId).toList());
         assertEquals("complete extracted data", result.getFirst().data().get("title"));
         assertNotNull(result.getFirst().lastSuccessTime());
         verify(data, times(1)).updateAll(anyList());
-        verify(requests).executeRequest(eq("https://example.test/page/1"), any(), anyList(), any(), any(), any(), isNull());
-        verify(requests).executeRequest(eq("https://example.test/page/2"), any(), anyList(), any(), any(), any(), eq(100L));
+        verify(requests).executeRequest(eq("https://example.test/page/1"), any(), anyList(), any(), any(), any(), isNull(), anyList(), anyMap());
+        verify(requests).executeRequest(eq("https://example.test/page/2"), any(), anyList(), any(), any(), any(), eq(100L), anyList(), anyMap());
     }
 
     @Test
@@ -186,13 +187,13 @@ class SpiderPaginationExecutionServiceTest {
         doAnswer(call -> {
             call.<DocumentContext>getArgument(5).put("$", "id", "same-id");
             return null;
-        }).when(requests).executeRequest(anyString(), any(), anyList(), any(), any(), any(), nullable(Long.class));
+        }).when(requests).executeRequest(anyString(), any(), anyList(), any(), any(), any(), nullable(Long.class), anyList(), anyMap());
         assertEquals(2, service.execute("test").size());
         assertEquals(2, stored.size());
         verify(data, times(1)).getBySpiderPaginationId("test");
         verify(data, times(1)).updateAll(anyList());
-        verify(requests).executeRequest(anyString(), any(), anyList(), any(), any(), any(), isNull());
-        verify(requests).executeRequest(anyString(), any(), anyList(), any(), any(), any(), eq(100L));
+        verify(requests).executeRequest(anyString(), any(), anyList(), any(), any(), any(), isNull(), anyList(), anyMap());
+        verify(requests).executeRequest(anyString(), any(), anyList(), any(), any(), any(), eq(100L), anyList(), anyMap());
     }
 
     @Test
@@ -203,7 +204,7 @@ class SpiderPaginationExecutionServiceTest {
             result.put("$", "id", "a");
             result.put("$", "next", "https://example.test/page/1");
             return null;
-        }).when(requests).executeRequest(anyString(), any(), anyList(), any(), any(), any(), nullable(Long.class));
+        }).when(requests).executeRequest(anyString(), any(), anyList(), any(), any(), any(), nullable(Long.class), anyList(), anyMap());
         assertThrows(Exception.class, () -> service.execute("test"));
         assertEquals(1, stored.size());
         assertNull(stored.values().iterator().next().lastSuccessTime());
@@ -235,10 +236,11 @@ class SpiderPaginationExecutionServiceTest {
             result.put("$", "id", "a");
             result.put("$", "title", "new");
             return null;
-        }).when(requests).executeRequest(anyString(), any(), anyList(), any(), any(), any(), nullable(Long.class));
+        }).when(requests).executeRequest(anyString(), any(), anyList(), any(), any(), any(), nullable(Long.class), anyList(), anyMap());
         assertTrue(service.execute("test").isEmpty());
         assertEquals(old, stored.get(List.of("test", "anime-2026", "a")));
-        verifyNoInteractions(requests);
+        verify(requests).loadReplaceValueMaps(anyList(), anyList(), anyList());
+        verifyNoMoreInteractions(requests);
         var updated = service.execute("test", true).getFirst();
         assertEquals("new", updated.data().get("title"));
         assertEquals(oldTime, updated.createdTime());
@@ -262,7 +264,7 @@ class SpiderPaginationExecutionServiceTest {
             result.put("$", "id", first ? "a" : "b");
             if (first) result.put("$", "next", "https://example.test/page/2");
             return null;
-        }).when(requests).executeRequest(anyString(), any(), anyList(), any(), any(), any(), nullable(Long.class));
+        }).when(requests).executeRequest(anyString(), any(), anyList(), any(), any(), any(), nullable(Long.class), anyList(), anyMap());
         assertEquals(List.of("a", "b"), service.execute("test").stream().map(SpiderPaginationDataTO::dataId).toList());
         assertNotNull(stored.get(List.of("test", "anime-2026", "a")).lastSuccessTime());
     }
@@ -285,13 +287,14 @@ class SpiderPaginationExecutionServiceTest {
         doAnswer(call -> {
             call.<DocumentContext>getArgument(5).put("$", "id", "a");
             return null;
-        }).when(requests).executeRequest(anyString(), any(), anyList(), any(), any(), any(), nullable(Long.class));
+        }).when(requests).executeRequest(anyString(), any(), anyList(), any(), any(), any(), nullable(Long.class), anyList(), anyMap());
 
         assertTrue(service.execute("test").isEmpty());
-        verifyNoInteractions(requests);
+        verify(requests).loadReplaceValueMaps(anyList(), anyList(), anyList());
+        verifyNoMoreInteractions(requests);
         assertEquals(List.of("anime-2025", "anime-2026"), service.execute("test", true).stream()
                 .map(SpiderPaginationDataTO::groupId).toList());
-        verify(requests, times(2)).executeRequest(anyString(), any(), anyList(), any(), any(), any(), nullable(Long.class));
+        verify(requests, times(2)).executeRequest(anyString(), any(), anyList(), any(), any(), any(), nullable(Long.class), anyList(), anyMap());
     }
 
     @Test
@@ -300,9 +303,9 @@ class SpiderPaginationExecutionServiceTest {
         doAnswer(call -> {
             call.<DocumentContext>getArgument(5).put("$", "id", "a");
             return null;
-        }).when(requests).executeRequest(anyString(), any(), anyList(), any(), any(), any(), nullable(Long.class));
+        }).when(requests).executeRequest(anyString(), any(), anyList(), any(), any(), any(), nullable(Long.class), anyList(), anyMap());
         service.execute("test");
         service.execute("test");
-        verify(requests, times(2)).executeRequest(anyString(), any(), anyList(), any(), any(), any(), isNull());
+        verify(requests, times(2)).executeRequest(anyString(), any(), anyList(), any(), any(), any(), isNull(), anyList(), anyMap());
     }
 }

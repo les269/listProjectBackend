@@ -1,6 +1,7 @@
 package com.lsb.listProjectBackend;
 
 import com.jayway.jsonpath.JsonPath;
+import com.lsb.listProjectBackend.service.spider.ReplaceValueMapLoader;
 import com.lsb.listProjectBackend.domain.spider.SpiderConfigTO;
 import com.lsb.listProjectBackend.domain.spider.SpiderItemTO;
 import com.lsb.listProjectBackend.entity.dynamic.spider.ExtractionRule;
@@ -31,7 +32,8 @@ class SpiderEmptyUrlTest {
     private final CookieListService cookies = mock(CookieListService.class);
     private final HeadersService headers = mock(HeadersService.class);
     private final SpiderExecutionService execution = spy(new SpiderExecutionService(
-            cookies, new ExtractionRuleServiceImpl(), headers));
+            cookies, new ExtractionRuleServiceImpl(), headers,
+                    new ReplaceValueMapLoader(mock(com.lsb.listProjectBackend.repository.dynamic.common.ReplaceValueMapRepository.class))));
 
     @ParameterizedTest
     @NullAndEmptySource

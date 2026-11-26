@@ -2,7 +2,6 @@ package com.lsb.listProjectBackend.service.dataset;
 
 import com.lsb.listProjectBackend.aop.UseDynamic;
 import com.lsb.listProjectBackend.domain.dataset.*;
-import com.lsb.listProjectBackend.entity.dynamic.common.ReplaceValueMap;
 import com.lsb.listProjectBackend.entity.dynamic.dataset.Dataset;
 import com.lsb.listProjectBackend.entity.dynamic.dataset.DatasetConfig;
 import com.lsb.listProjectBackend.entity.dynamic.dataset.DatasetData;
@@ -10,7 +9,6 @@ import com.lsb.listProjectBackend.entity.dynamic.dataset.GroupDataset;
 import com.lsb.listProjectBackend.entity.dynamic.dataset.GroupDatasetConfig;
 import com.lsb.listProjectBackend.entity.dynamic.dataset.GroupDatasetData;
 import com.lsb.listProjectBackend.entity.dynamic.dataset.GroupDatasetDataPK;
-import com.lsb.listProjectBackend.entity.dynamic.dataset.GroupDatasetField;
 import com.lsb.listProjectBackend.entity.dynamic.dataset.GroupDatasetSpider;
 import com.lsb.listProjectBackend.domain.spider.SpiderReqTO;
 import com.lsb.listProjectBackend.service.spider.SpiderService;
@@ -23,7 +21,6 @@ import com.lsb.listProjectBackend.repository.dynamic.dataset.DatasetDataReposito
 import com.lsb.listProjectBackend.repository.dynamic.dataset.DatasetRepository;
 import com.lsb.listProjectBackend.repository.dynamic.dataset.GroupDatasetDataRepository;
 import com.lsb.listProjectBackend.repository.dynamic.dataset.GroupDatasetRepository;
-import com.lsb.listProjectBackend.repository.dynamic.common.ReplaceValueMapRepository;
 import com.lsb.listProjectBackend.service.file.ImageService;
 import com.lsb.listProjectBackend.service.scrapy.ScrapyPaginationService;
 import com.lsb.listProjectBackend.utils.Global;
@@ -52,7 +49,6 @@ public class DatasetServiceImpl implements DatasetService {
     private final ScrapyPaginationService scrapyPaginationService;
     private final DatasetDataRepository datasetDataRepository;
     private final ImageService imageService;
-    private final ReplaceValueMapRepository replaceValueMapRepository;
 
     private final DatasetMapper datasetMapper;
     private final DatasetDataMapper datasetDataMapper;
@@ -120,11 +116,6 @@ public class DatasetServiceImpl implements DatasetService {
 
         endTime = System.currentTimeMillis();
         System.out.println("scrapy time: " + (endTime - startTime) + " ms");
-        startTime = System.currentTimeMillis();
-
-        useReplaceValueMap(groupName);
-        endTime = System.currentTimeMillis();
-        System.out.println("useReplaceValueMap time: " + (endTime - startTime) + " ms");
         startTime = System.currentTimeMillis();
         // 下載圖片
         doDownloadImage(groupName, datasetConfig);
@@ -482,60 +473,5 @@ public class DatasetServiceImpl implements DatasetService {
         };
     }
 
-    private void useReplaceValueMap(String groupName) {
-        Map<String, Map<String, Object>> replaceValueMap = new HashMap<>();
-        var groupDataset = groupDatasetRepository.findById(groupName).orElse(null);
-        if (groupDataset == null) {
-            return;
-        }
-        var dataList = groupDatasetDataRepository.findByGroupName(groupName);
-        if (dataList.isEmpty()) {
-            return;
-        }
-        if (groupDataset.getConfig()
-                .getGroupDatasetFieldList()
-                .stream()
-                .map(GroupDatasetField::getReplaceValueMapName)
-                .allMatch(Utils::isBlank)) {
-            return;
-        }
-        for (GroupDatasetField field : groupDataset.getConfig().getGroupDatasetFieldList()) {
-            var fieldKey = field.getKey();
-            var mapName = field.getReplaceValueMapName();
-            if (Utils.isBlank(mapName)) {
-                continue;
-            }
-            var map = replaceValueMap.computeIfAbsent(mapName,
-                    key -> replaceValueMapRepository.findById(key).map(ReplaceValueMap::getMap).orElse(null));
-            if (map == null || map.isEmpty()) {
-                continue;
-            }
-            for (var data : dataList) {
-                var json = data.getJson();
-                switch (field.getType()) {
-                    case string -> {
-                        var s = json.get(fieldKey).toString().toLowerCase();
-                        if (map.containsKey(s) && Utils.isNotBlank(map.get(s).toString())) {
-                            json.put(fieldKey, map.get(s));
-                        }
-                    }
-                    case stringArray -> {
-                        if (json.get(fieldKey) instanceof List<?> list) {
-                            var replacedList = list
-                                    .stream()
-                                    .map(Object::toString) // 確保元素轉為 String
-                                    .map(s -> map.containsKey(s) && Utils.isNotBlank(map.get(s).toString())
-                                            ? map.get(s).toString()
-                                            : s)
-                                    .toList();
-                            json.put(fieldKey, replacedList);
-                        }
-                    }
-                    case number, date -> {
-                    }
-                }
-            }
-        }
-        groupDatasetDataRepository.saveAll(dataList);
-    }
+
 }

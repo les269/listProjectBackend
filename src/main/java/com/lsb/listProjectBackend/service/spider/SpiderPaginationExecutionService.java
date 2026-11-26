@@ -105,7 +105,10 @@ public class SpiderPaginationExecutionService {
         var headers = headersService.getByRefIdAndType(spiderPaginationId, Global.HeadersMapType.SPIDER_PAGINATION);
         var cookies = cookieListService.getByRefIdAndType(spiderPaginationId,
                 Global.CookieListMapType.SPIDER_PAGINATION);
-        return new ExecutionContext(spiderPaginationId, config, headers, cookies, force);
+        var context = new ExecutionContext(spiderPaginationId, config, headers, cookies, force);
+        context.setReplaceValueMaps(executionService.loadReplaceValueMaps(config.getExtractionRuleList(),
+                headers == null ? List.of() : List.of(headers), cookies == null ? List.of() : List.of(cookies)));
+        return context;
     }
 
     /** 一組參數決定 groupId 與起始 URL；重複網址檢查僅限於這一組。 */
@@ -165,7 +168,7 @@ public class SpiderPaginationExecutionService {
         // 第一筆不等待；後續請求跨參數組也沿用同一個間隔狀態。
         Long interval = context.isHasRequested() ? config.getRequestIntervalMs() : null;
         executionService.executeRequest(url, config.getExtractionRuleMode(), config.getExtractionRuleList(),
-                context.getHeaders(), context.getCookies(), result, interval);
+                context.getHeaders(), context.getCookies(), result, interval, List.of(), context.getReplaceValueMaps());
         context.setHasRequested(true);
         return result;
     }

@@ -49,11 +49,12 @@ class SpiderBatchExecutionTest {
         order.verify(items).getBySpiderId("detail");
         order.verify(cookies).getMapByRefIdsAndType(List.of("item"), Global.CookieListMapType.SPIDER);
         order.verify(headers).getMapByRefIdsAndType(List.of("item"), Global.HeadersMapType.SPIDER);
+        order.verify(execution).loadReplaceValueMaps(anyList(), anyList(), anyList());
         order.verify(execution).executeRequest(eq("https://example.test/one"), any(), anyList(), isNull(),
-                isNull(), any(), isNull());
+                isNull(), any(), isNull(), anyList(), anyMap());
         order.verify(execution).waitForRequestInterval(15L);
         order.verify(execution).executeRequest(eq("https://example.test/two"), any(), anyList(), isNull(),
-                isNull(), any(), isNull());
+                isNull(), any(), isNull(), anyList(), anyMap());
         verifyNoMoreInteractions(configs, items, cookies, headers, execution);
     }
 
@@ -62,9 +63,9 @@ class SpiderBatchExecutionTest {
         service.executeBatch("detail", List.of(new SpiderReqTO("detail", null, List.of("one")),
                 new SpiderReqTO("detail", null, List.of("two"))));
         verify(execution).executeRequest(eq("https://example.test/one"), any(), anyList(), isNull(),
-                isNull(), any(), isNull(), eq(List.of("one")));
+                isNull(), any(), isNull(), eq(List.of("one")), anyMap());
         verify(execution).executeRequest(eq("https://example.test/two"), any(), anyList(), isNull(),
-                isNull(), any(), isNull(), eq(List.of("two")));
+                isNull(), any(), isNull(), eq(List.of("two")), anyMap());
         verify(configs).getById("detail");
         verify(items).getBySpiderId("detail");
         verifyNoMoreInteractions(configs, items);
@@ -74,13 +75,13 @@ class SpiderBatchExecutionTest {
     void failedUrlReturnsAnEmptyResultAndDoesNotShiftLaterBatchResults() throws Exception {
         doThrow(new IllegalArgumentException("Malformed URL"))
                 .when(execution).executeRequest(eq("{{$.workno}}?locale=zh_TW"), any(), anyList(),
-                        any(), any(), any(), any());
+                        any(), any(), any(), any(), anyList(), anyMap());
         doAnswer(invocation -> {
             com.jayway.jsonpath.DocumentContext result = invocation.getArgument(5);
             result.put("$", "title", "success");
             return null;
         }).when(execution).executeRequest(eq("https://example.test/two"), any(), anyList(),
-                any(), any(), any(), any());
+                any(), any(), any(), any(), anyList(), anyMap());
 
         var results = service.executeBatch("detail", List.of(
                 new SpiderReqTO("detail", "{{$.workno}}?locale=zh_TW", null),
@@ -121,9 +122,9 @@ class SpiderBatchExecutionTest {
         verify(configs).getById("detail");
         verify(items).getBySpiderId("detail");
         verify(execution).executeRequest(eq("https://example.test/one"), any(), anyList(), isNull(),
-                isNull(), any(), isNull());
+                isNull(), any(), isNull(), anyList(), anyMap());
         verify(execution).executeRequest(eq("https://example.test/two"), any(), anyList(), isNull(),
-                isNull(), any(), isNull());
+                isNull(), any(), isNull(), anyList(), anyMap());
     }
 
     @Test
