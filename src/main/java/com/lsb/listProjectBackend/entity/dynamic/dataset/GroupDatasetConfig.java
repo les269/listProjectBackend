@@ -11,6 +11,8 @@ import java.util.List;
 public class GroupDatasetConfig {
     private String byKey;
     private String imageSaveFolder;
+    private boolean autoImageDownload;
+    private String imageByKey;
     @Enumerated(EnumType.STRING)
     private Global.GroupDatasetConfigType type;
     private List<GroupDatasetSpider> groupDatasetSpiderList;

@@ -15,6 +15,8 @@
     "type": "spider",
     "byKey": "id",
     "imageSaveFolder": "",
+    "autoImageDownload": false,
+    "imageByKey": "cover",
     "groupDatasetSpiderList": [
       {
         "seq": 1,
@@ -32,6 +34,20 @@
 ```
 
 `GET /api/group-dataset/get`、`GET /api/group-dataset/all` 回傳相同設定。
+
+圖片下載設定統一放在群組 `config`：`autoImageDownload` 為開關（省略預設 `false`），
+`imageByKey` 為圖片 URL 的頂層欄位名稱，`imageSaveFolder` 為既有的圖片儲存目錄。
+同群組的 Dataset 共用這三項設定。仍由 Dataset 的一般刷新在資料處理完成後觸發，
+掃描整個群組，沿用主鍵作為檔名、已存在檔案略過及 `__image_referer` 的行為。
+單獨刷新群組與 `quick-refresh` 不會新增圖片下載步驟。
+
+舊資料移轉：升級前先保留各 Dataset 原本的 `autoImageDownload`、`imageByKey`，
+將選定設定填入對應群組，再透過 `POST /api/group-dataset/update` 儲存完整群組設定。
+若同群組不同 Dataset 設定不一致，需統一選定下載開關與圖片欄位。
+舊 Dataset JSON 中這兩個欄位仍可讀取，但會被忽略，重新儲存 Dataset 時不再輸出；
+請在重新儲存前完成設定移轉。未設定群組下載開關時不下載圖片。
+此變更僅調整 JSON 設定，不變更 SQLite／PostgreSQL 資料表結構，也不自動改寫現有資料庫。
+
 前端將元件與模型改為 Spider 時，選項來源應改為 SpiderConfig，識別值使用
 `spiderId`。`visibleJson` 仍表示顯示參數輸入，`visibleUrl` 表示顯示 URL 輸入。
 

@@ -118,7 +118,7 @@ public class DatasetServiceImpl implements DatasetService {
         System.out.println("scrapy time: " + (endTime - startTime) + " ms");
         startTime = System.currentTimeMillis();
         // 下載圖片
-        doDownloadImage(groupName, datasetConfig);
+        doDownloadImage(groupName);
         endTime = System.currentTimeMillis();
         System.out.println("doDownloadImage time: " + (endTime - startTime) + " ms");
     }
@@ -373,28 +373,26 @@ public class DatasetServiceImpl implements DatasetService {
         });
     }
 
-    private void doDownloadImage(String groupName, DatasetConfig datasetConfig) {
+    private void doDownloadImage(String groupName) {
         log.info("doDownloadImage start");
-        if (datasetConfig.isAutoImageDownload()) {
+        var groupDataset = getGroupDatasetConfig(groupName);
+        if (groupDataset != null && groupDataset.isAutoImageDownload()) {
             var groupDatasetDataList = groupDatasetDataRepository.findByGroupName(groupName);
-            var groupDataset = getGroupDatasetConfig(groupName);
-            if (groupDataset != null) {
-                var path = groupDataset.getImageSaveFolder();
-                Set<String> nameList = Arrays.stream(Objects.requireNonNull(new File(path).list()))
-                        .parallel()
-                        .map(x -> Utils.windowsFileNameReplace(x).toLowerCase())
-                        .collect(Collectors.toSet());
-                groupDatasetDataList = groupDatasetDataList.stream()
-                        .filter(x -> !nameList.contains(Utils.windowsFileNameReplace(x.getPrimeValue()).toLowerCase()))
-                        .filter(x -> Utils.isNotBlank((String) x.getJson().get(datasetConfig.getImageByKey())))
-                        .toList();
-                for (GroupDatasetData groupDatasetData : groupDatasetDataList) {
-                    String imageUrl = (String) groupDatasetData.getJson().get(datasetConfig.getImageByKey());
-                    String fileName = groupDatasetData.getPrimeValue();
-                    String referer = (String) groupDatasetData.getJson().get("__image_referer");
-                    imageService.downloadImageFromUrl(imageUrl, path, Utils.windowsFileNameReplace(fileName),
-                            new HashMap<>(), null, referer);
-                }
+            var path = groupDataset.getImageSaveFolder();
+            Set<String> nameList = Arrays.stream(Objects.requireNonNull(new File(path).list()))
+                    .parallel()
+                    .map(x -> Utils.windowsFileNameReplace(x).toLowerCase())
+                    .collect(Collectors.toSet());
+            groupDatasetDataList = groupDatasetDataList.stream()
+                    .filter(x -> !nameList.contains(Utils.windowsFileNameReplace(x.getPrimeValue()).toLowerCase()))
+                    .filter(x -> Utils.isNotBlank((String) x.getJson().get(groupDataset.getImageByKey())))
+                    .toList();
+            for (GroupDatasetData groupDatasetData : groupDatasetDataList) {
+                String imageUrl = (String) groupDatasetData.getJson().get(groupDataset.getImageByKey());
+                String fileName = groupDatasetData.getPrimeValue();
+                String referer = (String) groupDatasetData.getJson().get("__image_referer");
+                imageService.downloadImageFromUrl(imageUrl, path, Utils.windowsFileNameReplace(fileName),
+                        new HashMap<>(), null, referer);
             }
         }
         log.info("doDownloadImage end");

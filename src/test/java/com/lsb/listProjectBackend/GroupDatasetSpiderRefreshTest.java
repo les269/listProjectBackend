@@ -7,6 +7,7 @@ import com.lsb.listProjectBackend.mapper.dataset.GroupDatasetDataMapper;
 import com.lsb.listProjectBackend.repository.dynamic.dataset.*;
 import com.lsb.listProjectBackend.service.dataset.*;
 import com.lsb.listProjectBackend.service.spider.SpiderService;
+import com.lsb.listProjectBackend.service.file.ImageService;
 import com.lsb.listProjectBackend.utils.Global;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -30,8 +31,9 @@ class GroupDatasetSpiderRefreshTest {
     private final GroupDatasetService groupService = mock(GroupDatasetService.class);
     private final SpiderService spiders = mock(SpiderService.class);
     private final GroupDatasetDataMapper copies = mock(GroupDatasetDataMapper.class);
+    private final ImageService images = mock(ImageService.class);
     private final DatasetServiceImpl service = new DatasetServiceImpl(datasets, rows, groups, groupService,
-            spiders, null, datasetRows, null, null, null, copies);
+            spiders, null, datasetRows, images, null, null, copies);
     private final GroupDatasetConfig config = new GroupDatasetConfig();
 
     @BeforeEach
@@ -57,6 +59,66 @@ class GroupDatasetSpiderRefreshTest {
         when(datasets.findById("dataset")).thenReturn(Optional.of(dataset));
         when(rows.findByGroupName("group")).thenReturn(List.of());
         when(copies.toCopyEntityList(anyList())).thenAnswer(invocation -> invocation.getArgument(0));
+    }
+
+    @Test
+    void downloadsImagesUsingGroupSettingsSharedByDatasets() throws Exception {
+        config.setAutoImageDownload(true);
+        config.setImageByKey("cover");
+        config.setImageSaveFolder(directory.toString());
+        var row = new GroupDatasetData();
+        row.setPrimeValue("one");
+        row.setJson(new HashMap<>(Map.of("id", "one", "cover", "https://example.test/cover.jpg",
+                "__image_referer", "https://example.test/detail")));
+        when(rows.findByGroupName("group")).thenReturn(List.of(row));
+        var first = datasets.findById("dataset").orElseThrow();
+        first.getConfig().setType(Global.DatasetConfigType.all);
+        var second = new Dataset();
+        second.setName("second");
+        var secondConfig = new DatasetConfig();
+        secondConfig.setGroupName("group");
+        secondConfig.setType(Global.DatasetConfigType.all);
+        second.setConfig(secondConfig);
+        when(datasets.findById("second")).thenReturn(Optional.of(second));
+
+        service.refreshData("dataset");
+        service.refreshData("second");
+
+        verify(images, times(2)).downloadImageFromUrl("https://example.test/cover.jpg", directory.toString(),
+                "one", Map.of(), null, "https://example.test/detail");
+    }
+
+    @Test
+    void disabledGroupDoesNotDownloadImages() throws Exception {
+        config.setAutoImageDownload(false);
+        var dataset = datasets.findById("dataset").orElseThrow();
+        dataset.getConfig().setType(Global.DatasetConfigType.all);
+
+        service.refreshData("dataset");
+
+        verifyNoInteractions(images);
+        verify(rows).findByGroupName("group");
+    }
+
+    @Test
+    void skipsExistingImagesAndRowsWithoutGroupImageField() throws Exception {
+        config.setAutoImageDownload(true);
+        config.setImageByKey("cover");
+        config.setImageSaveFolder(directory.toString());
+        java.nio.file.Files.writeString(directory.resolve("one"), "existing");
+        var existing = new GroupDatasetData();
+        existing.setPrimeValue("one");
+        existing.setJson(new HashMap<>(Map.of("cover", "https://example.test/one.jpg")));
+        var missing = new GroupDatasetData();
+        missing.setPrimeValue("two");
+        missing.setJson(new HashMap<>());
+        when(rows.findByGroupName("group")).thenReturn(List.of(existing, missing));
+        var dataset = datasets.findById("dataset").orElseThrow();
+        dataset.getConfig().setType(Global.DatasetConfigType.all);
+
+        service.refreshData("dataset");
+
+        verifyNoInteractions(images);
     }
 
     @Test
